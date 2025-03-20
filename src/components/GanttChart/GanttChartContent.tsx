@@ -16,9 +16,9 @@ const GanttChartContent: React.FC<GanttChartContentProps> = ({ showSidebar, clas
           height: '100%',
           width: '100%',
           display: 'grid',
-          gridTemplateColumns: showSidebar ? '0.2fr 1fr' : '0fr 1fr',
           borderBottom: '0px solid gray',
-          transition: 'grid-template-columns var(--gantt-transition-duration)',
+          gridTemplateColumns: showSidebar ? 'var(--gantt-sidebar-width-fr) var(--gantt-timeline-width-fr)' : '0fr 1fr',
+          transition: 'grid-template-columns var(--gantt-sidebar-transition-duration)',
         }}>
         <GanttChartDataRowPanel className={`${className}-data-panel`} />
         <GanttChartTimelinePanel />

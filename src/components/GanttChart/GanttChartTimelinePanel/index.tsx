@@ -5,6 +5,7 @@ import { useGanttChart } from '../../../context/GanttChartContext';
 import { useCallback, useEffect, useRef } from 'react';
 import { DateRangeType, MonthDataType } from '../../../types/dateRangeType';
 import { initializeDateRange } from '../../../utils/dateUtils';
+import './styles.css';
 
 const GanttChartTimelinePanel = () => {
   const {
@@ -190,12 +191,9 @@ const GanttChartTimelinePanel = () => {
     <div
       ref={timelinePanelRef}
       onMouseDown={handleTimelinePanelMouseDown}
+      className='gnatt-timeline-panel'
       style={{
-        display: 'grid',
-        gridTemplateRows: 'auto auto 1fr',
-        overflowX: 'scroll',
         cursor: interactionState.mode === 'timelineDragging' ? 'grabbing' : 'grab',
-        height: '100%',
       }}>
       <TimeAxisPrimary />
       <TimeAxisSecondary />

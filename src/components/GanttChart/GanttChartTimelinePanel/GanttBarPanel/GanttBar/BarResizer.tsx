@@ -33,17 +33,11 @@ const BarResizer: React.FC<ResizeButtonProps> = ({ position, ganttBarRef, row })
 
   return (
     <div
-      className='bar-resizer'
       onMouseDown={handleMouseDown}
+      className='gantt-bar-resize-handle'
       style={{
-        position: 'absolute',
-        top: '0',
         [position]: '0',
-        height: '100%',
-        width: '8px',
-        background: 'rgba(0,0,0,0.2)',
         cursor: row.isLocked ? 'grab' : 'ew-resize',
-        zIndex: 30,
       }}
     />
   );

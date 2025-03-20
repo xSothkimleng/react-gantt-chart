@@ -30,35 +30,10 @@ const BarProgressIndicator: React.FC<BarProgressIndicatorProps> = ({ item }) => 
         aria-valuenow={calculateProgress()}
         aria-valuemin={0}
         aria-valuemax={100}
+        className='gantt-bar-progress-indicator'
         style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          height: '100%',
           width: `${calculateProgress()}%`,
-          background: 'rgba(41, 185, 106, 0.6)',
-          pointerEvents: 'none',
-          borderRight: '1px solid rgba(0,0,0,0.1)',
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-        }}>
-        <div
-          style={{
-            position: 'absolute',
-            right: '4px',
-            zIndex: 20,
-            fontSize: '0.9em',
-            padding: '0 4px',
-            backgroundColor: 'rgba(41, 185, 106, 0.8)',
-            borderRadius: '2px',
-            minWidth: '40px',
-            textAlign: 'center',
-          }}
-          role='status'
-          aria-label={`Progress: ${calculateProgress().toFixed(0)}%`}
-        />
-      </div>
+        }}></div>
     )
   );
 };

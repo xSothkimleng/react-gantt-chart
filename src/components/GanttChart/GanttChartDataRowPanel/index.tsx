@@ -4,6 +4,8 @@ import { useGanttChart } from '../../../context/GanttChartContext';
 import { Row } from '../../../types/row';
 import { progressFormatter } from '../../../utils/progressFormater';
 
+import './styles.css';
+
 interface GanttChartDataRowPanelProps {
   className?: string;
 }
@@ -57,12 +59,9 @@ const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ classNa
     return (
       <div key={row.id}>
         <div
+          className='gantt-data-panel-row-container'
           style={{
-            display: 'grid',
             gridTemplateColumns,
-            borderBottom: '1px solid lightgray',
-            minWidth: 'max-content',
-            overflow: 'hidden',
           }}>
           {visibleFields.map(([key], index) => (
             <div
@@ -70,56 +69,25 @@ const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ classNa
               onClick={() => getSelectedRow && getSelectedRow(row)}
               onMouseEnter={() => setHoveredRowId(row.id.toString())}
               onMouseLeave={() => setHoveredRowId(null)}
+              className='gantt-data-panel-row-cell'
               style={{
-                position: 'relative',
-                borderLeft: '1px solid lightgray',
-                height: '40px',
-                display: 'flex',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                padding: '0 10px',
                 paddingLeft: key === 'name' ? `${depth * 20}px` : '10px',
-                fontSize: '0.8em',
                 fontWeight: row.highlight ? 'bold' : 'normal',
                 cursor: getSelectedRow ? 'pointer' : 'default',
               }}>
               {key === 'name' && hasChildren && (
                 <button
+                  className='gantt-data-panel-collapse-button '
                   onClick={e => {
                     e.stopPropagation();
                     toggleCollapse(row.id.toString());
-                  }}
-                  style={{
-                    marginRight: '8px',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    flexShrink: 0,
                   }}>
                   {isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
                 </button>
               )}
-              <p
-                style={{
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  margin: '0',
-                  width: '100%',
-                }}>
-                {renderRowContent(row, key)}
-              </p>
+              <p className='gantt-data-panel-row-cell-content'>{renderRowContent(row, key)}</p>
               {key === 'name' && ButtonContainer && hoveredRowId === row.id.toString() && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    right: '0',
-                    top: '0',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}>
+                <div className='gantt-data-panel-row-cell-action-buttons'>
                   <ButtonContainer />
                 </div>
               )}
@@ -132,52 +100,16 @@ const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ classNa
   };
 
   return (
-    <div
-      className={`gantt-data-panel ${className}`}
-      style={{
-        display: 'grid',
-        gridTemplateRows: 'auto 1fr',
-        overflowX: 'scroll',
-        overflowY: 'hidden',
-        height: '100%',
-        borderRight: '1px solid lightgray',
-        borderTop: '1px solid lightgray',
-      }}>
+    <div className={`gantt-data-panel ${className}`}>
       {/* Table Header */}
       <div
+        className='gantt-data-panel-header'
         style={{
-          display: 'grid',
           gridTemplateColumns,
-          borderBottom: '1px solid lightgray',
-          height: '49px',
-          background: '#f0f0f0',
-          minWidth: 'max-content',
         }}>
         {visibleFields.map(([key, field]) => (
-          <div
-            key={key}
-            style={{
-              fontWeight: '600',
-              textAlign: 'left',
-              borderLeft: '1px solid lightgray',
-              display: 'flex',
-              justifyContent: 'flex-start',
-              alignItems: 'center',
-              padding: '0 10px',
-              fontSize: '0.8em',
-              overflow: 'hidden',
-            }}>
-            <p
-              style={{
-                padding: '0',
-                margin: '0',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                width: '100%',
-              }}>
-              {field.name}
-            </p>
+          <div key={key} className='gantt-data-panel-header-cell'>
+            <p className='gantt-data-panel-header-cell-content '>{field.name}</p>
           </div>
         ))}
       </div>

@@ -9,6 +9,7 @@ import {
   calculateGanttBarPositionFromInitialStartingPoint,
 } from '../../../../../utils/ganttBarUtils';
 import { progressFormatter } from '../../../../../utils/progressFormater';
+import './styles.css';
 
 type GanttBarProps = {
   index: number;
@@ -35,12 +36,12 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
       row.currentProgress,
       row.maxProgress,
       {
-        comma: true, // Enable comma formatting
-        decimal: row.progressIndicatorLabel?.decimal ?? 2, // Use specified decimal places (default: 2)
-        prefix: row.progressIndicatorLabel?.prefix ?? '', // Optional currency prefix (e.g., "$")
-        suffix: row.progressIndicatorLabel?.suffix ?? '', // Optional percentage suffix
+        comma: true,
+        decimal: row.progressIndicatorLabel?.decimal ?? 2,
+        prefix: row.progressIndicatorLabel?.prefix ?? '',
+        suffix: row.progressIndicatorLabel?.suffix ?? '',
       },
-      row.progressIndicatorLabelFormatter, // Custom formatter (if defined)
+      row.progressIndicatorLabelFormatter, // Custom formatter
     );
   };
 
@@ -105,40 +106,24 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
       <div
         ref={ganttBarRef}
         data-bar-id={row.id.toString()}
-        className='gantt-bar'
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         role='button'
         aria-label={`GanttBar: ${row.name}`}
         aria-busy={isLoading}
+        className='gantt-bar'
         style={{
-          position: 'absolute',
           top: `${index * 41}px`,
           left: `${positionLeft}px`,
           width: `${width}px`,
-          height: '40px',
           cursor: interactionState.mode === 'barResizing' ? 'ew-resize' : 'grab',
-          zIndex: 11,
-          display: 'flex',
-          alignItems: 'center',
           opacity: isHovered ? 0.9 : 1,
-          transition: 'opacity 0.2s ease-in-out',
         }}>
         <div
+          className='gantt-bar-cell-overlay'
           style={{
-            position: 'relative',
             background: row.highlight ? '#32de84' : '#4169E1',
-            color: 'white',
-            borderRadius: '1px',
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            overflow: 'hidden',
-            width: '100%',
-            height: '30px',
-            padding: '0 10px',
             boxShadow: isHovered ? '0 2px 4px rgba(0,0,0,0.2)' : 'none',
-            transition: 'box-shadow 0.2s ease-in-out',
           }}>
           {isLoading ? (
             <LoadingSpinner />
@@ -160,38 +145,11 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
                 ganttBarRef={ganttBarRef}
                 startLeftPosition={startLeftPosition}
               />
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  zIndex: 10,
-                  flex: 1,
-                  padding: '0 8px',
-                  position: 'relative',
-                }}>
-                <p
-                  style={{
-                    margin: 0,
-                    padding: 0,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    userSelect: 'none',
-                    fontSize: '0.9em',
-                  }}
-                  title={row.name}>
+              <div className='gantt-bar-text-cell'>
+                <p className='gantt-bar-text' title={row.name}>
                   {row.name}
                 </p>
-                {row.showProgressIndicator?.showLabel && (
-                  <span
-                    style={{
-                      fontSize: '0.9em',
-                      whiteSpace: 'nowrap',
-                    }}>
-                    {progressDisplay()}
-                  </span>
-                )}
+                {row.showProgressIndicator?.showLabel && <span className='gnatt-bar-progress-text'>{progressDisplay()}</span>}
               </div>
             </>
           )}

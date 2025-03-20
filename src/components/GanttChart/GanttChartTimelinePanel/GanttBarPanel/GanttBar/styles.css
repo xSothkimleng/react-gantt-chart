@@ -1,0 +1,69 @@
+.gantt-bar {
+  position: absolute;
+  height: 40px;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.gantt-bar-cell-overlay {
+  position: relative;
+  color: white;
+  border-radius: 1px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.gantt-bar-text-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+  flex: 1;
+  padding: 0 8px;
+  position: relative;
+}
+
+.gantt-bar-text {
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+  font-size: 0.9em;
+}
+
+.gnatt-bar-progress-text {
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.gantt-bar-progress-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: rgba(41, 185, 106, 0.6);
+  pointer-events: none;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.gantt-bar-resize-handle {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 30;
+}

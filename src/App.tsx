@@ -132,7 +132,7 @@ function App() {
         <button onClick={() => setShowSidebar(!showSidebar)}>Show Sidebar</button>
         <div style={{ display: 'flex', gap: '1px' }}>
           <button onClick={zoomOut} style={{ cursor: 'pointer', padding: '5px' }}>
-            <SubtractIcon /> Zoom Out ASDASD
+            <SubtractIcon /> Zoom Out
           </button>
           <button onClick={zoomIn} style={{ cursor: 'pointer', padding: '5px' }}>
             <PlusIcon /> Zoom In
@@ -147,6 +147,7 @@ function App() {
         showSidebar={showSidebar}
         getSelectedRow={getSelectedRow}
         ButtonContainer={ButtonContainer}
+        className=''
       />
     </div>
   );
