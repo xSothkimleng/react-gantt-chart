@@ -4,55 +4,55 @@
   border-top: 1px solid lightgray;
   border-bottom: 1px solid lightgray;
   border-right: 1px solid lightgray;
-  font-weight: 500;
   box-sizing: border-box;
   user-select: none;
-  background: #f0f0f0;
-  font-size: 0.8em;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   padding: 0 10px;
+  font-size: var(--gantt-primary-header-font-size);
+  font-weight: var(--gantt-primary-header-font-weight);
+  background: var(--gantt-primary-header-background);
 }
 
 .gantt-primary-header-quarter-month {
   border-top: 1px solid lightgray;
   border-bottom: 1px solid lightgray;
   border-right: 1px solid lightgray;
-  font-weight: bold;
   user-select: none;
-  background: #f0f0f0;
-  font-size: 0.8em;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: var(--gantt-primary-header-font-size);
+  font-weight: var(--gantt-primary-header-font-weight);
+  background: var(--gantt-primary-header-background);
 }
 
 .gantt-primary-header-yearly {
   border-top: 1px solid lightgray;
   border-bottom: 1px solid lightgray;
   border-right: 1px solid lightgray;
-  font-weight: bold;
   box-sizing: border-box;
   user-select: none;
-  background: #f0f0f0;
-  font-size: 0.8em;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   padding: 0 10px;
+  font-size: var(--gantt-primary-header-font-size);
+  font-weight: var(--gantt-primary-header-font-weight);
+  background: var(--gantt-primary-header-background);
 }
 
 .gantt-primary-header-quarter-year {
   border-top: 1px solid lightgray;
   border-bottom: 1px solid lightgray;
   border-right: 1px solid lightgray;
-  font-weight: bold;
   user-select: none;
   box-sizing: border-box;
-  background: #f0f0f0;
-  font-size: 0.8em;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: var(--gantt-primary-header-font-size);
+  font-weight: var(--gantt-primary-header-font-weight);
+  background: var(--gantt-primary-header-background);
 }

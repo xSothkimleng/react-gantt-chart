@@ -6,11 +6,7 @@ import { progressFormatter } from '../../../utils/progressFormater';
 
 import './styles.css';
 
-interface GanttChartDataRowPanelProps {
-  className?: string;
-}
-
-const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ className = '' }) => {
+const GanttChartDataRowPanel = () => {
   const { allRow, columnSetting, getSelectedRow, collapsedItems, toggleCollapse, ButtonContainer } = useGanttChart();
 
   const getColumnWidth = (key: string) => {
@@ -100,7 +96,7 @@ const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ classNa
   };
 
   return (
-    <div className={`gantt-data-panel ${className}`}>
+    <div className='gantt-data-panel'>
       {/* Table Header */}
       <div
         className='gantt-data-panel-header'

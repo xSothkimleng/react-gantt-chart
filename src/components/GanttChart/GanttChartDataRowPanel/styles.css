@@ -7,27 +7,26 @@
   overflow-x: scroll;
   overflow-y: hidden;
   height: 100%;
-  border-right: 1px solid lightgray;
-  border-top: 1px solid lightgray;
+  border-right: 1px solid var(--gantt-global-border-color);
+  border-top: 1px solid var(--gantt-global-border-color);
 }
 
 /* Panel Header Styles */
 .gantt-data-panel-header {
   display: grid;
-  border-bottom: 1px solid lightgray;
+  border-bottom: 1px solid var(--gantt-global-border-color);
   height: 49px;
-  background: #f0f0f0;
   min-width: max-content;
+  background: var(--gantt-data-panel-header-background);
 }
 
 .gantt-data-panel-header-cell {
   text-align: left;
-  border-left: 1px solid lightgray;
+  border-left: 1px solid var(--gantt-global-border-color);
   display: flex;
   justify-content: flex-start;
   align-items: center;
   padding: 0 10px;
-  font-size: 0.8em;
   overflow: hidden;
 }
 
@@ -38,26 +37,16 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
-  font-weight: 600;
+  font-weight: var(--gantt-data-panel-header-font-weight);
+  font-size: var(--gantt-data-panel-header-font-size);
 }
 
 /* Panel Data Row */
 .gantt-data-panel-row-container {
   display: grid;
-  border-bottom: 1px solid lightgray;
   min-width: max-content;
   overflow: hidden;
-}
-
-.gantt-data-panel-row-cell {
-  position: relative;
-  border-left: 1px solid lightgray;
-  height: 40px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 0 10px;
-  font-size: 0.8em;
+  border-bottom: 1px solid var(--gantt-global-border-color);
 }
 
 .gantt-data-panel-collapse-button {
@@ -69,12 +58,25 @@
   flex-shrink: 0;
 }
 
+.gantt-data-panel-row-cell {
+  position: relative;
+  border-left: 1px solid var(--gantt-global-border-color);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 40px;
+  padding: 0 10px;
+  background: var(--gantt-data-panel-row-background);
+}
+
 .gantt-data-panel-row-cell-content {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0;
   width: 100%;
+  font-size: var(--gantt-data-panel-row-font-size);
+  font-weight: var(--gantt-data-panel-row-font-weight);
 }
 .gantt-data-panel-row-cell-action-buttons {
   position: absolute;

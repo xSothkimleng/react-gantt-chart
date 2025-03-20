@@ -9,7 +9,6 @@
 
 .gantt-bar-cell-overlay {
   position: relative;
-  color: white;
   border-radius: 1px;
   display: flex;
   justify-content: flex-start;
@@ -38,12 +37,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
   user-select: none;
-  font-size: 0.9em;
+  color: var(--gantt-bar-text-color);
+  font-size: var(--gantt-bar-text-font-size);
+  font-weight: var(--gantt-bar-text-font-weight);
 }
 
 .gnatt-bar-progress-text {
-  font-size: 0.9em;
   white-space: nowrap;
+  color: var(--gantt-bar-progress-text-color);
+  font-size: var(--gantt-bar-progress-text-font-size);
+  font-weight: var(--gantt-bar-progress-text-font-weight);
 }
 
 .gantt-bar-progress-indicator {
@@ -51,19 +54,19 @@
   left: 0;
   top: 0;
   height: 100%;
-  background: rgba(41, 185, 106, 0.6);
   pointer-events: none;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: flex-end;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--gantt-bar-progress-indicator-background);
 }
 
 .gantt-bar-resize-handle {
   position: absolute;
   top: 0;
   height: 100%;
-  width: 8px;
-  background: rgba(0, 0, 0, 0.2);
   z-index: 30;
+  width: var(--gantt-bar-resize-handle-width);
+  background: var(--gantt-bar-resize-handle-background);
 }

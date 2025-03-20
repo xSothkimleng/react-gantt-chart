@@ -1,7 +1,49 @@
 :root {
-  /* wrapper */
+  /* Gantt Chart Wrapper */
   --gantt-sidebar-width-fr: 0.2fr;
   --gantt-timeline-width-fr: 1fr;
+  --gantt-global-border-color: lightGray;
+
   /* Transitions Side bar*/
-  --gantt-sidebar-transition-duration: 0.5s;
+  --gantt-sidebar-transition-duration: 0.05s;
+
+  /* Data Row Panel */
+  --gantt-data-panel-header-background: #f0f0f0;
+  --gantt-data-panel-header-font-weight: 600;
+  --gantt-data-panel-header-font-size: 0.9em;
+  --gantt-data-panel-row-background: #f9f9f9;
+  --gantt-data-panel-row-font-size: 0.9em;
+  --gantt-data-panel-row-font-weight: 400;
+
+  /* Timeline Primary Header */
+  --gantt-primary-header-background: #f0f0f0;
+  --gantt-primary-header-font-weight: 500;
+  --gantt-primary-header-font-size: 0.8em;
+
+  /* Timeline Secondary Header */
+  --gantt-secondary-header-background: #f0f0f0;
+  --gantt-secondary-header-font-weight: 400;
+  --gantt-secondary-header-font-size: 0.8em;
+
+  /* Timeline Panel */
+  /* Gantt Bar */
+  --gantt-bar-text-color: white;
+  --gantt-bar-text-font-size: 0.9em;
+  --gantt-bar-text-font-weight: 400;
+  /* Gantt Bar Parent with Collapse (highlighted) */
+  --gantt-bar-default-background: #4169e1;
+  --gantt-bar-highlight-background: #32de84;
+  --gantt-bar-boxShadow-hover: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  /* Gantt Bar Progress Text */
+  --gantt-bar-progress-text-color: white;
+  --gantt-bar-progress-text-font-size: 0.9em;
+  --gantt-bar-progress-text-font-weight: 400;
+
+  /* Gantt Bar Progress Indicator*/
+  --gantt-bar-progress-indicator-background: rgba(41, 185, 106, 0.6);
+
+  /* Gantt Bar Resizer Button */
+  --gantt-bar-resize-handle-background: rgba(0, 0, 0, 0.2);
+  --gantt-bar-resize-handle-width: 8px;
 }

@@ -122,8 +122,8 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
         <div
           className='gantt-bar-cell-overlay'
           style={{
-            background: row.highlight ? '#32de84' : '#4169E1',
-            boxShadow: isHovered ? '0 2px 4px rgba(0,0,0,0.2)' : 'none',
+            background: row.highlight ? 'var(--gantt-bar-highlight-background)' : 'var(--gantt-bar-default-background)',
+            boxShadow: isHovered ? 'var(--gantt-bar-boxShadow-hover)' : 'none',
           }}>
           {isLoading ? (
             <LoadingSpinner />
