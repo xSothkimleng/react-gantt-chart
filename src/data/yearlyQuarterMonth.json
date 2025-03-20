@@ -1,0 +1,169 @@
+[
+  {
+    "id": 1,
+    "name": "Q1",
+    "start": "2024-01-01",
+    "end": "2024-04-01",
+    "currentProgress": 10,
+    "maxProgress": 100,
+    "highlight": true,
+    "isLocked": true,
+    "children": [
+      {
+        "id": 13123,
+        "name": "JANUARY",
+        "start": "2024-01-01",
+        "end": "2024-02-01",
+        "isLocked": true
+      },
+      {
+        "id": 3,
+        "name": "FEBRUARY",
+        "start": "2024-02-01",
+        "end": "2024-03-01",
+        "isLocked": true
+      },
+      {
+        "id": 4,
+        "name": "MARCH",
+        "start": "2024-03-01",
+        "end": "2024-04-01",
+        "isLocked": true
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "SECOND QUARTER",
+    "start": "2024-04-01",
+    "end": "2024-07-01",
+    "currentProgress": 20,
+    "maxProgress": 100,
+    "highlight": true,
+    "isLocked": true,
+    "children": [
+      {
+        "id": 6,
+        "name": "APRIL",
+        "start": "2024-04-01",
+        "end": "2024-05-01",
+        "isLocked": true
+      },
+      {
+        "id": 7,
+        "name": "MAY",
+        "start": "2024-05-01",
+        "end": "2024-06-01",
+        "isLocked": true
+      },
+      {
+        "id": 8,
+        "name": "JUNE",
+        "start": "2024-06-01",
+        "end": "2024-07-01",
+        "isLocked": true
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "THIRD QUARTER",
+    "start": "2024-07-01",
+    "end": "2024-10-01",
+    "highlight": true,
+    "isLocked": true,
+    "children": [
+      {
+        "id": 10,
+        "name": "JULY",
+        "start": "2024-07-01",
+        "end": "2024-08-01",
+        "isLocked": true
+      },
+      {
+        "id": 11,
+        "name": "AUGUST",
+        "start": "2024-08-01",
+        "end": "2024-09-01",
+        "isLocked": true
+      },
+      {
+        "id": 12,
+        "name": "SEPTEMBER",
+        "start": "2024-09-01",
+        "end": "2024-10-01",
+        "isLocked": true
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "FOURTH QUARTER",
+    "start": "2024-10-01",
+    "end": "2025-01-01",
+    "highlight": true,
+    "isLocked": true,
+    "children": [
+      {
+        "id": 14,
+        "name": "OCTOBER",
+        "start": "2024-10-01",
+        "end": "2024-11-01",
+        "isLocked": true
+      },
+      {
+        "id": 15,
+        "name": "NOVEMBER",
+        "start": "2024-11-01",
+        "end": "2024-12-01",
+        "isLocked": true
+      },
+      {
+        "id": 16,
+        "name": "DECEMBER",
+        "start": "2024-12-01",
+        "end": "2025-01-01",
+        "isLocked": true
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "No Children Example",
+    "start": "2024-10-01",
+    "end": "2025-01-01",
+    "isLocked": true
+  },
+  {
+    "id": 14,
+    "name": "Nested Children Example",
+    "start": "2024-10-01",
+    "end": "2025-01-01",
+    "highlight": true,
+    "children": [
+      {
+        "id": 15,
+        "name": "Nested Child 1",
+        "start": "2024-10-01",
+        "end": "2024-11-01",
+        "isLocked": true,
+        "children": [
+          {
+            "id": 17,
+            "name": "Nested Child 1.1",
+            "start": "2024-10-01",
+            "end": "2024-11-01",
+            "isLocked": false
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "name": "Nested Child 2",
+        "start": "2024-11-01",
+        "end": "2024-12-01",
+        "isLocked": true
+      }
+    ]
+  }
+]

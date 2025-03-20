@@ -1,0 +1,101 @@
+@import '../../../styles/theme.css';
+
+.gantt-data-panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  height: 100%;
+  border-right: var(--gantt-border-width) var(--gantt-border-style) var(--gantt-border-color);
+  border-top: var(--gantt-border-width) var(--gantt-border-style) var(--gantt-border-color);
+}
+
+/* Header Styles */
+.gantt-header {
+  display: grid;
+  border-bottom: var(--gantt-border-width) var(--gantt-border-style) var(--gantt-border-color);
+  height: var(--gantt-header-height);
+  background: var(--gantt-header-bg-color);
+  min-width: max-content;
+}
+
+.gantt-header-cell {
+  font-weight: var(--gantt-font-weight-header);
+  text-align: left;
+  border-left: var(--gantt-border-width) var(--gantt-border-style) var(--gantt-border-color);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 var(--gantt-cell-padding);
+  font-size: var(--gantt-font-size);
+  overflow: hidden;
+}
+
+.gantt-header-cell-content {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* Row Styles */
+.gantt-row {
+  display: grid;
+  border-bottom: var(--gantt-border-width) var(--gantt-border-style) var(--gantt-border-color);
+  min-width: max-content;
+  overflow: hidden;
+}
+
+.gantt-row:hover {
+  background-color: var(--gantt-row-hover-color);
+}
+
+/* Cell Styles */
+.gantt-cell {
+  position: relative;
+  border-left: var(--gantt-border-width) var(--gantt-border-style) var(--gantt-border-color);
+  height: var(--gantt-row-height);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 var(--gantt-cell-padding);
+  font-size: var(--gantt-font-size);
+}
+
+.gantt-cell-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  width: 100%;
+}
+
+/* Collapse Button */
+.gantt-collapse-button {
+  margin-right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--gantt-button-padding);
+  flex-shrink: 0;
+}
+
+/* Action Buttons Container */
+.gantt-action-buttons {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* No Data Message */
+.gantt-no-data {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--gantt-cell-padding);
+  border-top: var(--gantt-border-width) var(--gantt-border-style) var(--gantt-border-color);
+}

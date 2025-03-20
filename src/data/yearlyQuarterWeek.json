@@ -1,0 +1,133 @@
+[
+  {
+    "id": 1,
+    "name": "Q1",
+    "start": "2025-01-01",
+    "end": "2025-03-31",
+    "currentProgress": 8000,
+    "maxProgress": 10000,
+    "showProgressIndicator": {
+      "showLabel": true,
+      "showProgressBar": true
+    },
+    "progressIndicatorLabel": {
+      "showLabel": true,
+      "showProgressBar": true
+    },
+    "highlight": true,
+    "children": [
+      { "id": 5, "name": "Week 1", "start": "2025-01-01", "end": "2025-01-05" },
+      { "id": 6, "name": "Week 2", "start": "2025-01-06", "end": "2025-01-12" },
+      { "id": 7, "name": "Week 3", "start": "2025-01-13", "end": "2025-01-19" },
+      {
+        "id": 8,
+        "name": "Week 4",
+        "start": "2025-01-20",
+        "end": "2025-01-26",
+        "highlight": true,
+        "children": [
+          {
+            "id": 51,
+            "name": "Week 1",
+            "start": "2025-01-01",
+            "end": "2025-01-05",
+            "children": [
+              { "id": 512, "name": "Week 1", "start": "2025-01-01", "end": "2025-01-05" },
+              { "id": 613, "name": "Week 2", "start": "2025-01-06", "end": "2025-01-12" },
+              { "id": 713, "name": "Week 3", "start": "2025-01-13", "end": "2025-01-19" },
+              { "id": 813, "name": "Week 4", "start": "2025-01-20", "end": "2025-01-26" }
+            ]
+          },
+          { "id": 61, "name": "Week 2", "start": "2025-01-06", "end": "2025-01-12" },
+          { "id": 71, "name": "Week 3", "start": "2025-01-13", "end": "2025-01-19" },
+          { "id": 81, "name": "Week 4", "start": "2025-01-20", "end": "2025-01-26" }
+        ]
+      },
+      { "id": 9, "name": "Week 5", "start": "2025-01-27", "end": "2025-02-02" },
+      { "id": 10, "name": "Week 6", "start": "2025-02-03", "end": "2025-02-09" },
+      { "id": 11, "name": "Week 7", "start": "2025-02-10", "end": "2025-02-16" },
+      { "id": 12, "name": "Week 8", "start": "2025-02-17", "end": "2025-02-23" },
+      { "id": 13, "name": "Week 9", "start": "2025-02-24", "end": "2025-03-02" },
+      { "id": 14, "name": "Week 10", "start": "2025-03-03", "end": "2025-03-09" },
+      { "id": 15, "name": "Week 11", "start": "2025-03-10", "end": "2025-03-16" },
+      { "id": 16, "name": "Week 12", "start": "2025-03-17", "end": "2025-03-23" },
+      { "id": 17, "name": "Week 13", "start": "2025-03-24", "end": "2025-03-31" }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Q2",
+    "start": "2025-04-01",
+    "end": "2025-07-01",
+    "currentProgress": 0,
+    "maxProgress": 100,
+    "highlight": true,
+    "isLocked": true,
+    "children": [
+      { "id": 19, "name": "Week 1", "start": "2025-04-01", "end": "2025-04-06" },
+      { "id": 20, "name": "Week 2", "start": "2025-04-07", "end": "2025-04-13" },
+      { "id": 21, "name": "Week 3", "start": "2025-04-14", "end": "2025-04-20" },
+      { "id": 22, "name": "Week 4", "start": "2025-04-21", "end": "2025-04-27" },
+      { "id": 23, "name": "Week 5", "start": "2025-04-28", "end": "2025-05-04" },
+      { "id": 24, "name": "Week 6", "start": "2025-05-05", "end": "2025-05-11" },
+      { "id": 25, "name": "Week 7", "start": "2025-05-12", "end": "2025-05-18" },
+      { "id": 26, "name": "Week 8", "start": "2025-05-19", "end": "2025-05-25" },
+      { "id": 27, "name": "Week 9", "start": "2025-05-26", "end": "2025-06-01" },
+      { "id": 28, "name": "Week 10", "start": "2025-06-02", "end": "2025-06-08" },
+      { "id": 29, "name": "Week 11", "start": "2025-06-09", "end": "2025-06-15" },
+      { "id": 30, "name": "Week 12", "start": "2025-06-16", "end": "2025-06-22" },
+      { "id": 31, "name": "Week 13", "start": "2025-06-23", "end": "2025-06-29" },
+      { "id": 32, "name": "Week 14", "start": "2025-06-30", "end": "2025-07-06" }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Q3",
+    "start": "2025-07-01",
+    "end": "2025-10-01",
+    "highlight": true,
+    "isLocked": true,
+    "children": [
+      { "id": 33, "name": "Week 1", "start": "2025-07-01", "end": "2025-07-06" },
+      { "id": 34, "name": "Week 2", "start": "2025-07-07", "end": "2025-07-13" },
+      { "id": 35, "name": "Week 3", "start": "2025-07-14", "end": "2025-07-20" },
+      { "id": 36, "name": "Week 4", "start": "2025-07-21", "end": "2025-07-27" },
+      { "id": 37, "name": "Week 5", "start": "2025-07-28", "end": "2025-08-03" },
+      { "id": 38, "name": "Week 6", "start": "2025-08-04", "end": "2025-08-10" },
+      { "id": 39, "name": "Week 7", "start": "2025-08-11", "end": "2025-08-17" },
+      { "id": 40, "name": "Week 8", "start": "2025-08-18", "end": "2025-08-24" },
+      { "id": 41, "name": "Week 9", "start": "2025-08-25", "end": "2025-08-31" },
+      { "id": 42, "name": "Week 10", "start": "2025-09-01", "end": "2025-09-07" },
+      { "id": 43, "name": "Week 11", "start": "2025-09-08", "end": "2025-09-14" },
+      { "id": 44, "name": "Week 12", "start": "2025-09-15", "end": "2025-09-21" },
+      { "id": 45, "name": "Week 13", "start": "2025-09-22", "end": "2025-09-28" },
+      { "id": 46, "name": "Week 14", "start": "2025-09-29", "end": "2025-10-05" }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Q4",
+    "start": "2025-10-01",
+    "end": "2025-12-31",
+    "currentProgress": 0,
+    "maxProgress": 10000,
+    "highlight": true,
+    "isLocked": true,
+    "children": [
+      { "id": 47, "name": "Week 1", "start": "2025-10-01", "end": "2025-10-05" },
+      { "id": 48, "name": "Week 2", "start": "2025-10-06", "end": "2025-10-12" },
+      { "id": 49, "name": "Week 3", "start": "2025-10-13", "end": "2025-10-19" },
+      { "id": 50, "name": "Week 4", "start": "2025-10-20", "end": "2025-10-26" },
+      { "id": 51, "name": "Week 5", "start": "2025-10-27", "end": "2025-11-02" },
+      { "id": 52, "name": "Week 6", "start": "2025-11-03", "end": "2025-11-09" },
+      { "id": 53, "name": "Week 7", "start": "2025-11-10", "end": "2025-11-16" },
+      { "id": 54, "name": "Week 8", "start": "2025-11-17", "end": "2025-11-23" },
+      { "id": 55, "name": "Week 9", "start": "2025-11-24", "end": "2025-11-30" },
+      { "id": 56, "name": "Week 10", "start": "2025-12-01", "end": "2025-12-07" },
+      { "id": 57, "name": "Week 11", "start": "2025-12-08", "end": "2025-12-14" },
+      { "id": 58, "name": "Week 12", "start": "2025-12-15", "end": "2025-12-21" },
+      { "id": 59, "name": "Week 13", "start": "2025-12-22", "end": "2025-12-28" },
+      { "id": 60, "name": "Week 14", "start": "2025-12-29", "end": "2026-01-04" }
+    ]
+  }
+]

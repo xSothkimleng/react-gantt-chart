@@ -1,0 +1,33 @@
+/* src/styles/theme.css */
+
+:root {
+  /* Colors */
+  --gantt-primary-color: #4a90e2;
+  --gantt-secondary-color: #f5f5f5;
+  --gantt-text-color: #333333;
+  --gantt-border-color: lightgray;
+  --gantt-highlight-color: #e6f7ff;
+  --gantt-header-bg-color: #f0f0f0;
+  --gantt-row-hover-color: #f9f9f9;
+
+  /* Dimensions */
+  --gantt-row-height: 40px;
+  --gantt-header-height: 49px;
+  --gantt-cell-padding: 10px;
+  --gantt-indent-width: 20px;
+
+  /* Typography */
+  --gantt-font-size: 0.8em;
+  --gantt-font-family: inherit;
+  --gantt-font-weight-normal: normal;
+  --gantt-font-weight-bold: bold;
+  --gantt-font-weight-header: 600;
+
+  /* Transitions */
+  --gantt-transition-duration: 0s;
+
+  /* Controls */
+  --gantt-button-color: rgba(0, 0, 0, 0.5);
+  --gantt-button-hover-color: rgba(0, 0, 0, 0.8);
+  --gantt-button-padding: 4px;
+}
