@@ -8,8 +8,8 @@ import QuarterMonthView from './views/SecondaryHeader/QuarterMonthView';
 import { useConfigStore, useUIStore } from '../../../../stores';
 
 const TimeAxisSecondary = () => {
-  const { isLoading } = useUIStore();
-  const { chartTimeFrameView } = useConfigStore();
+  const { isLoading } = useUIStore(state => ({ isLoading: state.isLoading }));
+  const { chartTimeFrameView } = useConfigStore(state => ({ chartTimeFrameView: state.chartTimeFrameView }));
 
   if (isLoading) {
     return (

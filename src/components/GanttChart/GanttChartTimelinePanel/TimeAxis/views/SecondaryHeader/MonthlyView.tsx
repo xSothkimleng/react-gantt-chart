@@ -1,8 +1,12 @@
-import { useGanttChart } from '../../../../../../context/GanttChartContext';
+import { useConfigStore, useUIStore } from '../../../../../../stores';
 import './styles.css';
 
 const MonthlyView = () => {
-  const { chartDateRange, chartTimeFrameView, zoomWidth } = useGanttChart();
+  const { chartDateRange } = useUIStore(state => ({ chartDateRange: state.chartDateRange }));
+  const { chartTimeFrameView, zoomWidth } = useConfigStore(state => ({
+    chartTimeFrameView: state.chartTimeFrameView,
+    zoomWidth: state.zoomWidth,
+  }));
 
   // Function to get the day name based on the month index, day index, and year
   // @ts-expect-error - TS complains about the missing toLocaleDateString method

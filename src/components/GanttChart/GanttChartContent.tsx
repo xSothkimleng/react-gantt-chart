@@ -1,25 +1,23 @@
-// src/components/GanttChart/GanttChartContent.tsx
+import React, { useEffect } from 'react';
 import GanttChartTimelinePanel from './GanttChartTimelinePanel';
 import GanttChartDataRowPanel from './GanttChartDataRowPanel';
+import { useUIStore } from '../../stores/useUIStore';
 import '../../styles/theme.css';
-import { Column } from '../../types/column';
-import { Row } from '../../types/row';
 
 interface GanttChartContentProps {
   showSidebar: boolean;
   className?: string;
-  columnSetting?: Column;
-  getSelectedRow?: (row: Row) => void;
-  ButtonContainer?: React.FC;
 }
 
-const GanttChartContent: React.FC<GanttChartContentProps> = ({
-  showSidebar,
-  className = '',
-  columnSetting,
-  getSelectedRow,
-  ButtonContainer,
-}) => {
+const GanttChartContent: React.FC<GanttChartContentProps> = ({ showSidebar, className = '' }) => {
+  // Use the prop to update the store
+  useEffect(() => {
+    useUIStore.setState({ showSidebar });
+  }, [showSidebar]);
+
+  // We now read showSidebar from the store to ensure consistency
+  const isSidebarVisible = useUIStore(state => state.showSidebar);
+
   return (
     <div className={`gantt-chart-container ${className}`}>
       <div
@@ -29,14 +27,14 @@ const GanttChartContent: React.FC<GanttChartContentProps> = ({
           width: '100%',
           display: 'grid',
           borderBottom: '0px solid var(--gantt-global-border-color)',
-          gridTemplateColumns: showSidebar ? 'var(--gantt-sidebar-width-fr) var(--gantt-timeline-width-fr)' : '0fr 1fr',
+          gridTemplateColumns: isSidebarVisible ? 'var(--gantt-sidebar-width-fr) var(--gantt-timeline-width-fr)' : '0fr 1fr',
           transition: 'grid-template-columns var(--gantt-sidebar-transition-duration)',
         }}>
-        <GanttChartDataRowPanel columnSetting={columnSetting} getSelectedRow={getSelectedRow} ButtonContainer={ButtonContainer} />
+        <GanttChartDataRowPanel />
         <GanttChartTimelinePanel />
       </div>
     </div>
   );
 };
 
-export default GanttChartContent;
+export default React.memo(GanttChartContent);

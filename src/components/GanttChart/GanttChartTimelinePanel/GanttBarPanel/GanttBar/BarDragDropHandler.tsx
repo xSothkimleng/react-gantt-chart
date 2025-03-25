@@ -1,6 +1,7 @@
 import { useRef } from 'react';
-import { useGanttChart } from '../../../../../context/GanttChartContext';
 import { Row } from '../../../../../types/row';
+import { useInteractionStore } from '../../../../../stores/useInteractionStore';
+import { useRowsStore } from '../../../../../stores/useRowsStore';
 
 interface BarDragDropHandlerProps {
   index: number;
@@ -10,7 +11,9 @@ interface BarDragDropHandlerProps {
 }
 
 const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, row }) => {
-  const { setInteractionState, getSelectedRow } = useGanttChart();
+  const startBarDrag = useInteractionStore(state => state.startBarDrag);
+  const selectRow = useRowsStore(state => state.selectRow);
+
   // Track whether this is a click or drag
   const isClicking = useRef<boolean>(false);
 
@@ -21,8 +24,7 @@ const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, ro
     isClicking.current = true;
 
     if (ganttBarRef.current) {
-      setInteractionState({
-        mode: 'barDragging',
+      startBarDrag({
         barId: row.id.toString(),
         startX: e.clientX,
         startLeft: parseInt(ganttBarRef.current.style.left || '0', 10),
@@ -38,8 +40,8 @@ const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, ro
 
   // Handle selection if this was just a click
   const handleMouseUp = () => {
-    if (isClicking.current && getSelectedRow) {
-      getSelectedRow(row);
+    if (isClicking.current) {
+      selectRow(row);
     }
   };
 

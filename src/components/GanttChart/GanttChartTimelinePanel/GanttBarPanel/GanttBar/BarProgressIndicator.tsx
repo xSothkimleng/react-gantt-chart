@@ -38,4 +38,4 @@ const BarProgressIndicator: React.FC<BarProgressIndicatorProps> = ({ item }) => 
   );
 };
 
-export default BarProgressIndicator;
+export default React.memo(BarProgressIndicator);

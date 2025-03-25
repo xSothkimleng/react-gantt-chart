@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row } from '../../../../../types/row';
-import { useGanttChart } from '../../../../../context/GanttChartContext';
+import { useInteractionStore } from '../../../../../stores/useInteractionStore';
 
 interface ResizeButtonProps {
   position: 'left' | 'right';
@@ -11,7 +11,7 @@ interface ResizeButtonProps {
 }
 
 const BarResizer: React.FC<ResizeButtonProps> = ({ position, ganttBarRef, row }) => {
-  const { setInteractionState } = useGanttChart();
+  const startBarResize = useInteractionStore(state => state.startBarResize);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent dragging or timeline drag
@@ -19,8 +19,7 @@ const BarResizer: React.FC<ResizeButtonProps> = ({ position, ganttBarRef, row })
     if (row.isLocked) return;
 
     if (ganttBarRef.current) {
-      setInteractionState({
-        mode: 'barResizing',
+      startBarResize({
         barId: row.id.toString(),
         edge: position,
         startX: e.clientX,
@@ -43,4 +42,4 @@ const BarResizer: React.FC<ResizeButtonProps> = ({ position, ganttBarRef, row })
   );
 };
 
-export default BarResizer;
+export default React.memo(BarResizer);

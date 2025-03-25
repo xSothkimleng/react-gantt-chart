@@ -1,25 +1,83 @@
-// Define a simple storage for our functions
-type ZoomFunction = () => void;
+import { useConfigStore } from '../stores/useConfigStore';
+import { useUIStore } from '../stores/useUIStore';
+import { useInteractionStore } from '../stores/useInteractionStore';
 
-// Storage for our functions
-let zoomInFunction: ZoomFunction | null = null;
-let zoomOutFunction: ZoomFunction | null = null;
-
-// Function to register the zoom functions from the provider
-export function registerZoomFunctions(zoomIn: ZoomFunction, zoomOut: ZoomFunction) {
-  zoomInFunction = zoomIn;
-  zoomOutFunction = zoomOut;
-}
-
-// Functions that can be called from anywhere
+/**
+ * Zoom in function that increases the zoom level
+ * This is exported for external use
+ */
 export function zoomIn() {
-  if (zoomInFunction) {
-    zoomInFunction();
+  const configStore = useConfigStore.getState();
+  const uiStore = useUIStore.getState();
+  const interactionStore = useInteractionStore.getState();
+
+  // Get current values
+  const { zoomWidth } = configStore;
+  const { timelinePanelRef } = uiStore;
+  const { setPreviousContainerScrollLeftPosition } = interactionStore;
+
+  // Update zoom width in the store
+  const newZoomWidth = zoomWidth + 10;
+  useConfigStore.setState({ zoomWidth: newZoomWidth });
+
+  // Handle panel scrolling if ref exists
+  if (timelinePanelRef?.current) {
+    const container = timelinePanelRef.current;
+
+    // Find the position of the current container's scrollLeft
+    const scrollableWidth = Math.max(container.scrollWidth - container.clientWidth, 1);
+    const visualRatio = container.scrollLeft / scrollableWidth;
+
+    // Use requestAnimationFrame to ensure DOM updates before we scroll
+    requestAnimationFrame(() => {
+      // Calculate new scroll position after zoom
+      const newScrollableWidth = Math.max(container.scrollWidth - container.clientWidth, 1);
+      const newScrollLeft = visualRatio * newScrollableWidth;
+
+      // Apply the new scroll position
+      container.scrollLeft = newScrollLeft;
+      setPreviousContainerScrollLeftPosition(newScrollLeft);
+    });
   }
 }
 
+/**
+ * Zoom out function that decreases the zoom level
+ * This is exported for external use
+ */
 export function zoomOut() {
-  if (zoomOutFunction) {
-    zoomOutFunction();
+  const configStore = useConfigStore.getState();
+  const uiStore = useUIStore.getState();
+  const interactionStore = useInteractionStore.getState();
+
+  // Get current values
+  const { zoomWidth } = configStore;
+  const { timelinePanelRef } = uiStore;
+  const { setPreviousContainerScrollLeftPosition } = interactionStore;
+
+  // Update zoom width in the store with minimum limit
+  const newZoomWidth = zoomWidth - 10;
+  if (newZoomWidth < 0) return;
+
+  useConfigStore.setState({ zoomWidth: newZoomWidth });
+
+  // Handle panel scrolling if ref exists
+  if (timelinePanelRef?.current) {
+    const container = timelinePanelRef.current;
+
+    // Find the position of the current container's scrollLeft
+    const scrollableWidth = Math.max(container.scrollWidth - container.clientWidth, 1);
+    const visualRatio = container.scrollLeft / scrollableWidth;
+
+    // Use requestAnimationFrame to ensure DOM updates before we scroll
+    requestAnimationFrame(() => {
+      // Calculate new scroll position after zoom
+      const newScrollableWidth = Math.max(container.scrollWidth - container.clientWidth, 1);
+      const newScrollLeft = visualRatio * newScrollableWidth;
+
+      // Apply the new scroll position
+      container.scrollLeft = newScrollLeft;
+      setPreviousContainerScrollLeftPosition(newScrollLeft);
+    });
   }
 }

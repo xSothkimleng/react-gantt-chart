@@ -1,21 +1,33 @@
-// src/hooks/useGanttInteractions.tsx
-import { useEffect, useRef } from 'react';
-import { useInteractionStore, useRowsStore, useConfigStore } from '../stores';
+import { useEffect } from 'react';
+import { useInteractionStore } from '../stores/useInteractionStore';
+import { useRowsStore } from '../stores/useRowsStore';
+import { useUIStore } from '../stores/useUIStore';
+import { useConfigStore } from '../stores/useConfigStore';
 import { snapToGridValuePosition } from '../utils/ganttBarUtils';
 
-export function useGanttInteractions(timelinePanelRef: React.RefObject<HTMLDivElement>) {
-  const { state: interactionState, setInteractionState } = useInteractionStore();
-  const { moveRow, resizeRow } = useRowsStore();
-  const { chartTimeFrameView } = useConfigStore();
+/**
+ * Hook that handles all Gantt chart interactions like dragging and resizing
+ * This replaces the interaction handling that was previously in GanttChartProvider
+ */
+export const useGanttInteractions = () => {
+  // Get only the state and actions we need from each store
+  const interactionState = useInteractionStore(state => state.interactionState);
+  const setInteractionState = useInteractionStore(state => state.setInteractionState);
+  const autoScrollRef = useInteractionStore(state => state.autoScrollRef);
+  const updateRow = useRowsStore(state => state.updateRow);
+  const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
+  const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
+  const setPreviousContainerScrollLeftPosition = useInteractionStore(state => state.setPreviousContainerScrollLeftPosition);
 
-  // Reference for auto-scrolling animation
-  const autoScrollRef = useRef<number | null>(null);
-
-  // Handle auto-scrolling during interactions
+  /**
+   * Handle automatic scrolling when dragging near the edge of the container
+   */
   const handleAutoScroll = (e: MouseEvent) => {
-    if (interactionState.mode === 'idle' || !timelinePanelRef.current) return;
+    if (interactionState.mode === 'idle' || !timelinePanelRef) return;
 
     const container = timelinePanelRef.current;
+    if (!container) return;
+
     const rect = container.getBoundingClientRect();
     const edgeThreshold = 30;
     const scrollSpeed = 15;
@@ -24,16 +36,16 @@ export function useGanttInteractions(timelinePanelRef: React.RefObject<HTMLDivEl
     const isNearLeftEdge = e.clientX < rect.left + edgeThreshold;
 
     // Cancel existing auto-scroll if we're not near an edge
-    if (!isNearRightEdge && !isNearLeftEdge && autoScrollRef.current) {
+    if (!isNearRightEdge && !isNearLeftEdge && autoScrollRef?.current) {
       cancelAnimationFrame(autoScrollRef.current);
       autoScrollRef.current = null;
       return;
     }
 
     // Start auto-scrolling if not already started
-    if ((isNearRightEdge || isNearLeftEdge) && !autoScrollRef.current) {
+    if ((isNearRightEdge || isNearLeftEdge) && autoScrollRef && !autoScrollRef.current) {
       autoScrollRef.current = requestAnimationFrame(function autoScroll() {
-        if (!timelinePanelRef.current) return;
+        if (!timelinePanelRef?.current) return;
 
         if (isNearRightEdge) {
           timelinePanelRef.current.scrollLeft += scrollSpeed;
@@ -74,17 +86,21 @@ export function useGanttInteractions(timelinePanelRef: React.RefObject<HTMLDivEl
         }
 
         // Continue auto-scrolling
-        autoScrollRef.current = requestAnimationFrame(autoScroll);
+        if (autoScrollRef) {
+          autoScrollRef.current = requestAnimationFrame(autoScroll);
+        }
       });
     }
   };
 
-  // Handle mouse events globally
+  // Set up mouse event handlers
   useEffect(() => {
     // Skip event handling if in idle mode
     if (interactionState.mode === 'idle') return;
 
-    // Define handlers based on current interaction mode
+    /**
+     * Handle mouse movement for different interaction modes
+     */
     const handleMouseMove = (e: MouseEvent) => {
       e.preventDefault();
 
@@ -93,7 +109,7 @@ export function useGanttInteractions(timelinePanelRef: React.RefObject<HTMLDivEl
 
       switch (interactionState.mode) {
         case 'timelineDragging': {
-          if (!timelinePanelRef.current) return;
+          if (!timelinePanelRef?.current) return;
           const x = e.pageX - timelinePanelRef.current.offsetLeft;
           const scroll = x - interactionState.startX;
           timelinePanelRef.current.scrollLeft = interactionState.scrollLeft - scroll;
@@ -137,12 +153,16 @@ export function useGanttInteractions(timelinePanelRef: React.RefObject<HTMLDivEl
       }
     };
 
+    /**
+     * Handle mouse up to finalize interactions
+     */
     const handleMouseUp = () => {
       // Finalize the interaction
       switch (interactionState.mode) {
         case 'timelineDragging': {
-          if (timelinePanelRef.current) {
+          if (timelinePanelRef?.current) {
             timelinePanelRef.current.style.cursor = 'grab';
+            setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
           }
           break;
         }
@@ -159,7 +179,23 @@ export function useGanttInteractions(timelinePanelRef: React.RefObject<HTMLDivEl
           const daysMoved = Math.round((newLeft - interactionState.startLeft) / chartTimeFrameView.dayWidthUnit);
 
           if (daysMoved !== 0) {
-            moveRow(interactionState.barId, daysMoved);
+            updateRow(interactionState.barId, rowItem => {
+              const newStartDate = new Date(rowItem.start);
+              newStartDate.setDate(newStartDate.getDate() + daysMoved);
+
+              const newEndDate = new Date(rowItem.end);
+              newEndDate.setDate(newEndDate.getDate() + daysMoved);
+
+              return {
+                ...rowItem,
+                start: newStartDate.toISOString(),
+                end: newEndDate.toISOString(),
+              };
+            });
+          }
+
+          if (timelinePanelRef?.current) {
+            setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
           }
           break;
         }
@@ -179,7 +215,15 @@ export function useGanttInteractions(timelinePanelRef: React.RefObject<HTMLDivEl
             const daysMoved = Math.round((newLeft - interactionState.startLeft) / chartTimeFrameView.dayWidthUnit);
 
             if (daysMoved !== 0) {
-              resizeRow(interactionState.barId, 'left', daysMoved);
+              updateRow(interactionState.barId, rowItem => {
+                const newStartDate = new Date(rowItem.start);
+                newStartDate.setDate(newStartDate.getDate() + daysMoved);
+
+                return {
+                  ...rowItem,
+                  start: newStartDate.toISOString(),
+                };
+              });
             }
           } else {
             // Snap width to grid
@@ -191,15 +235,27 @@ export function useGanttInteractions(timelinePanelRef: React.RefObject<HTMLDivEl
             const daysChanged = Math.round((newWidth - interactionState.startWidth) / chartTimeFrameView.dayWidthUnit);
 
             if (daysChanged !== 0) {
-              resizeRow(interactionState.barId, 'right', daysChanged);
+              updateRow(interactionState.barId, rowItem => {
+                const newEndDate = new Date(rowItem.end);
+                newEndDate.setDate(newEndDate.getDate() + daysChanged);
+
+                return {
+                  ...rowItem,
+                  end: newEndDate.toISOString(),
+                };
+              });
             }
+          }
+
+          if (timelinePanelRef?.current) {
+            setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
           }
           break;
         }
       }
 
       // Stop auto-scrolling
-      if (autoScrollRef.current) {
+      if (autoScrollRef?.current) {
         cancelAnimationFrame(autoScrollRef.current);
         autoScrollRef.current = null;
       }
@@ -218,12 +274,23 @@ export function useGanttInteractions(timelinePanelRef: React.RefObject<HTMLDivEl
       document.removeEventListener('mouseup', handleMouseUp);
 
       // Ensure auto-scrolling is stopped when unmounting
-      if (autoScrollRef.current) {
+      if (autoScrollRef?.current) {
         cancelAnimationFrame(autoScrollRef.current);
         autoScrollRef.current = null;
       }
     };
-  }, [interactionState, chartTimeFrameView.dayWidthUnit, setInteractionState, moveRow, resizeRow]);
+  }, [
+    interactionState,
+    chartTimeFrameView,
+    autoScrollRef,
+    timelinePanelRef,
+    setInteractionState,
+    updateRow,
+    setPreviousContainerScrollLeftPosition,
+  ]);
 
-  return { autoScrollRef };
-}
+  // Return any methods that might be needed by components
+  return {
+    // You can expose any additional methods here if needed
+  };
+};

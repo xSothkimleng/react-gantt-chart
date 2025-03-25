@@ -1,32 +1,34 @@
 // src/stores/useConfigStore.ts
 import { create } from 'zustand';
-import { TimeFrameSettingType } from '../types/timeFrameSettingType';
-import { DateRangeType } from '../types/dateRangeType';
 import { timeFrameSetting } from '../constants/timeFrameSetting';
+import { TimeFrameSettingType } from '../types/timeFrameSettingType';
+import { Column } from '../types/column';
 
 interface ConfigState {
+  // Core chart configuration
   chartTimeFrameView: TimeFrameSettingType;
-  chartDateRange: DateRangeType;
+  columnSetting: Column | undefined;
   zoomWidth: number;
 
+  // Configuration actions
   setChartTimeFrameView: (view: TimeFrameSettingType) => void;
-  setChartDateRange: (range: DateRangeType) => void;
+  setColumnSetting: (columns: Column | undefined) => void;
   zoomIn: () => void;
   zoomOut: () => void;
 }
 
 export const useConfigStore = create<ConfigState>(set => ({
   chartTimeFrameView: timeFrameSetting.monthly,
-  chartDateRange: [],
+  columnSetting: undefined,
   zoomWidth: 0,
 
   setChartTimeFrameView: view => set({ chartTimeFrameView: view }),
-  setChartDateRange: range => set({ chartDateRange: range }),
+  setColumnSetting: columns => set({ columnSetting: columns }),
+
   zoomIn: () => set(state => ({ zoomWidth: state.zoomWidth + 10 })),
   zoomOut: () =>
     set(state => {
       const newZoomWidth = state.zoomWidth - 10;
-      if (newZoomWidth < 0) return state;
-      return { zoomWidth: newZoomWidth };
+      return { zoomWidth: newZoomWidth < 0 ? 0 : newZoomWidth };
     }),
 }));

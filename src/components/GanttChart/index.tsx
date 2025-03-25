@@ -1,12 +1,12 @@
 'use client';
 import React, { useEffect } from 'react';
-import { GanttChartProvider } from '../../provider/GanttChartProvider';
 import { timeFrameSetting } from '../../constants/timeFrameSetting';
 import { TimeFrameSettingType } from '../../types/timeFrameSettingType';
 import { Column } from '../../types/column';
 import { Row } from '../../types/row';
 import GanttChartContent from './GanttChartContent';
-import { useConfigStore, useRowsStore } from '../../stores';
+import { initializeStores } from '../../utils/initializeStores';
+import { useGanttInteractions } from '../../hooks/useGanttInteractions';
 
 export interface GanttChartProps {
   rows: Row[];
@@ -27,27 +27,22 @@ const GanttChart: React.FC<GanttChartProps> = ({
   defaultView = timeFrameSetting.monthly,
   className = '',
 }) => {
-  const { setChartTimeFrameView } = useConfigStore();
-  const { setRows } = useRowsStore();
-
+  // Initialize stores with props
   useEffect(() => {
-    // Set initial view
-    setChartTimeFrameView(defaultView);
+    initializeStores({
+      rows,
+      columns,
+      defaultView,
+      getSelectedRow,
+      ButtonContainer,
+      showSidebar,
+    });
+  }, [rows, columns, defaultView, getSelectedRow, ButtonContainer, showSidebar]);
 
-    // Set initial rows
-    setRows(rows);
-  }, [defaultView, rows, setChartTimeFrameView, setRows]);
+  // Initialize interaction handlers
+  useGanttInteractions();
 
-  return (
-    <GanttChartProvider
-      defaultView={defaultView}
-      row={rows}
-      column={columns}
-      getSelectedRow={getSelectedRow}
-      ButtonContainer={ButtonContainer}>
-      <GanttChartContent showSidebar={showSidebar} className={className} columnSetting={columns} />
-    </GanttChartProvider>
-  );
+  return <GanttChartContent showSidebar={showSidebar} className={className} />;
 };
 
 export default GanttChart;

@@ -2,23 +2,27 @@ import { useState } from 'react';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../assets/icons/icons';
 import { Row } from '../../../types/row';
 import { progressFormatter } from '../../../utils/progressFormater';
-import { Column } from '../../../types/column';
+import { useRowsStore } from '../../../stores/useRowsStore';
+import { useConfigStore } from '../../../stores/useConfigStore';
+import { useUIStore } from '../../../stores/useUIStore';
 
 import './styles.css';
-import { denormalizeRows, useRowsStore, useUIStore } from '../../../stores';
 
-interface GanttChartDataRowPanelProps {
-  columnSetting?: Column;
-  getSelectedRow?: (row: Row) => void;
-  ButtonContainer?: React.FC;
-}
+const GanttChartDataRowPanel = () => {
+  const { allRows, selectRow, ButtonContainer } = useRowsStore(state => ({
+    allRows: state.allRows,
+    selectRow: state.selectRow,
+    ButtonContainer: state.ButtonContainer,
+  }));
 
-const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ columnSetting, getSelectedRow, ButtonContainer }) => {
-  // Use Zustand stores instead of context
-  const { collapsedItems, toggleCollapse } = useUIStore();
-  const { rowsById, rootIds } = useRowsStore();
+  const { columnSetting } = useConfigStore(state => ({
+    columnSetting: state.columnSetting,
+  }));
 
-  const allRow = denormalizeRows(rowsById, rootIds);
+  const { collapsedItems, toggleCollapse } = useUIStore(state => ({
+    collapsedItems: state.collapsedItems,
+    toggleCollapse: state.toggleCollapse,
+  }));
 
   const getColumnWidth = (key: string) => {
     switch (key) {
@@ -73,14 +77,13 @@ const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ columnS
           {visibleFields.map(([key], index) => (
             <div
               key={`${row.id}-${row.name}-${index}`}
-              onClick={() => getSelectedRow && getSelectedRow(row)}
+              onClick={() => selectRow && selectRow(row)}
               onMouseEnter={() => setHoveredRowId(row.id.toString())}
               onMouseLeave={() => setHoveredRowId(null)}
               className='gantt-data-panel-row-cell'
               style={{
                 paddingLeft: key === 'name' ? `${depth * 20}px` : '10px',
                 fontWeight: row.highlight ? 'bold' : 'normal',
-                cursor: getSelectedRow ? 'pointer' : 'default',
               }}>
               {key === 'name' && hasChildren && (
                 <button
@@ -123,7 +126,7 @@ const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ columnS
 
       {/* Table Content */}
       <div>
-        {allRow.length === 0 ? (
+        {allRows.length === 0 ? (
           <div
             style={{
               gridColumn: `span ${visibleFields.length}`,
@@ -133,7 +136,7 @@ const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ columnS
             No Data
           </div>
         ) : (
-          allRow.map(row => renderRow(row))
+          allRows.map(row => renderRow(row))
         )}
       </div>
     </div>
