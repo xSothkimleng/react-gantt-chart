@@ -2,7 +2,8 @@
 import { create } from 'zustand';
 import { Row } from '../types/row';
 
-const autoScrollRefValue = { current: null };
+// Create a shared auto-scroll ref that persists between renders
+const autoScrollRefValue = { current: null as number | null };
 
 export type InteractionState =
   | { mode: 'idle' }
@@ -20,7 +21,7 @@ export type InteractionState =
 
 interface InteractionStateStore {
   interactionState: InteractionState;
-  autoScrollRef: React.MutableRefObject<number | null> | null;
+  autoScrollRef: { current: number | null };
   leftBoundary: number;
   rightBoundary: number;
   isChartBorderReached: boolean;
@@ -38,7 +39,6 @@ interface InteractionStateStore {
     rowData: Row;
   }) => void;
   startTimelineDrag: (params: { startX: number; scrollLeft: number }) => void;
-  setAutoScrollRef: (ref: React.MutableRefObject<number | null>) => void;
   setBoundaries: (left: number, right: number) => void;
   setIsChartBorderReached: (reached: boolean) => void;
   setPreviousContainerScrollLeftPosition: (position: number) => void;
@@ -87,7 +87,6 @@ export const useInteractionStore = create<InteractionStateStore>(set => ({
       },
     }),
 
-  setAutoScrollRef: ref => set({ autoScrollRef: ref }),
   setBoundaries: (left, right) => set({ leftBoundary: left, rightBoundary: right }),
   setIsChartBorderReached: reached => set({ isChartBorderReached: reached }),
   setPreviousContainerScrollLeftPosition: position => set({ previousContainerScrollLeftPosition: position }),

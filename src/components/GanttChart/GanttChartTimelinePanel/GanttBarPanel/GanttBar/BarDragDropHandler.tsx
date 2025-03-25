@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { Row } from '../../../../../types/row';
 import { useInteractionStore } from '../../../../../stores/useInteractionStore';
 import { useGanttChartStore } from '../../../../../stores/GanttChartStore';
@@ -16,14 +16,17 @@ const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, ro
 
   // Track whether this is a click or drag
   const isClicking = useRef<boolean>(false);
+  const mouseDownTime = useRef<number>(0);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent timeline drag
     if (row.isLocked) return;
 
     isClicking.current = true;
+    mouseDownTime.current = Date.now();
 
     if (ganttBarRef.current) {
+      // Only start dragging if there's a valid reference to the bar
       startBarDrag({
         barId: row.id.toString(),
         startX: e.clientX,
@@ -35,12 +38,17 @@ const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, ro
 
   // Detect if this is a click (for selection) or a drag
   const handleMouseMove = () => {
-    isClicking.current = false;
+    if (Date.now() - mouseDownTime.current > 150) {
+      // If mouse has been held down for more than 150ms, consider it a drag
+      isClicking.current = false;
+    }
   };
 
   // Handle selection if this was just a click
-  const handleMouseUp = () => {
-    if (isClicking.current) {
+  const handleMouseUp = (e: React.MouseEvent) => {
+    // Only count as a click if it occurred quickly and mouse didn't move much
+    if (isClicking.current && Date.now() - mouseDownTime.current < 300) {
+      e.stopPropagation();
       if (selectRow) selectRow(row);
     }
   };
@@ -55,4 +63,4 @@ const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, ro
   );
 };
 
-export default BarDragDropHandler;
+export default React.memo(BarDragDropHandler);

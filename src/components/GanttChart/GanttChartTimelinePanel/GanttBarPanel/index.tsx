@@ -1,8 +1,8 @@
+import React, { useEffect, useMemo } from 'react';
 import GanttBar from './GanttBar';
 import GanttChartLoading from '../../../Loading';
 import { Row } from '../../../../types/row';
 import { useGanttChartStore } from '../../../../stores/GanttChartStore';
-import { useEffect } from 'react';
 import { getTotalDayInChartDateRange } from '../../../../utils/ganttBarUtils';
 import { useInteractionStore } from '../../../../stores/useInteractionStore';
 
@@ -13,85 +13,51 @@ const GanttBarPanel = () => {
   const chartDateRange = useGanttChartStore(state => state.chartDateRange);
   const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
   const zoomWidth = useGanttChartStore(state => state.zoomWidth);
-  // const { chartTimeFrameView, zoomWidth } = useConfigStore(state => ({
-  //   chartTimeFrameView: state.chartTimeFrameView,
-  //   zoomWidth: state.zoomWidth,
-  // }));
+  const setBoundaries = useInteractionStore(state => state.setBoundaries);
 
-  // const { isLoading, chartDateRange, collapsedItems } = useUIStore(state => ({
-  //   isLoading: state.isLoading,
-  //   chartDateRange: state.chartDateRange,
-  //   collapsedItems: state.collapsedItems,
-  // }));
+  // Calculate boundaries in a memoized way to prevent recalculations on every render
+  const boundaries = useMemo(() => {
+    if (chartDateRange.length === 0) return { left: 0, right: 0 };
 
-  // const { allRows } = useRowsStore(state => ({ allRows: state.allRows }));
+    // combine default width with zoom width
+    const chartWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
 
-  // const { setBoundaries } = useInteractionStore(state => ({
-  //   leftBoundary: state.leftBoundary,
-  //   rightBoundary: state.rightBoundary,
-  //   setBoundaries: state.setBoundaries,
-  // }));
+    // Left boundary is a fixed offset from the start
+    const leftBoundary = chartWidth * 7;
 
-  // let currentIndex = 0;
+    // Right boundary is based on the total days in the chart
+    const totalDays = getTotalDayInChartDateRange(chartDateRange);
+    const rightBoundary = totalDays * chartWidth - chartWidth * 7;
 
-  // Calculate the total days in the chart date range
+    // Ensure a minimum chart width even at small zoom levels
+    const finalRightBoundary = rightBoundary <= leftBoundary ? leftBoundary + 100 : rightBoundary;
 
-  // useEffect(() => {
-  //   // Recalculate boundaries whenever chartDateRange or chartTimeFrameView changes
-  //   if (chartDateRange.length > 0) {
-  //     // combine default width with zoom width
-  //     const chartWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
-
-  //     // Left boundary is a fixed offset from the start
-  //     const newLeftBoundary = chartWidth * 7;
-
-  //     // Right boundary is based on the total days in the chart
-  //     const totalDays = getTotalDayInChartDateRange(chartDateRange);
-  //     const newRightBoundary = totalDays * chartWidth - chartWidth * 7;
-
-  //     // Ensure a minimum chart width even at small zoom levels
-  //     const finalRightBoundary = newRightBoundary <= newLeftBoundary ? newLeftBoundary + 100 : newRightBoundary;
-
-  //     setBoundaries(newLeftBoundary, finalRightBoundary);
-  //   }
-  // }, [chartDateRange, chartTimeFrameView, zoomWidth, setBoundaries]);
-
-  // Calculate and update boundaries whenever the chart date range changes
-  useEffect(() => {
-    // Recalculate boundaries whenever chartDateRange or chartTimeFrameView changes
-    if (chartDateRange.length > 0) {
-      // combine default width with zoom width
-      const chartWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
-
-      // Left boundary is a fixed offset from the start
-      const newLeftBoundary = chartWidth * 7;
-
-      // Right boundary is based on the total days in the chart
-      const totalDays = getTotalDayInChartDateRange(chartDateRange);
-      const newRightBoundary = totalDays * chartWidth - chartWidth * 7;
-
-      // Ensure a minimum chart width even at small zoom levels
-      const finalRightBoundary = newRightBoundary <= newLeftBoundary ? newLeftBoundary + 100 : newRightBoundary;
-
-      // Set boundaries in the interaction store
-      const { setBoundaries } = useInteractionStore.getState();
-      setBoundaries(newLeftBoundary, finalRightBoundary);
-    }
+    return { left: leftBoundary, right: finalRightBoundary };
   }, [chartDateRange, chartTimeFrameView, zoomWidth]);
 
-  let currentIndex = 0;
+  // Update boundaries in the store when they change
+  useEffect(() => {
+    setBoundaries(boundaries.left, boundaries.right);
+  }, [boundaries.left, boundaries.right, setBoundaries]);
 
-  const renderRow = (row: Row) => {
-    const RowIndex = currentIndex++;
-    const isCollapsed = collapsedItems.has(row.id.toString());
+  // Row rendering logic with memoization to prevent unnecessary re-renders
+  const renderedRows = useMemo(() => {
+    let currentIndex = 0;
 
-    return (
-      <div key={RowIndex}>
-        <GanttBar index={RowIndex} row={row} />
-        {row.children && !isCollapsed && row.children.map(childRow => renderRow(childRow))}
-      </div>
-    );
-  };
+    const renderRow = (row: Row) => {
+      const rowIndex = currentIndex++;
+      const isCollapsed = collapsedItems.has(row.id.toString());
+
+      return (
+        <div key={row.id.toString()}>
+          <GanttBar index={rowIndex} row={row} />
+          {row.children && !isCollapsed && row.children.map(childRow => renderRow(childRow))}
+        </div>
+      );
+    };
+
+    return rows.map(row => renderRow(row));
+  }, [rows, collapsedItems]);
 
   if (isLoading || chartDateRange.length === 0) {
     return (
@@ -100,6 +66,8 @@ const GanttBarPanel = () => {
       </div>
     );
   }
+
+  const dayWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
 
   return (
     <div
@@ -114,14 +82,14 @@ const GanttBarPanel = () => {
         background: `repeating-linear-gradient(
           to right,
           transparent,
-          transparent ${chartTimeFrameView.dayWidthUnit + zoomWidth - 1}px,
-          rgba(0,0,0,0.05) ${chartTimeFrameView.dayWidthUnit + zoomWidth - 1}px,
-          rgba(0,0,0,0.05) ${chartTimeFrameView.dayWidthUnit + zoomWidth}px
+          transparent ${dayWidth - 1}px,
+          rgba(0,0,0,0.05) ${dayWidth - 1}px,
+          rgba(0,0,0,0.05) ${dayWidth}px
         )`,
       }}>
-      {rows.map(row => renderRow(row))}
+      {renderedRows}
     </div>
   );
 };
 
-export default GanttBarPanel;
+export default React.memo(GanttBarPanel);

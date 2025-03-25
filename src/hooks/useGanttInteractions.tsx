@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useInteractionStore } from '../stores/useInteractionStore';
 import { useUIStore } from '../stores/useUIStore';
 import { snapToGridValuePosition } from '../utils/ganttBarUtils';
@@ -16,7 +16,16 @@ export const useGanttInteractions = () => {
   const updateRow = useGanttChartStore(state => state.updateRow);
   const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
   const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
+  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
   const setPreviousContainerScrollLeftPosition = useInteractionStore(state => state.setPreviousContainerScrollLeftPosition);
+
+  // Store the last day width to avoid expensive recalculations
+  const dayWidth = useRef(chartTimeFrameView.dayWidthUnit + zoomWidth);
+
+  // Update stored day width when chartTimeFrameView or zoomWidth changes
+  useEffect(() => {
+    dayWidth.current = chartTimeFrameView.dayWidthUnit + zoomWidth;
+  }, [chartTimeFrameView, zoomWidth]);
 
   /**
    * Handle automatic scrolling when dragging near the edge of the container
@@ -43,7 +52,7 @@ export const useGanttInteractions = () => {
 
     // Start auto-scrolling if not already started
     if ((isNearRightEdge || isNearLeftEdge) && autoScrollRef && !autoScrollRef.current) {
-      autoScrollRef.current = requestAnimationFrame(function autoScroll() {
+      const doAutoScroll = () => {
         if (!timelinePanelRef?.current) return;
 
         if (isNearRightEdge) {
@@ -86,9 +95,11 @@ export const useGanttInteractions = () => {
 
         // Continue auto-scrolling
         if (autoScrollRef) {
-          autoScrollRef.current = requestAnimationFrame(autoScroll);
+          autoScrollRef.current = requestAnimationFrame(doAutoScroll);
         }
-      });
+      };
+
+      autoScrollRef.current = requestAnimationFrame(doAutoScroll);
     }
   };
 
@@ -110,8 +121,8 @@ export const useGanttInteractions = () => {
         case 'timelineDragging': {
           if (!timelinePanelRef?.current) return;
           const x = e.pageX - timelinePanelRef.current.offsetLeft;
-          const scroll = x - interactionState.startX;
-          timelinePanelRef.current.scrollLeft = interactionState.scrollLeft - scroll;
+          const scroll = interactionState.startX - x;
+          timelinePanelRef.current.scrollLeft = interactionState.scrollLeft + scroll;
           break;
         }
 
@@ -156,8 +167,19 @@ export const useGanttInteractions = () => {
      * Handle mouse up to finalize interactions
      */
     const handleMouseUp = () => {
+      // Store the current mode before resetting it
+      const currentMode = interactionState.mode;
+      const currentBarId = interactionState.mode !== 'timelineDragging' ? interactionState.barId : '';
+      const currentStartLeft = interactionState.mode === 'barDragging' ? interactionState.startLeft : 0;
+      const currentStartWidth = interactionState.mode === 'barResizing' ? interactionState.startWidth : 0;
+      const currentEdge = interactionState.mode === 'barResizing' ? interactionState.edge : undefined;
+      const currentRowData = interactionState.mode !== 'timelineDragging' ? interactionState.rowData : undefined;
+
+      // Reset to idle state immediately to prevent re-renders during updates
+      setInteractionState({ mode: 'idle' });
+
       // Finalize the interaction
-      switch (interactionState.mode) {
+      switch (currentMode) {
         case 'timelineDragging': {
           if (timelinePanelRef?.current) {
             timelinePanelRef.current.style.cursor = 'grab';
@@ -167,18 +189,18 @@ export const useGanttInteractions = () => {
         }
 
         case 'barDragging': {
-          const barElement = document.querySelector(`[data-bar-id="${interactionState.barId}"]`) as HTMLElement;
-          if (!barElement) break;
+          const barElement = document.querySelector(`[data-bar-id="${currentBarId}"]`) as HTMLElement;
+          if (!barElement || !currentRowData) break;
 
           // Snap to grid
-          const newLeft = snapToGridValuePosition(barElement.style.left, chartTimeFrameView.dayWidthUnit);
+          const newLeft = snapToGridValuePosition(barElement.style.left, dayWidth.current);
           barElement.style.left = `${newLeft}px`;
 
           // Update data
-          const daysMoved = Math.round((newLeft - interactionState.startLeft) / chartTimeFrameView.dayWidthUnit);
+          const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
 
           if (daysMoved !== 0) {
-            updateRow(interactionState.barId, rowItem => {
+            updateRow(currentBarId, rowItem => {
               const newStartDate = new Date(rowItem.start);
               newStartDate.setDate(newStartDate.getDate() + daysMoved);
 
@@ -200,21 +222,21 @@ export const useGanttInteractions = () => {
         }
 
         case 'barResizing': {
-          const barElement = document.querySelector(`[data-bar-id="${interactionState.barId}"]`) as HTMLElement;
-          if (!barElement) break;
+          const barElement = document.querySelector(`[data-bar-id="${currentBarId}"]`) as HTMLElement;
+          if (!barElement || !currentEdge || !currentRowData) break;
 
-          if (interactionState.edge === 'left') {
+          if (currentEdge === 'left') {
             // Snap left edge to grid
-            const newLeft = snapToGridValuePosition(barElement.style.left, chartTimeFrameView.dayWidthUnit);
+            const newLeft = snapToGridValuePosition(barElement.style.left, dayWidth.current);
             const newWidth = parseInt(barElement.style.width) + (parseInt(barElement.style.left) - newLeft);
             barElement.style.left = `${newLeft}px`;
             barElement.style.width = `${newWidth}px`;
 
             // Update start date
-            const daysMoved = Math.round((newLeft - interactionState.startLeft) / chartTimeFrameView.dayWidthUnit);
+            const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
 
             if (daysMoved !== 0) {
-              updateRow(interactionState.barId, rowItem => {
+              updateRow(currentBarId, rowItem => {
                 const newStartDate = new Date(rowItem.start);
                 newStartDate.setDate(newStartDate.getDate() + daysMoved);
 
@@ -226,15 +248,15 @@ export const useGanttInteractions = () => {
             }
           } else {
             // Snap width to grid
-            const gridInterval = chartTimeFrameView.dayWidthUnit;
+            const gridInterval = dayWidth.current;
             const newWidth = Math.round(parseInt(barElement.style.width) / gridInterval) * gridInterval;
             barElement.style.width = `${newWidth}px`;
 
             // Update end date
-            const daysChanged = Math.round((newWidth - interactionState.startWidth) / chartTimeFrameView.dayWidthUnit);
+            const daysChanged = Math.round((newWidth - currentStartWidth) / gridInterval);
 
             if (daysChanged !== 0) {
-              updateRow(interactionState.barId, rowItem => {
+              updateRow(currentBarId, rowItem => {
                 const newEndDate = new Date(rowItem.end);
                 newEndDate.setDate(newEndDate.getDate() + daysChanged);
 
@@ -258,9 +280,6 @@ export const useGanttInteractions = () => {
         cancelAnimationFrame(autoScrollRef.current);
         autoScrollRef.current = null;
       }
-
-      // Reset to idle state
-      setInteractionState({ mode: 'idle' });
     };
 
     // Add event listeners
@@ -278,15 +297,7 @@ export const useGanttInteractions = () => {
         autoScrollRef.current = null;
       }
     };
-  }, [
-    interactionState,
-    chartTimeFrameView,
-    autoScrollRef,
-    timelinePanelRef,
-    setInteractionState,
-    updateRow,
-    setPreviousContainerScrollLeftPosition,
-  ]);
+  }, [interactionState, autoScrollRef, timelinePanelRef, setInteractionState, updateRow, setPreviousContainerScrollLeftPosition]);
 
   // Return any methods that might be needed by components
   return {

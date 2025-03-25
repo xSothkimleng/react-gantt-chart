@@ -4,7 +4,6 @@ import TimeAxisSecondary from './TimeAxis/TimeAxisSecondary';
 import GanttBarPanel from './GanttBarPanel';
 import { DateRangeType, MonthDataType } from '../../../types/dateRangeType';
 import { initializeDateRange } from '../../../utils/dateUtils';
-// import { getTotalDayInChartDateRange } from '../../../utils/ganttBarUtils';
 import './styles.css';
 import { useGanttChartStore } from '../../../stores/GanttChartStore';
 import { useInteractionStore } from '../../../stores/useInteractionStore';
@@ -21,40 +20,28 @@ const GanttChartTimelinePanel = () => {
 
   // Get UI store actions and state
   const { setTimelinePanelRef } = useUIStore();
-  const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
+
+  // Create ref for time panel - this is crucial for proper scrolling
+  const timelinePanelRef = useRef<HTMLDivElement | null>(null);
 
   // Get interaction state and actions
   const interactionState = useInteractionStore(state => state.interactionState);
   const startTimelineDrag = useInteractionStore(state => state.startTimelineDrag);
-  // const setPreviousContainerScrollLeftPosition = useInteractionStore(state => state.setPreviousContainerScrollLeftPosition);
 
-  // Create local refs if not already provided via store
-  const localTimelinePanelRef = useRef<HTMLDivElement | null>(null);
   const prevChartDateRange = useRef<DateRangeType>([]);
   const prevTimeFrameView = useRef(chartTimeFrameView);
 
-  // const centerPositionRef = useRef<number | null>(null);
-
-  // Set timelinePanelRef in the store if we're using the local ref
-  // useEffect(() => {
-  //   if (!timelinePanelRef && localTimelinePanelRef.current) {
-  //     setTimelinePanelRef(localTimelinePanelRef);
-  //   }
-  // }, [timelinePanelRef, setTimelinePanelRef]);
-
-  // Set timelinePanelRef in the store if we're using the local ref
+  // Set timelinePanelRef in the store once on component mount
   useEffect(() => {
-    if (localTimelinePanelRef.current) {
-      console.log('Setting timeline panel ref', localTimelinePanelRef);
-      setTimelinePanelRef(localTimelinePanelRef);
+    if (timelinePanelRef.current) {
+      setTimelinePanelRef({ current: timelinePanelRef.current });
     }
-  }, [setTimelinePanelRef]);
 
-  // Use either the store's ref or our local ref
-  // const panelRef = timelinePanelRef || localTimelinePanelRef;
-  // const panelRef = timelinePanelRef || localTimelinePanelRef;
+    // We only want to do this setup once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const generateEmptyChartDateRange = () => {
+  const generateEmptyChartDateRange = useCallback(() => {
     const dateRange: DateRangeType = [];
 
     // Get today's date and set start and end dates
@@ -97,7 +84,7 @@ const GanttChartTimelinePanel = () => {
 
     setChartDateRange(dateRange);
     if (prevChartDateRange.current.length === 0) prevChartDateRange.current = dateRange;
-  };
+  }, [setChartDateRange]);
 
   // Calculate the new date range
   const ComputeNewDateRange = useCallback(() => {
@@ -116,9 +103,9 @@ const GanttChartTimelinePanel = () => {
     if (prevChartDateRange.current.length === 0) {
       prevChartDateRange.current = DateRangeResult;
     }
-  }, [rows, setChartDateRange]);
+  }, [rows, setChartDateRange, generateEmptyChartDateRange]);
 
-  const handleInitializeDateRange = () => {
+  const handleInitializeDateRange = useCallback(() => {
     if (!rows || rows.length === 0) {
       // check Row list if there are row, if not generate empty chart
       generateEmptyChartDateRange();
@@ -130,44 +117,33 @@ const GanttChartTimelinePanel = () => {
       // first load chart if there are row in the list
       ComputeNewDateRange();
     }
-  };
-
-  const panelRef = timelinePanelRef || localTimelinePanelRef;
+  }, [rows, isChartBorderReached, chartDateRange, generateEmptyChartDateRange, setIsChartBorderReached, ComputeNewDateRange]);
 
   // New timeline panel drag and move handler
-  const handleTimelinePanelMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    console.log('Mouse down on timeline panel');
+  const handleTimelinePanelMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      // Don't initiate timeline dragging if we clicked on a gantt bar or resizer
+      if ((e.target as HTMLElement).closest('.gantt-bar') || (e.target as HTMLElement).closest('.gantt-bar-resize-handle')) {
+        return;
+      }
 
-    // Don't initiate timeline dragging if we clicked on a gantt bar or resizer
-    if ((e.target as HTMLElement).closest('.gantt-bar') || (e.target as HTMLElement).closest('.gantt-bar-resize-handle')) {
-      console.log('Clicked on bar or resizer, ignoring');
-      return;
-    }
-
-    const container = panelRef.current;
-    if (container) {
-      console.log('Starting timeline drag', {
-        pageX: e.pageX,
-        offsetLeft: container.offsetLeft,
-        scrollLeft: container.scrollLeft,
-      });
-
-      startTimelineDrag({
-        startX: e.pageX - container.offsetLeft,
-        scrollLeft: container.scrollLeft,
-      });
-      container.style.cursor = 'grabbing';
-    } else {
-      console.log('No container found for timeline drag');
-    }
-  };
+      const container = timelinePanelRef.current;
+      if (container) {
+        startTimelineDrag({
+          startX: e.pageX - container.offsetLeft,
+          scrollLeft: container.scrollLeft,
+        });
+        container.style.cursor = 'grabbing';
+      }
+    },
+    [startTimelineDrag],
+  );
 
   // Initialize the date range
-
   useEffect(() => {
     handleInitializeDateRange();
     setIsLoading(false);
-  }, [rows, setIsLoading]);
+  }, [rows, setIsLoading, handleInitializeDateRange]);
 
   // Handle time frame view changes
   useEffect(() => {
@@ -175,17 +151,17 @@ const GanttChartTimelinePanel = () => {
       prevTimeFrameView.current = chartTimeFrameView;
       handleInitializeDateRange();
     }
-  }, [chartTimeFrameView]);
+  }, [chartTimeFrameView, handleInitializeDateRange]);
 
   return (
     <div
-      ref={localTimelinePanelRef} // Use the local ref here, not the one from the store
+      ref={timelinePanelRef}
       onMouseDown={handleTimelinePanelMouseDown}
       className='gnatt-timeline-panel'
       style={{
         cursor: interactionState.mode === 'timelineDragging' ? 'grabbing' : 'grab',
-        position: 'relative', // Add this to ensure z-index works properly
-        zIndex: 1, // Add z-index to ensure the panel is properly layered
+        position: 'relative',
+        zIndex: 1,
       }}>
       <TimeAxisPrimary />
       <TimeAxisSecondary />
@@ -194,4 +170,4 @@ const GanttChartTimelinePanel = () => {
   );
 };
 
-export default GanttChartTimelinePanel;
+export default React.memo(GanttChartTimelinePanel);
