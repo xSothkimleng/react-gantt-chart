@@ -1,12 +1,10 @@
-import { useConfigStore, useUIStore } from '../../../../../../stores';
+import { useGanttChartStore } from '../../../../../../stores/GanttChartStore';
 import './styles.css';
 
 const QuarterMonthView = () => {
-  const { chartDateRange } = useUIStore(state => ({ chartDateRange: state.chartDateRange }));
-  const { chartTimeFrameView, zoomWidth } = useConfigStore(state => ({
-    chartTimeFrameView: state.chartTimeFrameView,
-    zoomWidth: state.zoomWidth,
-  }));
+  const chartDateRange = useGanttChartStore(state => state.chartDateRange);
+  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
+  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', height: `${25}px` }}>

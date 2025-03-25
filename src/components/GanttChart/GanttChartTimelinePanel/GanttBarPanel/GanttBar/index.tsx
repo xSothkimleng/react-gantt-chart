@@ -8,10 +8,9 @@ import {
   calculateGanttBarPositionFromInitialStartingPoint,
 } from '../../../../../utils/ganttBarUtils';
 import { progressFormatter } from '../../../../../utils/progressFormater';
-import { useConfigStore } from '../../../../../stores/useConfigStore';
-import { useUIStore } from '../../../../../stores/useUIStore';
 import { useInteractionStore } from '../../../../../stores/useInteractionStore';
 import './styles.css';
+import { useGanttChartStore } from '../../../../../stores/GanttChartStore';
 
 type GanttBarProps = {
   index: number;
@@ -19,9 +18,11 @@ type GanttBarProps = {
 };
 
 const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
-  // Get only what we need from stores
-  const { chartTimeFrameView, zoomWidth } = useConfigStore();
-  const { chartDateRange, isLoading } = useUIStore();
+  const isLoading = useGanttChartStore(state => state.isLoading);
+  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
+  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
+  const chartDateRange = useGanttChartStore(state => state.chartDateRange);
+
   const interactionState = useInteractionStore(state => state.interactionState);
 
   const [isHovered, setIsHovered] = useState(false);

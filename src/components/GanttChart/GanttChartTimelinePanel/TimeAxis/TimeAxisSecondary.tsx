@@ -4,10 +4,10 @@ import MonthlyView from './views/SecondaryHeader/MonthlyView';
 import YearlyView from './views/SecondaryHeader/YearlyView';
 import QuarterYearView from './views/SecondaryHeader/QuarterYearView';
 import QuarterMonthView from './views/SecondaryHeader/QuarterMonthView';
-import { useConfigStore } from '../../../../stores';
+import { useGanttChartStore } from '../../../../stores/GanttChartStore';
 
 const TimeAxisSecondary = () => {
-  const { chartTimeFrameView } = useConfigStore(state => ({ chartTimeFrameView: state.chartTimeFrameView }));
+  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
 
   // Render view based on chartTimeFrameView using switch
   const renderView = () => {

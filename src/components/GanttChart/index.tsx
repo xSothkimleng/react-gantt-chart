@@ -6,11 +6,10 @@ import { Column } from '../../types/column';
 import { Row } from '../../types/row';
 import GanttChartContent from './GanttChartContent';
 import { initializeStores } from '../../utils/initializeStores';
-import { useGanttInteractions } from '../../hooks/useGanttInteractions';
 
 export interface GanttChartProps {
   rows: Row[];
-  columns?: Column;
+  columns: Column;
   showSidebar?: boolean;
   defaultView?: TimeFrameSettingType;
   ButtonContainer?: React.FC;
@@ -27,8 +26,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
   defaultView = timeFrameSetting.monthly,
   className = '',
 }) => {
-  // Initialize stores with props
-
+  // Initialize stores
   initializeStores({
     rows,
     columns,
@@ -39,9 +37,9 @@ const GanttChart: React.FC<GanttChartProps> = ({
   });
 
   // Initialize interaction handlers
-  useGanttInteractions();
+  // useGanttInteractions();
 
-  return <GanttChartContent showSidebar={showSidebar} className={className} />;
+  return <GanttChartContent className={className} />;
 };
 
 export default GanttChart;

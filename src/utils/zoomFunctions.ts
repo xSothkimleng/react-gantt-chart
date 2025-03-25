@@ -1,24 +1,24 @@
-import { useConfigStore } from '../stores/useConfigStore';
 import { useUIStore } from '../stores/useUIStore';
 import { useInteractionStore } from '../stores/useInteractionStore';
+import { useGanttChartStore } from '../stores/GanttChartStore';
 
 /**
  * Zoom in function that increases the zoom level
  * This is exported for external use
  */
 export function zoomIn() {
-  const configStore = useConfigStore.getState();
+  const ganttChartStore = useGanttChartStore.getState();
   const uiStore = useUIStore.getState();
   const interactionStore = useInteractionStore.getState();
 
   // Get current values
-  const { zoomWidth } = configStore;
+  const { zoomWidth } = ganttChartStore;
   const { timelinePanelRef } = uiStore;
   const { setPreviousContainerScrollLeftPosition } = interactionStore;
 
   // Update zoom width in the store
   const newZoomWidth = zoomWidth + 10;
-  useConfigStore.setState({ zoomWidth: newZoomWidth });
+  useGanttChartStore.setState({ zoomWidth: newZoomWidth });
 
   // Handle panel scrolling if ref exists
   if (timelinePanelRef?.current) {
@@ -46,12 +46,12 @@ export function zoomIn() {
  * This is exported for external use
  */
 export function zoomOut() {
-  const configStore = useConfigStore.getState();
+  const ganttChartStore = useGanttChartStore.getState();
   const uiStore = useUIStore.getState();
   const interactionStore = useInteractionStore.getState();
 
   // Get current values
-  const { zoomWidth } = configStore;
+  const { zoomWidth } = ganttChartStore;
   const { timelinePanelRef } = uiStore;
   const { setPreviousContainerScrollLeftPosition } = interactionStore;
 
@@ -59,7 +59,7 @@ export function zoomOut() {
   const newZoomWidth = zoomWidth - 10;
   if (newZoomWidth < 0) return;
 
-  useConfigStore.setState({ zoomWidth: newZoomWidth });
+  useGanttChartStore.setState({ zoomWidth: newZoomWidth });
 
   // Handle panel scrolling if ref exists
   if (timelinePanelRef?.current) {

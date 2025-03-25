@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
 import { useInteractionStore } from '../stores/useInteractionStore';
-import { useRowsStore } from '../stores/useRowsStore';
 import { useUIStore } from '../stores/useUIStore';
-import { useConfigStore } from '../stores/useConfigStore';
 import { snapToGridValuePosition } from '../utils/ganttBarUtils';
+import { useGanttChartStore } from '../stores/GanttChartStore';
 
 /**
  * Hook that handles all Gantt chart interactions like dragging and resizing
@@ -14,9 +13,9 @@ export const useGanttInteractions = () => {
   const interactionState = useInteractionStore(state => state.interactionState);
   const setInteractionState = useInteractionStore(state => state.setInteractionState);
   const autoScrollRef = useInteractionStore(state => state.autoScrollRef);
-  const updateRow = useRowsStore(state => state.updateRow);
+  const updateRow = useGanttChartStore(state => state.updateRow);
   const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
-  const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
+  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
   const setPreviousContainerScrollLeftPosition = useInteractionStore(state => state.setPreviousContainerScrollLeftPosition);
 
   /**
