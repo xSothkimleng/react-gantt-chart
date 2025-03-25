@@ -131,10 +131,10 @@ function App() {
         </select>
         <button onClick={() => setShowSidebar(!showSidebar)}>Show Sidebar</button>
         <div style={{ display: 'flex', gap: '1px' }}>
-          <button onClick={zoomOut} style={{ cursor: 'pointer', padding: '5px' }}>
+          <button onClick={() => zoomOut()} style={{ cursor: 'pointer', padding: '5px' }}>
             <SubtractIcon /> Zoom Out
           </button>
-          <button onClick={zoomIn} style={{ cursor: 'pointer', padding: '5px' }}>
+          <button onClick={() => zoomIn()} style={{ cursor: 'pointer', padding: '5px' }}>
             <PlusIcon /> Zoom In
           </button>
         </div>

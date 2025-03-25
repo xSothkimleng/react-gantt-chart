@@ -6,6 +6,7 @@ import { Column } from '../../types/column';
 import { Row } from '../../types/row';
 import GanttChartContent from './GanttChartContent';
 import { initializeStores } from '../../utils/initializeStores';
+import { useGanttInteractions } from '../../hooks/useGanttInteractions';
 
 export interface GanttChartProps {
   rows: Row[];
@@ -37,7 +38,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
   });
 
   // Initialize interaction handlers
-  // useGanttInteractions();
+  useGanttInteractions();
 
   return <GanttChartContent className={className} />;
 };

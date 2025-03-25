@@ -3,6 +3,8 @@ import { TimeFrameSettingType } from '../types/timeFrameSettingType';
 import { Column } from '../types/column';
 import { Row } from '../types/row';
 import { useGanttChartStore } from '../stores/GanttChartStore';
+import { useInteractionStore } from '../stores/useInteractionStore';
+import { useUIStore } from '../stores/useUIStore';
 
 interface InitializeStoresProps {
   rows: Row[];
@@ -34,15 +36,15 @@ export const initializeStores = ({
     externalGetSelectedRow: getSelectedRow,
   });
 
-  // Initialize interaction store only if needed
-  // We don't need to check previous values since these are defaults
-  // if (useInteractionStore.getState().interactionState.mode !== 'idle') {
-  //   useInteractionStore.setState({
-  //     interactionState: { mode: 'idle' },
-  //     leftBoundary: 0,
-  //     rightBoundary: 0,
-  //     isChartBorderReached: false,
-  //     previousContainerScrollLeftPosition: 0,
-  //   });
-  // }
+  useInteractionStore.setState({
+    interactionState: { mode: 'idle' },
+    leftBoundary: 0,
+    rightBoundary: 0,
+    isChartBorderReached: false,
+    previousContainerScrollLeftPosition: 0,
+  });
+
+  useUIStore.setState({
+    activeDataIndex: null,
+  });
 };

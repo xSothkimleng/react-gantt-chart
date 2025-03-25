@@ -2,6 +2,9 @@ import GanttBar from './GanttBar';
 import GanttChartLoading from '../../../Loading';
 import { Row } from '../../../../types/row';
 import { useGanttChartStore } from '../../../../stores/GanttChartStore';
+import { useEffect } from 'react';
+import { getTotalDayInChartDateRange } from '../../../../utils/ganttBarUtils';
+import { useInteractionStore } from '../../../../stores/useInteractionStore';
 
 const GanttBarPanel = () => {
   const isLoading = useGanttChartStore(state => state.isLoading);
@@ -52,6 +55,29 @@ const GanttBarPanel = () => {
   //     setBoundaries(newLeftBoundary, finalRightBoundary);
   //   }
   // }, [chartDateRange, chartTimeFrameView, zoomWidth, setBoundaries]);
+
+  // Calculate and update boundaries whenever the chart date range changes
+  useEffect(() => {
+    // Recalculate boundaries whenever chartDateRange or chartTimeFrameView changes
+    if (chartDateRange.length > 0) {
+      // combine default width with zoom width
+      const chartWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
+
+      // Left boundary is a fixed offset from the start
+      const newLeftBoundary = chartWidth * 7;
+
+      // Right boundary is based on the total days in the chart
+      const totalDays = getTotalDayInChartDateRange(chartDateRange);
+      const newRightBoundary = totalDays * chartWidth - chartWidth * 7;
+
+      // Ensure a minimum chart width even at small zoom levels
+      const finalRightBoundary = newRightBoundary <= newLeftBoundary ? newLeftBoundary + 100 : newRightBoundary;
+
+      // Set boundaries in the interaction store
+      const { setBoundaries } = useInteractionStore.getState();
+      setBoundaries(newLeftBoundary, finalRightBoundary);
+    }
+  }, [chartDateRange, chartTimeFrameView, zoomWidth]);
 
   let currentIndex = 0;
 

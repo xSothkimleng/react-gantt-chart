@@ -1,9 +1,8 @@
+// src/stores/useUIStore.ts
 import { create } from 'zustand';
 
 interface UIState {
   activeDataIndex: number | null;
-
-  // refs as store values
   timelinePanelRef: React.RefObject<HTMLDivElement> | null;
 
   // UI actions
