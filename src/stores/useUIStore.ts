@@ -1,4 +1,3 @@
-// src/stores/useUIStore.ts
 import { create } from 'zustand';
 import { DateRangeType } from '../types/dateRangeType';
 
@@ -10,7 +9,7 @@ interface UIState {
   showSidebar: boolean;
   activeDataIndex: number | null;
 
-  // refs as store values (could be moved to a separate refs store)
+  // refs as store values
   timelinePanelRef: React.RefObject<HTMLDivElement> | null;
 
   // UI actions
@@ -22,7 +21,7 @@ interface UIState {
   setTimelinePanelRef: (ref: React.RefObject<HTMLDivElement>) => void;
 }
 
-export const useUIStore = create<UIState>(set => ({
+export const useUIStore = create<UIState>((set, get) => ({
   isLoading: false,
   chartDateRange: [],
   collapsedItems: new Set<string>(),
@@ -30,10 +29,21 @@ export const useUIStore = create<UIState>(set => ({
   activeDataIndex: null,
   timelinePanelRef: null,
 
-  setIsLoading: loading => set({ isLoading: loading }),
-  setChartDateRange: dateRange => set({ chartDateRange: dateRange }),
+  // Optimize setters to avoid unnecessary updates
+  setIsLoading: loading => {
+    if (get().isLoading !== loading) {
+      set({ isLoading: loading });
+    }
+  },
 
-  toggleCollapse: itemId =>
+  setChartDateRange: dateRange => {
+    // Only update if truly changed (shallow comparison should be sufficient for most cases)
+    if (get().chartDateRange !== dateRange) {
+      set({ chartDateRange: dateRange });
+    }
+  },
+
+  toggleCollapse: itemId => {
     set(state => {
       const newCollapsedItems = new Set(state.collapsedItems);
       if (newCollapsedItems.has(itemId)) {
@@ -42,9 +52,24 @@ export const useUIStore = create<UIState>(set => ({
         newCollapsedItems.add(itemId);
       }
       return { collapsedItems: newCollapsedItems };
-    }),
+    });
+  },
 
-  setShowSidebar: show => set({ showSidebar: show }),
-  setActiveDataIndex: index => set({ activeDataIndex: index }),
-  setTimelinePanelRef: ref => set({ timelinePanelRef: ref }),
+  setShowSidebar: show => {
+    if (get().showSidebar !== show) {
+      set({ showSidebar: show });
+    }
+  },
+
+  setActiveDataIndex: index => {
+    if (get().activeDataIndex !== index) {
+      set({ activeDataIndex: index });
+    }
+  },
+
+  setTimelinePanelRef: ref => {
+    if (get().timelinePanelRef !== ref) {
+      set({ timelinePanelRef: ref });
+    }
+  },
 }));

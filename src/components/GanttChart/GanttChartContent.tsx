@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import GanttChartTimelinePanel from './GanttChartTimelinePanel';
 import GanttChartDataRowPanel from './GanttChartDataRowPanel';
 import { useUIStore } from '../../stores/useUIStore';
@@ -11,9 +11,7 @@ interface GanttChartContentProps {
 
 const GanttChartContent: React.FC<GanttChartContentProps> = ({ showSidebar, className = '' }) => {
   // Use the prop to update the store
-  useEffect(() => {
-    useUIStore.setState({ showSidebar });
-  }, [showSidebar]);
+  useUIStore.setState({ showSidebar });
 
   // We now read showSidebar from the store to ensure consistency
   const isSidebarVisible = useUIStore(state => state.showSidebar);

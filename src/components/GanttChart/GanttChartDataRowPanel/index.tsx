@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../assets/icons/icons';
 import { Row } from '../../../types/row';
 import { progressFormatter } from '../../../utils/progressFormater';
@@ -8,7 +8,7 @@ import { useUIStore } from '../../../stores/useUIStore';
 
 import './styles.css';
 
-const GanttChartDataRowPanel = () => {
+const GanttChartDataRowPanel = React.memo(() => {
   const { allRows, selectRow, ButtonContainer } = useRowsStore(state => ({
     allRows: state.allRows,
     selectRow: state.selectRow,
@@ -24,7 +24,9 @@ const GanttChartDataRowPanel = () => {
     toggleCollapse: state.toggleCollapse,
   }));
 
-  const getColumnWidth = (key: string) => {
+  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
+
+  const getColumnWidth = useCallback((key: string) => {
     switch (key) {
       case 'id':
         return '50px';
@@ -33,14 +35,18 @@ const GanttChartDataRowPanel = () => {
       default:
         return 'minmax(120px, 1fr)';
     }
-  };
+  }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const visibleFields = columnSetting ? Object.entries(columnSetting).filter(([_, field]) => field.show) : [];
-  const gridTemplateColumns = visibleFields.map(([key]) => getColumnWidth(key)).join(' ');
-  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
+  const visibleFields = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    return columnSetting ? Object.entries(columnSetting).filter(([_, field]) => field.show) : [];
+  }, [columnSetting]);
 
-  const progressDisplay = (row: Row) => {
+  const gridTemplateColumns = useMemo(() => {
+    return visibleFields.map(([key]) => getColumnWidth(key)).join(' ');
+  }, [visibleFields, getColumnWidth]);
+
+  const progressDisplay = useCallback((row: Row) => {
     if (row.currentProgress === undefined || row.maxProgress === undefined) return '';
 
     return progressFormatter(
@@ -54,60 +60,75 @@ const GanttChartDataRowPanel = () => {
       },
       row.progressIndicatorLabelFormatter,
     );
-  };
+  }, []);
 
-  const renderRowContent = (row: Row, key: string) => {
-    if (key === 'name' && row.showProgressIndicator?.showLabel) {
-      return `${String(row[key] || '')}${progressDisplay(row)}`;
-    }
-    return String(row[key as keyof typeof row] || '');
-  };
+  const renderRowContent = useCallback(
+    (row: Row, key: string) => {
+      if (key === 'name' && row.showProgressIndicator?.showLabel) {
+        return `${String(row[key] || '')}${progressDisplay(row)}`;
+      }
+      return String(row[key as keyof typeof row] || '');
+    },
+    [progressDisplay],
+  );
 
-  const renderRow = (row: Row, depth: number = 0) => {
-    const hasChildren = Array.isArray(row.children) && (row.children as Row[]).length > 0;
-    const isCollapsed = collapsedItems.has(row.id.toString());
+  const renderRow = useCallback(
+    (row: Row, depth: number = 0) => {
+      const hasChildren = Array.isArray(row.children) && (row.children as Row[]).length > 0;
+      const isCollapsed = collapsedItems.has(row.id.toString());
 
-    return (
-      <div key={row.id}>
-        <div
-          className='gantt-data-panel-row-container'
-          style={{
-            gridTemplateColumns,
-          }}>
-          {visibleFields.map(([key], index) => (
-            <div
-              key={`${row.id}-${row.name}-${index}`}
-              onClick={() => selectRow && selectRow(row)}
-              onMouseEnter={() => setHoveredRowId(row.id.toString())}
-              onMouseLeave={() => setHoveredRowId(null)}
-              className='gantt-data-panel-row-cell'
-              style={{
-                paddingLeft: key === 'name' ? `${depth * 20}px` : '10px',
-                fontWeight: row.highlight ? 'bold' : 'normal',
-              }}>
-              {key === 'name' && hasChildren && (
-                <button
-                  className='gantt-data-panel-collapse-button '
-                  onClick={e => {
-                    e.stopPropagation();
-                    toggleCollapse(row.id.toString());
-                  }}>
-                  {isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
-                </button>
-              )}
-              <p className='gantt-data-panel-row-cell-content'>{renderRowContent(row, key)}</p>
-              {key === 'name' && ButtonContainer && hoveredRowId === row.id.toString() && (
-                <div className='gantt-data-panel-row-cell-action-buttons'>
-                  <ButtonContainer />
-                </div>
-              )}
-            </div>
-          ))}
+      return (
+        <div key={row.id}>
+          <div
+            className='gantt-data-panel-row-container'
+            style={{
+              gridTemplateColumns,
+            }}>
+            {visibleFields.map(([key], index) => (
+              <div
+                key={`${row.id}-${key}-${index}`}
+                onClick={() => selectRow && selectRow(row)}
+                onMouseEnter={() => setHoveredRowId(row.id.toString())}
+                onMouseLeave={() => setHoveredRowId(null)}
+                className='gantt-data-panel-row-cell'
+                style={{
+                  paddingLeft: key === 'name' ? `${depth * 20}px` : '10px',
+                  fontWeight: row.highlight ? 'bold' : 'normal',
+                }}>
+                {key === 'name' && hasChildren && (
+                  <button
+                    className='gantt-data-panel-collapse-button '
+                    onClick={e => {
+                      e.stopPropagation();
+                      toggleCollapse(row.id.toString());
+                    }}>
+                    {isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
+                  </button>
+                )}
+                <p className='gantt-data-panel-row-cell-content'>{renderRowContent(row, key)}</p>
+                {key === 'name' && ButtonContainer && hoveredRowId === row.id.toString() && (
+                  <div className='gantt-data-panel-row-cell-action-buttons'>
+                    <ButtonContainer />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          {hasChildren && !isCollapsed && row.children && row.children.map(childRow => renderRow(childRow, depth + 1))}
         </div>
-        {hasChildren && !isCollapsed && row.children && row.children.map(childRow => renderRow(childRow, depth + 1))}
-      </div>
-    );
-  };
+      );
+    },
+    [
+      visibleFields,
+      gridTemplateColumns,
+      collapsedItems,
+      hoveredRowId,
+      ButtonContainer,
+      selectRow,
+      toggleCollapse,
+      renderRowContent,
+    ],
+  );
 
   return (
     <div className='gantt-data-panel'>
@@ -141,6 +162,8 @@ const GanttChartDataRowPanel = () => {
       </div>
     </div>
   );
-};
+});
+
+GanttChartDataRowPanel.displayName = 'GanttChartDataRowPanel';
 
 export default GanttChartDataRowPanel;

@@ -140,7 +140,7 @@ function App() {
         </div>
       </div>
 
-      <div style={{ height: '50vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}>
+      <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}>
         <GanttChart
           columns={columns}
           rows={rows}

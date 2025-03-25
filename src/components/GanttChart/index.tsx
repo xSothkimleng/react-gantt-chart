@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { timeFrameSetting } from '../../constants/timeFrameSetting';
 import { TimeFrameSettingType } from '../../types/timeFrameSettingType';
 import { Column } from '../../types/column';
@@ -28,16 +28,15 @@ const GanttChart: React.FC<GanttChartProps> = ({
   className = '',
 }) => {
   // Initialize stores with props
-  useEffect(() => {
-    initializeStores({
-      rows,
-      columns,
-      defaultView,
-      getSelectedRow,
-      ButtonContainer,
-      showSidebar,
-    });
-  }, [rows, columns, defaultView, getSelectedRow, ButtonContainer, showSidebar]);
+
+  initializeStores({
+    rows,
+    columns,
+    defaultView,
+    getSelectedRow,
+    ButtonContainer,
+    showSidebar,
+  });
 
   // Initialize interaction handlers
   useGanttInteractions();
