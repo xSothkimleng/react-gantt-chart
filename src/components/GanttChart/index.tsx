@@ -1,11 +1,12 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { GanttChartProvider } from '../../provider/GanttChartProvider';
 import { timeFrameSetting } from '../../constants/timeFrameSetting';
 import { TimeFrameSettingType } from '../../types/timeFrameSettingType';
 import { Column } from '../../types/column';
 import { Row } from '../../types/row';
 import GanttChartContent from './GanttChartContent';
+import { useConfigStore, useRowsStore } from '../../stores';
 
 export interface GanttChartProps {
   rows: Row[];
@@ -26,6 +27,17 @@ const GanttChart: React.FC<GanttChartProps> = ({
   defaultView = timeFrameSetting.monthly,
   className = '',
 }) => {
+  const { setChartTimeFrameView } = useConfigStore();
+  const { setRows } = useRowsStore();
+
+  useEffect(() => {
+    // Set initial view
+    setChartTimeFrameView(defaultView);
+
+    // Set initial rows
+    setRows(rows);
+  }, [defaultView, rows, setChartTimeFrameView, setRows]);
+
   return (
     <GanttChartProvider
       defaultView={defaultView}
@@ -33,7 +45,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
       column={columns}
       getSelectedRow={getSelectedRow}
       ButtonContainer={ButtonContainer}>
-      <GanttChartContent showSidebar={showSidebar} className={className} />
+      <GanttChartContent showSidebar={showSidebar} className={className} columnSetting={columns} />
     </GanttChartProvider>
   );
 };

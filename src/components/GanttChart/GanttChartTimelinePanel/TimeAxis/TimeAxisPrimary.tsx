@@ -1,13 +1,14 @@
 import GanttChartLoading from '../../../Loading';
 import { timeFrameSetting } from '../../../../constants/timeFrameSetting';
-import { useGanttChart } from '../../../../context/GanttChartContext';
 import MonthlyView from './views/PrimaryHeader/MonthlyView';
 import YearlyView from './views/PrimaryHeader/YearlyView';
 import QuarterMonthView from './views/PrimaryHeader/QuarterMonthView';
 import QuarterYearView from './views/PrimaryHeader/QuarterYearView';
+import { useConfigStore, useUIStore } from '../../../../stores';
 
 const TimeAxisPrimary = () => {
-  const { isLoading, chartTimeFrameView } = useGanttChart();
+  const { isLoading } = useUIStore();
+  const { chartTimeFrameView } = useConfigStore();
 
   if (isLoading) {
     return (

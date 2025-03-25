@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../assets/icons/icons';
-import { useGanttChart } from '../../../context/GanttChartContext';
 import { Row } from '../../../types/row';
 import { progressFormatter } from '../../../utils/progressFormater';
+import { Column } from '../../../types/column';
 
 import './styles.css';
+import { denormalizeRows, useRowsStore, useUIStore } from '../../../stores';
 
-const GanttChartDataRowPanel = () => {
-  const { allRow, columnSetting, getSelectedRow, collapsedItems, toggleCollapse, ButtonContainer } = useGanttChart();
+interface GanttChartDataRowPanelProps {
+  columnSetting?: Column;
+  getSelectedRow?: (row: Row) => void;
+  ButtonContainer?: React.FC;
+}
+
+const GanttChartDataRowPanel: React.FC<GanttChartDataRowPanelProps> = ({ columnSetting, getSelectedRow, ButtonContainer }) => {
+  // Use Zustand stores instead of context
+  const { collapsedItems, toggleCollapse } = useUIStore();
+  const { rowsById, rootIds } = useRowsStore();
+
+  const allRow = denormalizeRows(rowsById, rootIds);
 
   const getColumnWidth = (key: string) => {
     switch (key) {

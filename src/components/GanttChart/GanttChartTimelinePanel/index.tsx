@@ -1,29 +1,40 @@
+// src/components/GanttChart/GanttChartTimelinePanel/index.tsx
+import { useCallback, useEffect, useRef } from 'react';
 import TimeAxisPrimary from './TimeAxis/TimeAxisPrimary';
 import TimeAxisSecondary from './TimeAxis/TimeAxisSecondary';
 import GanttBarPanel from './GanttBarPanel';
-import { useGanttChart } from '../../../context/GanttChartContext';
-import { useCallback, useEffect, useRef } from 'react';
+import { useConfigStore, useInteractionStore, useRowsStore, useUIStore } from '../../../stores';
+import { useGanttInteractions } from '../../../hooks/useGanttInteractions';
 import { DateRangeType, MonthDataType } from '../../../types/dateRangeType';
 import { initializeDateRange } from '../../../utils/dateUtils';
+import { denormalizeRows } from '../../../stores';
 import './styles.css';
 
 const GanttChartTimelinePanel = () => {
-  const {
-    timelinePanelRef,
-    previousContainerScrollLeftPosition,
-    allRow,
-    chartDateRange,
-    chartTimeFrameView,
-    isChartBorderReached,
-    setIsLoading,
-    setChartDateRange,
-    setInteractionState,
-    interactionState,
-  } = useGanttChart();
+  // Get state from Zustand stores
+  const { chartDateRange, chartTimeFrameView, setChartDateRange } = useConfigStore();
+
+  const { state: interactionState, setInteractionState } = useInteractionStore();
+
+  const { rowsById, rootIds } = useRowsStore();
+
+  const { setIsLoading } = useUIStore();
+
+  // Create refs for timeline panel and boundaries
+  const timelinePanelRef = useRef<HTMLDivElement | null>(null);
+  const previousContainerScrollLeftPosition = useRef<number>(0);
+  const isChartBorderReached = useRef<boolean>(false);
   const prevChartDateRange = useRef<DateRangeType>([]);
   const prevTimeFrameView = useRef(chartTimeFrameView);
   const centerPositionRef = useRef<number | null>(null);
 
+  // Use our interactions hook for handling mouse events
+  useGanttInteractions(timelinePanelRef);
+
+  // Convert normalized rows back to the original structure
+  const allRow = denormalizeRows(rowsById, rootIds);
+
+  // Generate empty chart date range when no data is available
   const generateEmptyChartDateRange = () => {
     const dateRange: DateRangeType = [];
 
@@ -69,35 +80,36 @@ const GanttChartTimelinePanel = () => {
     if (prevChartDateRange.current.length === 0) prevChartDateRange.current = dateRange;
   };
 
-  // calculate the new date range
-  const ComputeNewDateRange = useCallback(() => {
+  // calculate the new date range based on row data
+  const computeNewDateRange = useCallback(() => {
     const allDates = allRow.flatMap(row => [new Date(row.start), new Date(row.end)]);
 
     const earliestDate = new Date(Math.min(...allDates.map(date => date.getTime())));
     const latestDate = new Date(Math.max(...allDates.map(date => date.getTime())));
 
-    const DateRangeResult = initializeDateRange(earliestDate, latestDate);
-    setChartDateRange(DateRangeResult);
+    const dateRangeResult = initializeDateRange(earliestDate, latestDate);
+    setChartDateRange(dateRangeResult);
     if (prevChartDateRange.current.length === 0) {
-      prevChartDateRange.current = DateRangeResult;
+      prevChartDateRange.current = dateRangeResult;
     }
   }, [allRow, setChartDateRange]);
 
-  const handleInitializeDateRange = () => {
+  // Initialize the date range
+  const handleInitializeDateRange = useCallback(() => {
     if (!allRow || allRow.length === 0) {
       // check Row list if there are row, if not generate empty chart
       generateEmptyChartDateRange();
     } else if (isChartBorderReached.current) {
       // check if chart boundary is reached to expand the chart
       isChartBorderReached.current = false;
-      ComputeNewDateRange();
+      computeNewDateRange();
     } else if (chartDateRange.length === 0) {
       // first load chart if there are row in the list
-      ComputeNewDateRange();
+      computeNewDateRange();
     }
-  };
+  }, [allRow, chartDateRange.length, computeNewDateRange]);
 
-  // New timeline panel drag and move handler
+  // Timeline panel drag and move handler
   const handleTimelinePanelMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     // Don't initiate timeline dragging if we clicked on a gantt bar or resizer
     if ((e.target as HTMLElement).closest('.gantt-bar') || (e.target as HTMLElement).closest('.bar-resizer')) {
@@ -119,7 +131,7 @@ const GanttChartTimelinePanel = () => {
   useEffect(() => {
     handleInitializeDateRange();
     setIsLoading(false);
-  }, [allRow, setIsLoading]);
+  }, [allRow, setIsLoading, handleInitializeDateRange]);
 
   // Handle time frame view changes
   useEffect(() => {
@@ -127,7 +139,7 @@ const GanttChartTimelinePanel = () => {
       prevTimeFrameView.current = chartTimeFrameView;
       handleInitializeDateRange();
     }
-  }, [chartTimeFrameView]);
+  }, [chartTimeFrameView, handleInitializeDateRange]);
 
   // scrolling to earliest GanttBar
   useEffect(() => {

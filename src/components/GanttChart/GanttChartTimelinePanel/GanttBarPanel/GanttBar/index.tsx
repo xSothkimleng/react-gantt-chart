@@ -1,5 +1,6 @@
-import React, { useRef, useState } from 'react';
-import { useGanttChart } from '../../../../../context/GanttChartContext';
+// src/components/GanttChart/GanttChartTimelinePanel/GanttBarPanel/GanttBar/index.tsx
+import React, { useRef, useState, memo } from 'react';
+import { useConfigStore, useInteractionStore } from '../../../../../stores';
 import BarResizer from './BarResizer';
 import BarProgressIndicator from './BarProgressIndicator';
 import BarDragDropHandler from './BarDragDropHandler';
@@ -14,10 +15,14 @@ import './styles.css';
 type GanttBarProps = {
   index: number;
   row: Row;
+  getSelectedRow?: (row: Row) => void;
 };
 
-const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
-  const { chartTimeFrameView, chartDateRange, isLoading, interactionState, zoomWidth } = useGanttChart();
+const GanttBar: React.FC<GanttBarProps> = ({ index, row, getSelectedRow }) => {
+  // Use Zustand stores instead of context
+  const { chartTimeFrameView, chartDateRange, zoomWidth } = useConfigStore();
+  const { state: interactionState } = useInteractionStore();
+
   const [isHovered, setIsHovered] = useState(false);
   const ganttBarRef = useRef<HTMLDivElement | null>(null);
   const startLeftPosition = useRef<number>(0);
@@ -78,29 +83,6 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
     }
   }
 
-  // Loading Spinner Component
-  const LoadingSpinner: React.FC = () => (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100%',
-        width: '100%',
-      }}>
-      <div
-        style={{
-          width: '20px',
-          height: '20px',
-          border: '2px solid #ffffff',
-          borderTop: '2px solid transparent',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-        }}
-      />
-    </div>
-  );
-
   return (
     <GanttBarErrorBoundary>
       <div
@@ -110,7 +92,6 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
         onMouseLeave={() => setIsHovered(false)}
         role='button'
         aria-label={`GanttBar: ${row.name}`}
-        aria-busy={isLoading}
         className='gantt-bar'
         style={{
           top: `${index * 41}px`,
@@ -125,47 +106,27 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
             background: row.highlight ? 'var(--gantt-bar-highlight-background)' : 'var(--gantt-bar-default-background)',
             boxShadow: isHovered ? 'var(--gantt-bar-boxShadow-hover)' : 'none',
           }}>
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <>
-              {row.showProgressIndicator?.showProgressBar && <BarProgressIndicator item={row} />}
-              <BarDragDropHandler index={index} row={row} startLeftPosition={startLeftPosition} ganttBarRef={ganttBarRef} />
-              <BarResizer
-                position='left'
-                row={row}
-                width={width}
-                ganttBarRef={ganttBarRef}
-                startLeftPosition={startLeftPosition}
-              />
-              <BarResizer
-                position='right'
-                row={row}
-                width={width}
-                ganttBarRef={ganttBarRef}
-                startLeftPosition={startLeftPosition}
-              />
-              <div className='gantt-bar-text-cell'>
-                <p className='gantt-bar-text' title={row.name}>
-                  {row.name}
-                </p>
-                {row.showProgressIndicator?.showLabel && <span className='gnatt-bar-progress-text'>{progressDisplay()}</span>}
-              </div>
-            </>
-          )}
+          {row.showProgressIndicator?.showProgressBar && <BarProgressIndicator item={row} />}
+          <BarDragDropHandler
+            index={index}
+            row={row}
+            startLeftPosition={startLeftPosition}
+            ganttBarRef={ganttBarRef}
+            getSelectedRow={getSelectedRow}
+          />
+          <BarResizer position='left' row={row} width={width} ganttBarRef={ganttBarRef} startLeftPosition={startLeftPosition} />
+          <BarResizer position='right' row={row} width={width} ganttBarRef={ganttBarRef} startLeftPosition={startLeftPosition} />
+          <div className='gantt-bar-text-cell'>
+            <p className='gantt-bar-text' title={row.name}>
+              {row.name}
+            </p>
+            {row.showProgressIndicator?.showLabel && <span className='gnatt-bar-progress-text'>{progressDisplay()}</span>}
+          </div>
         </div>
       </div>
     </GanttBarErrorBoundary>
   );
 };
 
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-document.head.appendChild(styleSheet);
-
-export default GanttBar;
+// Use memo to prevent unnecessary rerenders
+export default memo(GanttBar);
