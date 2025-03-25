@@ -45,13 +45,14 @@ const GanttChartTimelinePanel = () => {
   // Set timelinePanelRef in the store if we're using the local ref
   useEffect(() => {
     if (localTimelinePanelRef.current) {
+      console.log('Setting timeline panel ref', localTimelinePanelRef);
       setTimelinePanelRef(localTimelinePanelRef);
     }
   }, [setTimelinePanelRef]);
 
   // Use either the store's ref or our local ref
   // const panelRef = timelinePanelRef || localTimelinePanelRef;
-  const panelRef = timelinePanelRef || localTimelinePanelRef;
+  // const panelRef = timelinePanelRef || localTimelinePanelRef;
 
   const generateEmptyChartDateRange = () => {
     const dateRange: DateRangeType = [];
@@ -131,20 +132,33 @@ const GanttChartTimelinePanel = () => {
     }
   };
 
+  const panelRef = timelinePanelRef || localTimelinePanelRef;
+
   // New timeline panel drag and move handler
   const handleTimelinePanelMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log('Mouse down on timeline panel');
+
     // Don't initiate timeline dragging if we clicked on a gantt bar or resizer
     if ((e.target as HTMLElement).closest('.gantt-bar') || (e.target as HTMLElement).closest('.gantt-bar-resize-handle')) {
+      console.log('Clicked on bar or resizer, ignoring');
       return;
     }
 
     const container = panelRef.current;
     if (container) {
+      console.log('Starting timeline drag', {
+        pageX: e.pageX,
+        offsetLeft: container.offsetLeft,
+        scrollLeft: container.scrollLeft,
+      });
+
       startTimelineDrag({
         startX: e.pageX - container.offsetLeft,
         scrollLeft: container.scrollLeft,
       });
       container.style.cursor = 'grabbing';
+    } else {
+      console.log('No container found for timeline drag');
     }
   };
 
@@ -165,11 +179,13 @@ const GanttChartTimelinePanel = () => {
 
   return (
     <div
-      ref={timelinePanelRef}
+      ref={localTimelinePanelRef} // Use the local ref here, not the one from the store
       onMouseDown={handleTimelinePanelMouseDown}
       className='gnatt-timeline-panel'
       style={{
         cursor: interactionState.mode === 'timelineDragging' ? 'grabbing' : 'grab',
+        position: 'relative', // Add this to ensure z-index works properly
+        zIndex: 1, // Add z-index to ensure the panel is properly layered
       }}>
       <TimeAxisPrimary />
       <TimeAxisSecondary />

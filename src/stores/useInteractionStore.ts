@@ -2,6 +2,8 @@
 import { create } from 'zustand';
 import { Row } from '../types/row';
 
+const autoScrollRefValue = { current: null };
+
 export type InteractionState =
   | { mode: 'idle' }
   | { mode: 'timelineDragging'; startX: number; scrollLeft: number }
@@ -44,7 +46,7 @@ interface InteractionStateStore {
 
 export const useInteractionStore = create<InteractionStateStore>(set => ({
   interactionState: { mode: 'idle' },
-  autoScrollRef: null,
+  autoScrollRef: autoScrollRefValue,
   leftBoundary: 0,
   rightBoundary: 0,
   isChartBorderReached: false,

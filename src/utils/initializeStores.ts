@@ -6,6 +6,8 @@ import { useGanttChartStore } from '../stores/GanttChartStore';
 import { useInteractionStore } from '../stores/useInteractionStore';
 import { useUIStore } from '../stores/useUIStore';
 
+const autoScrollRefValue = { current: null };
+
 interface InitializeStoresProps {
   rows: Row[];
   columns?: Column;
@@ -38,6 +40,7 @@ export const initializeStores = ({
 
   useInteractionStore.setState({
     interactionState: { mode: 'idle' },
+    autoScrollRef: autoScrollRefValue,
     leftBoundary: 0,
     rightBoundary: 0,
     isChartBorderReached: false,

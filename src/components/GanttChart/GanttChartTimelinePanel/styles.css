@@ -6,6 +6,8 @@
   overflow-x: scroll;
   height: 100%;
   user-select: none;
+  position: relative;
+  z-index: 1;
 }
 
 .gnatt-timeline-panel:active {
