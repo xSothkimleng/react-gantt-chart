@@ -1,9 +1,12 @@
+// Updated src/components/GanttChart/GanttChartTimelinePanel/index.tsx
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import TimeAxisPrimary from './TimeAxis/TimeAxisPrimary';
 import TimeAxisSecondary from './TimeAxis/TimeAxisSecondary';
 import GanttBarPanel from './GanttBarPanel';
 import { DateRangeType, MonthDataType } from '../../../types/dateRangeType';
 import { initializeDateRange } from '../../../utils/dateUtils';
+import { scrollToEarliestBar } from '../../../utils/ganttBarUtils';
 import './styles.css';
 import { useGanttChartStore } from '../../../stores/GanttChartStore';
 import { useInteractionStore } from '../../../stores/useInteractionStore';
@@ -17,9 +20,14 @@ const GanttChartTimelinePanel = () => {
   const setChartDateRange = useGanttChartStore(state => state.setChartDateRange);
   const setIsLoading = useGanttChartStore(state => state.setIsLoading);
   const setIsChartBorderReached = useGanttChartStore(state => state.setIsChartBorderReached);
+  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
 
   // State to track if date range has been initialized
   const [dateRangeInitialized, setDateRangeInitialized] = useState(false);
+  // Add a state to track if initial scroll has been performed
+  const [initialScrollPerformed, setInitialScrollPerformed] = useState(false);
+  // Add a ref to track the previous view for view changes
+  const previousViewRef = useRef(chartTimeFrameView.name);
 
   // Create ref for time panel
   const timelinePanelRef = useRef<HTMLDivElement>(null);
@@ -153,8 +161,44 @@ const GanttChartTimelinePanel = () => {
       } else {
         computeNewDateRange();
       }
+
+      // Reset initial scroll flag when view changes to trigger a new scroll
+      setInitialScrollPerformed(false);
+
+      // Track that the view has changed
+      previousViewRef.current = chartTimeFrameView.name;
     }
   }, [dateRangeInitialized, chartTimeFrameView, rows, generateEmptyChartDateRange, computeNewDateRange, setChartDateRange]);
+
+  // Add effect for scrolling to the earliest Gantt bar
+  useEffect(() => {
+    // Only perform scroll if:
+    // 1. Date range is initialized and not empty
+    // 2. We have rows with data
+    // 3. Timeline panel ref exists
+    // 4. We haven't performed initial scroll yet OR the view has changed
+    if (
+      dateRangeInitialized &&
+      chartDateRange.length > 0 &&
+      rows.length > 0 &&
+      timelinePanelRef.current &&
+      !initialScrollPerformed
+    ) {
+      // Small delay to ensure DOM is fully rendered
+      const timeoutId = setTimeout(() => {
+        // Calculate day width based on current view and zoom
+        const dayWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
+
+        // Scroll to the earliest bar with a small left padding (80px)
+        scrollToEarliestBar(timelinePanelRef, rows, chartDateRange, dayWidth, 80);
+
+        // Mark initial scroll as performed
+        setInitialScrollPerformed(true);
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [dateRangeInitialized, chartDateRange, rows, initialScrollPerformed, chartTimeFrameView, zoomWidth]);
 
   // Safe timeline panel drag handler
   const handleTimelinePanelMouseDown = useCallback(

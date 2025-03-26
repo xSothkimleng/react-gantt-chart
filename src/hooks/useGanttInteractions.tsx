@@ -38,7 +38,7 @@ export const useGanttInteractions = () => {
 
     const rect = container.getBoundingClientRect();
     const edgeThreshold = 30;
-    const scrollSpeed = 15;
+    const scrollSpeed = 5;
 
     const isNearRightEdge = e.clientX > rect.right - edgeThreshold;
     const isNearLeftEdge = e.clientX < rect.left + edgeThreshold;
