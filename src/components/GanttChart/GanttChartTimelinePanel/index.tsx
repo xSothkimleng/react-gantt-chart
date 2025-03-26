@@ -37,11 +37,15 @@ const GanttChartTimelinePanel = () => {
 
   // Set timelinePanelRef in the store once on component mount
   useEffect(() => {
-    if (timelinePanelRef.current && !refHasBeenSet.current) {
+    if (timelinePanelRef.current) {
+      // Make sure we're passing the actual DOM element reference
       setTimelinePanelRef(timelinePanelRef);
       refHasBeenSet.current = true;
+
+      // Log to confirm it's set correctly - you can remove this later
+      console.log('Timeline panel ref set:', timelinePanelRef.current);
     }
-  }, [setTimelinePanelRef]);
+  }, [setTimelinePanelRef, timelinePanelRef.current]);
 
   const generateEmptyChartDateRange = useCallback(() => {
     const dateRange: DateRangeType = [];
@@ -155,21 +159,31 @@ const GanttChartTimelinePanel = () => {
   // Safe timeline panel drag handler
   const handleTimelinePanelMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      console.log('Timeline panel mousedown');
+
       // Don't initiate timeline dragging if we clicked on a gantt bar or resizer
       if ((e.target as HTMLElement).closest('.gantt-bar') || (e.target as HTMLElement).closest('.gantt-bar-resize-handle')) {
+        console.log('Ignoring mousedown on gantt bar or resizer');
         return;
       }
 
       const container = timelinePanelRef.current;
       if (container) {
+        console.log('Starting timeline drag', {
+          startX: e.pageX - container.offsetLeft,
+          scrollLeft: container.scrollLeft,
+        });
+
         startTimelineDrag({
           startX: e.pageX - container.offsetLeft,
           scrollLeft: container.scrollLeft,
         });
         container.style.cursor = 'grabbing';
+      } else {
+        console.log('No valid timelinePanelRef for drag');
       }
     },
-    [startTimelineDrag],
+    [startTimelineDrag, timelinePanelRef],
   );
 
   // If still loading or date range not initialized, show loading state

@@ -18,6 +18,7 @@ type GanttBarProps = {
 };
 
 const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
+  console.log('bar', index);
   const isLoading = useGanttChartStore(state => state.isLoading);
   const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
   const zoomWidth = useGanttChartStore(state => state.zoomWidth);
@@ -138,13 +139,13 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
             <>
               {row.showProgressIndicator?.showProgressBar && <BarProgressIndicator item={row} />}
               <BarDragDropHandler index={index} row={row} startLeftPosition={startLeftPosition} ganttBarRef={ganttBarRef} />
-              <BarResizer
+              {/* <BarResizer
                 position='left'
                 row={row}
                 width={width}
                 ganttBarRef={ganttBarRef}
                 startLeftPosition={startLeftPosition}
-              />
+              /> */}
               <BarResizer
                 position='right'
                 row={row}

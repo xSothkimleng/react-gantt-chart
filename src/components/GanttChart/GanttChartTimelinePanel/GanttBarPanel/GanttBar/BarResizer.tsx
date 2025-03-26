@@ -15,16 +15,26 @@ const BarResizer: React.FC<ResizeButtonProps> = ({ position, ganttBarRef, row })
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent dragging or timeline drag
+    console.log(`Resize handle ${position} mousedown`);
 
     if (row.isLocked) return;
 
     if (ganttBarRef.current) {
+      const barWidth = parseInt(ganttBarRef.current.style.width || '0', 10);
+      const barLeft = parseInt(ganttBarRef.current.style.left || '0', 10);
+
+      console.log(`Starting ${position} resize:`, {
+        barId: row.id.toString(),
+        width: barWidth,
+        left: barLeft,
+      });
+
       startBarResize({
         barId: row.id.toString(),
         edge: position,
         startX: e.clientX,
-        startWidth: parseInt(ganttBarRef.current.style.width || '0', 10),
-        startLeft: parseInt(ganttBarRef.current.style.left || '0', 10),
+        startWidth: barWidth,
+        startLeft: barLeft,
         rowData: row,
       });
     }
@@ -36,7 +46,7 @@ const BarResizer: React.FC<ResizeButtonProps> = ({ position, ganttBarRef, row })
       className='gantt-bar-resize-handle'
       style={{
         [position]: '0',
-        cursor: row.isLocked ? 'grab' : 'ew-resize',
+        cursor: row.isLocked ? 'not-allowed' : 'ew-resize',
       }}
     />
   );

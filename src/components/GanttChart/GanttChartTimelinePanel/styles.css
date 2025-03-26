@@ -8,8 +8,29 @@
   user-select: none;
   position: relative;
   z-index: 1;
+  cursor: grab;
 }
 
-.gnatt-timeline-panel:active {
+.gnatt-timeline-panel.dragging {
   cursor: grabbing !important;
+}
+
+/* Make sure bar hover states are clearly visible */
+.gantt-bar:hover .gantt-bar-cell-overlay {
+  box-shadow: var(--gantt-bar-boxShadow-hover) !important;
+}
+
+/* Ensure resize handles are detectable */
+.gantt-bar-resize-handle {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 30;
+  width: var(--gantt-bar-resize-handle-width);
+  background: var(--gantt-bar-resize-handle-background);
+  cursor: ew-resize;
+}
+
+.gantt-bar-resize-handle:hover {
+  background: rgba(0, 0, 0, 0.3);
 }

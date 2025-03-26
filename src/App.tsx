@@ -83,6 +83,17 @@ function App() {
     console.log('Selected item', row);
   };
 
+  const testInteraction = () => {
+    const timelinePanelRef = document.querySelector('.gnatt-timeline-panel');
+    if (timelinePanelRef) {
+      console.log('Manual test: Timeline panel found');
+      // Test scrolling the timeline
+      (timelinePanelRef as HTMLElement).scrollLeft += 100;
+    } else {
+      console.log('Manual test: Timeline panel NOT found');
+    }
+  };
+
   const ButtonContainer = () => {
     return (
       <div style={{ display: 'flex', gap: '3px' }}>
@@ -138,6 +149,9 @@ function App() {
             <PlusIcon /> Zoom In
           </button>
         </div>
+        <button onClick={testInteraction} style={{ marginLeft: 'auto', background: '#ff8800', color: 'white' }}>
+          Test Interaction
+        </button>
       </div>
 
       <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}>

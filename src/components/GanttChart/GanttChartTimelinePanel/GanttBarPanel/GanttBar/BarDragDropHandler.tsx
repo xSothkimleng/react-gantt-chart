@@ -20,12 +20,23 @@ const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, ro
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent timeline drag
-    if (row.isLocked) return;
+    console.log('Bar mouse down triggered for row:', row.id);
+
+    if (row.isLocked) {
+      console.log('Row is locked, not starting drag');
+      return;
+    }
 
     isClicking.current = true;
     mouseDownTime.current = Date.now();
 
     if (ganttBarRef.current) {
+      console.log('Starting bar drag', {
+        barId: row.id.toString(),
+        startX: e.clientX,
+        startLeft: parseInt(ganttBarRef.current.style.left || '0', 10),
+      });
+
       // Only start dragging if there's a valid reference to the bar
       startBarDrag({
         barId: row.id.toString(),
@@ -33,6 +44,8 @@ const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, ro
         startLeft: parseInt(ganttBarRef.current.style.left || '0', 10),
         rowData: row,
       });
+    } else {
+      console.log('No valid ganttBarRef for drag');
     }
   };
 
