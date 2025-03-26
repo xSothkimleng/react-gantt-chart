@@ -14,13 +14,24 @@ export const useGanttInteractions = () => {
   const setInteractionState = useInteractionStore(state => state.setInteractionState);
   const autoScrollRef = useInteractionStore(state => state.autoScrollRef);
   const updateRow = useGanttChartStore(state => state.updateRow);
-  const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
   const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
   const zoomWidth = useGanttChartStore(state => state.zoomWidth);
   const setPreviousContainerScrollLeftPosition = useInteractionStore(state => state.setPreviousContainerScrollLeftPosition);
 
+  // Check if timeline panel ref is available in the UI store
+  const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
+
   // Store the last day width to avoid expensive recalculations
   const dayWidth = useRef(chartTimeFrameView.dayWidthUnit + zoomWidth);
+
+  // Flag to track if event listeners have been attached
+  const listenersAttached = useRef(false);
+
+  // Store refs to handler functions to ensure consistent cleanup
+  const handlersRef = useRef({
+    mouseMoveHandler: null as ((e: MouseEvent) => void) | null,
+    mouseUpHandler: null as ((e: MouseEvent) => void) | null,
+  });
 
   // Update stored day width when chartTimeFrameView or zoomWidth changes
   useEffect(() => {
@@ -31,11 +42,9 @@ export const useGanttInteractions = () => {
    * Handle automatic scrolling when dragging near the edge of the container
    */
   const handleAutoScroll = (e: MouseEvent) => {
-    if (interactionState.mode === 'idle' || !timelinePanelRef) return;
+    if (interactionState.mode === 'idle' || !timelinePanelRef?.current) return;
 
     const container = timelinePanelRef.current;
-    if (!container) return;
-
     const rect = container.getBoundingClientRect();
     const edgeThreshold = 30;
     const scrollSpeed = 15;
@@ -62,13 +71,13 @@ export const useGanttInteractions = () => {
           if (interactionState.mode === 'barDragging') {
             const barElement = document.querySelector(`[data-bar-id="${interactionState.barId}"]`) as HTMLElement;
             if (barElement) {
-              const currentLeft = parseInt(barElement.style.left);
+              const currentLeft = parseInt(barElement.style.left || '0');
               barElement.style.left = `${currentLeft + scrollSpeed}px`;
             }
           } else if (interactionState.mode === 'barResizing' && interactionState.edge === 'right') {
             const barElement = document.querySelector(`[data-bar-id="${interactionState.barId}"]`) as HTMLElement;
             if (barElement) {
-              const currentWidth = parseInt(barElement.style.width);
+              const currentWidth = parseInt(barElement.style.width || '0');
               barElement.style.width = `${currentWidth + scrollSpeed}px`;
             }
           }
@@ -79,14 +88,14 @@ export const useGanttInteractions = () => {
           if (interactionState.mode === 'barDragging') {
             const barElement = document.querySelector(`[data-bar-id="${interactionState.barId}"]`) as HTMLElement;
             if (barElement) {
-              const currentLeft = parseInt(barElement.style.left);
+              const currentLeft = parseInt(barElement.style.left || '0');
               barElement.style.left = `${currentLeft - scrollSpeed}px`;
             }
           } else if (interactionState.mode === 'barResizing' && interactionState.edge === 'left') {
             const barElement = document.querySelector(`[data-bar-id="${interactionState.barId}"]`) as HTMLElement;
             if (barElement) {
-              const currentLeft = parseInt(barElement.style.left);
-              const currentWidth = parseInt(barElement.style.width);
+              const currentLeft = parseInt(barElement.style.left || '0');
+              const currentWidth = parseInt(barElement.style.width || '0');
               barElement.style.left = `${currentLeft - scrollSpeed}px`;
               barElement.style.width = `${currentWidth + scrollSpeed}px`;
             }
@@ -103,10 +112,29 @@ export const useGanttInteractions = () => {
     }
   };
 
-  // Set up mouse event handlers
+  // Cleanup function to handle all listener removal and animation cancellation
+  const cleanupListeners = () => {
+    // Remove event listeners if they were attached
+    if (listenersAttached.current && handlersRef.current.mouseMoveHandler && handlersRef.current.mouseUpHandler) {
+      document.removeEventListener('mousemove', handlersRef.current.mouseMoveHandler);
+      document.removeEventListener('mouseup', handlersRef.current.mouseUpHandler);
+      listenersAttached.current = false;
+    }
+
+    // Cancel any ongoing auto-scroll
+    if (autoScrollRef?.current) {
+      cancelAnimationFrame(autoScrollRef.current);
+      autoScrollRef.current = null;
+    }
+  };
+
+  // This effect manages all interaction event handlers
   useEffect(() => {
-    // Skip event handling if in idle mode
-    if (interactionState.mode === 'idle') return;
+    // Don't proceed if we're in idle mode or timeline panel ref isn't set
+    if (interactionState.mode === 'idle' || !timelinePanelRef) {
+      cleanupListeners();
+      return;
+    }
 
     /**
      * Handle mouse movement for different interaction modes
@@ -120,6 +148,7 @@ export const useGanttInteractions = () => {
       switch (interactionState.mode) {
         case 'timelineDragging': {
           if (!timelinePanelRef?.current) return;
+
           const x = e.pageX - timelinePanelRef.current.offsetLeft;
           const scroll = interactionState.startX - x;
           timelinePanelRef.current.scrollLeft = interactionState.scrollLeft + scroll;
@@ -167,7 +196,7 @@ export const useGanttInteractions = () => {
      * Handle mouse up to finalize interactions
      */
     const handleMouseUp = () => {
-      // Store the current mode before resetting it
+      // Make a copy of the current state since we'll reset it before processing
       const currentMode = interactionState.mode;
       const currentBarId = interactionState.mode !== 'timelineDragging' ? interactionState.barId : '';
       const currentStartLeft = interactionState.mode === 'barDragging' ? interactionState.startLeft : 0;
@@ -178,61 +207,26 @@ export const useGanttInteractions = () => {
       // Reset to idle state immediately to prevent re-renders during updates
       setInteractionState({ mode: 'idle' });
 
-      // Finalize the interaction
-      switch (currentMode) {
-        case 'timelineDragging': {
-          if (timelinePanelRef?.current) {
-            timelinePanelRef.current.style.cursor = 'grab';
-            setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
-          }
-          break;
-        }
-
-        case 'barDragging': {
-          const barElement = document.querySelector(`[data-bar-id="${currentBarId}"]`) as HTMLElement;
-          if (!barElement || !currentRowData) break;
-
-          // Snap to grid
-          const newLeft = snapToGridValuePosition(barElement.style.left, dayWidth.current);
-          barElement.style.left = `${newLeft}px`;
-
-          // Update data
-          const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
-
-          if (daysMoved !== 0) {
-            updateRow(currentBarId, rowItem => {
-              const newStartDate = new Date(rowItem.start);
-              newStartDate.setDate(newStartDate.getDate() + daysMoved);
-
-              const newEndDate = new Date(rowItem.end);
-              newEndDate.setDate(newEndDate.getDate() + daysMoved);
-
-              return {
-                ...rowItem,
-                start: newStartDate.toISOString(),
-                end: newEndDate.toISOString(),
-              };
-            });
+      try {
+        // Finalize the interaction
+        switch (currentMode) {
+          case 'timelineDragging': {
+            if (timelinePanelRef?.current) {
+              timelinePanelRef.current.style.cursor = 'grab';
+              setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
+            }
+            break;
           }
 
-          if (timelinePanelRef?.current) {
-            setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
-          }
-          break;
-        }
+          case 'barDragging': {
+            const barElement = document.querySelector(`[data-bar-id="${currentBarId}"]`) as HTMLElement;
+            if (!barElement || !currentRowData) break;
 
-        case 'barResizing': {
-          const barElement = document.querySelector(`[data-bar-id="${currentBarId}"]`) as HTMLElement;
-          if (!barElement || !currentEdge || !currentRowData) break;
-
-          if (currentEdge === 'left') {
-            // Snap left edge to grid
-            const newLeft = snapToGridValuePosition(barElement.style.left, dayWidth.current);
-            const newWidth = parseInt(barElement.style.width) + (parseInt(barElement.style.left) - newLeft);
+            // Snap to grid
+            const newLeft = snapToGridValuePosition(barElement.style.left || '0', dayWidth.current);
             barElement.style.left = `${newLeft}px`;
-            barElement.style.width = `${newWidth}px`;
 
-            // Update start date
+            // Update data
             const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
 
             if (daysMoved !== 0) {
@@ -240,67 +234,104 @@ export const useGanttInteractions = () => {
                 const newStartDate = new Date(rowItem.start);
                 newStartDate.setDate(newStartDate.getDate() + daysMoved);
 
+                const newEndDate = new Date(rowItem.end);
+                newEndDate.setDate(newEndDate.getDate() + daysMoved);
+
                 return {
                   ...rowItem,
                   start: newStartDate.toISOString(),
-                };
-              });
-            }
-          } else {
-            // Snap width to grid
-            const gridInterval = dayWidth.current;
-            const newWidth = Math.round(parseInt(barElement.style.width) / gridInterval) * gridInterval;
-            barElement.style.width = `${newWidth}px`;
-
-            // Update end date
-            const daysChanged = Math.round((newWidth - currentStartWidth) / gridInterval);
-
-            if (daysChanged !== 0) {
-              updateRow(currentBarId, rowItem => {
-                const newEndDate = new Date(rowItem.end);
-                newEndDate.setDate(newEndDate.getDate() + daysChanged);
-
-                return {
-                  ...rowItem,
                   end: newEndDate.toISOString(),
                 };
               });
             }
+
+            if (timelinePanelRef?.current) {
+              setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
+            }
+            break;
           }
 
-          if (timelinePanelRef?.current) {
-            setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
+          case 'barResizing': {
+            const barElement = document.querySelector(`[data-bar-id="${currentBarId}"]`) as HTMLElement;
+            if (!barElement || !currentEdge || !currentRowData) break;
+
+            if (currentEdge === 'left') {
+              // Snap left edge to grid
+              const newLeft = snapToGridValuePosition(barElement.style.left || '0', dayWidth.current);
+              const newWidth = parseInt(barElement.style.width || '0') + (parseInt(barElement.style.left || '0') - newLeft);
+              barElement.style.left = `${newLeft}px`;
+              barElement.style.width = `${newWidth}px`;
+
+              // Update start date
+              const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
+
+              if (daysMoved !== 0) {
+                updateRow(currentBarId, rowItem => {
+                  const newStartDate = new Date(rowItem.start);
+                  newStartDate.setDate(newStartDate.getDate() + daysMoved);
+
+                  return {
+                    ...rowItem,
+                    start: newStartDate.toISOString(),
+                  };
+                });
+              }
+            } else {
+              // Snap width to grid
+              const gridInterval = dayWidth.current;
+              const newWidth = Math.round(parseInt(barElement.style.width || '0') / gridInterval) * gridInterval;
+              barElement.style.width = `${newWidth}px`;
+
+              // Update end date
+              const daysChanged = Math.round((newWidth - currentStartWidth) / gridInterval);
+
+              if (daysChanged !== 0) {
+                updateRow(currentBarId, rowItem => {
+                  const newEndDate = new Date(rowItem.end);
+                  newEndDate.setDate(newEndDate.getDate() + daysChanged);
+
+                  return {
+                    ...rowItem,
+                    end: newEndDate.toISOString(),
+                  };
+                });
+              }
+            }
+
+            if (timelinePanelRef?.current) {
+              setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
+            }
+            break;
           }
-          break;
         }
+      } catch (error) {
+        console.error('Error in interaction handler:', error);
       }
 
-      // Stop auto-scrolling
-      if (autoScrollRef?.current) {
-        cancelAnimationFrame(autoScrollRef.current);
-        autoScrollRef.current = null;
-      }
+      // Cleanup regardless of success or failure
+      cleanupListeners();
     };
 
-    // Add event listeners
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    // Store handlers in the ref for consistent cleanup
+    handlersRef.current.mouseMoveHandler = handleMouseMove;
+    handlersRef.current.mouseUpHandler = handleMouseUp;
 
-    // Clean up
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+    // Add event listeners if not already attached
+    if (!listenersAttached.current) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      listenersAttached.current = true;
+    }
 
-      // Ensure auto-scrolling is stopped when unmounting
-      if (autoScrollRef?.current) {
-        cancelAnimationFrame(autoScrollRef.current);
-        autoScrollRef.current = null;
-      }
-    };
-  }, [interactionState, autoScrollRef, timelinePanelRef, setInteractionState, updateRow, setPreviousContainerScrollLeftPosition]);
+    // Clean up on unmount
+    return cleanupListeners;
+  }, [interactionState, setInteractionState, updateRow, timelinePanelRef, setPreviousContainerScrollLeftPosition]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return cleanupListeners;
+  }, []);
 
   // Return any methods that might be needed by components
-  return {
-    // You can expose any additional methods here if needed
-  };
+  return {};
 };

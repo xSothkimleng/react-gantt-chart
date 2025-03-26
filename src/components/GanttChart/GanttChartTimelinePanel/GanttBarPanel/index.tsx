@@ -15,33 +15,46 @@ const GanttBarPanel = () => {
   const zoomWidth = useGanttChartStore(state => state.zoomWidth);
   const setBoundaries = useInteractionStore(state => state.setBoundaries);
 
-  // Calculate boundaries in a memoized way to prevent recalculations on every render
-  const boundaries = useMemo(() => {
-    if (chartDateRange.length === 0) return { left: 0, right: 0 };
+  // Only calculate day width once per render
+  const dayWidth = useMemo(() => {
+    return chartTimeFrameView.dayWidthUnit + zoomWidth;
+  }, [chartTimeFrameView.dayWidthUnit, zoomWidth]);
 
-    // combine default width with zoom width
-    const chartWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
+  // Calculate boundaries in a safe memoized way
+  const boundaries = useMemo(() => {
+    // Skip calculation if chart date range is empty
+    if (!chartDateRange || chartDateRange.length === 0) {
+      return { left: 0, right: 0 };
+    }
 
     // Left boundary is a fixed offset from the start
-    const leftBoundary = chartWidth * 7;
+    const leftBoundary = dayWidth * 7;
 
     // Right boundary is based on the total days in the chart
     const totalDays = getTotalDayInChartDateRange(chartDateRange);
-    const rightBoundary = totalDays * chartWidth - chartWidth * 7;
+    const rightBoundary = totalDays * dayWidth - dayWidth * 7;
 
     // Ensure a minimum chart width even at small zoom levels
     const finalRightBoundary = rightBoundary <= leftBoundary ? leftBoundary + 100 : rightBoundary;
 
     return { left: leftBoundary, right: finalRightBoundary };
-  }, [chartDateRange, chartTimeFrameView, zoomWidth]);
+  }, [chartDateRange, dayWidth]);
 
-  // Update boundaries in the store when they change
+  // Update boundaries in the store when they change - NOT during render
   useEffect(() => {
-    setBoundaries(boundaries.left, boundaries.right);
+    // Only update boundaries if they are valid
+    if (boundaries.left >= 0 && boundaries.right > boundaries.left) {
+      setBoundaries(boundaries.left, boundaries.right);
+    }
   }, [boundaries.left, boundaries.right, setBoundaries]);
 
   // Row rendering logic with memoization to prevent unnecessary re-renders
   const renderedRows = useMemo(() => {
+    // Don't try to render if we don't have valid rows or the chart date range isn't ready
+    if (rows.length === 0 || chartDateRange.length === 0) {
+      return null;
+    }
+
     let currentIndex = 0;
 
     const renderRow = (row: Row) => {
@@ -57,8 +70,9 @@ const GanttBarPanel = () => {
     };
 
     return rows.map(row => renderRow(row));
-  }, [rows, collapsedItems]);
+  }, [rows, collapsedItems, chartDateRange.length]);
 
+  // Loading state - also check if chartDateRange is ready
   if (isLoading || chartDateRange.length === 0) {
     return (
       <div style={{ background: 'rgba(0,0,0,0.2)', width: '100%', height: '100%' }}>
@@ -66,8 +80,6 @@ const GanttBarPanel = () => {
       </div>
     );
   }
-
-  const dayWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
 
   return (
     <div

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import TimeAxisPrimary from './TimeAxis/TimeAxisPrimary';
 import TimeAxisSecondary from './TimeAxis/TimeAxisSecondary';
 import GanttBarPanel from './GanttBarPanel';
@@ -18,11 +18,15 @@ const GanttChartTimelinePanel = () => {
   const setIsLoading = useGanttChartStore(state => state.setIsLoading);
   const setIsChartBorderReached = useGanttChartStore(state => state.setIsChartBorderReached);
 
-  // Get UI store actions and state
+  // State to track if date range has been initialized
+  const [dateRangeInitialized, setDateRangeInitialized] = useState(false);
+
+  // Create ref for time panel
+  const timelinePanelRef = useRef<HTMLDivElement>(null);
   const { setTimelinePanelRef } = useUIStore();
 
-  // Create ref for time panel - this is crucial for proper scrolling
-  const timelinePanelRef = useRef<HTMLDivElement | null>(null);
+  // Track whether ref has been set to avoid multiple setTimelinePanelRef calls
+  const refHasBeenSet = useRef(false);
 
   // Get interaction state and actions
   const interactionState = useInteractionStore(state => state.interactionState);
@@ -33,21 +37,19 @@ const GanttChartTimelinePanel = () => {
 
   // Set timelinePanelRef in the store once on component mount
   useEffect(() => {
-    if (timelinePanelRef.current) {
-      setTimelinePanelRef({ current: timelinePanelRef.current });
+    if (timelinePanelRef.current && !refHasBeenSet.current) {
+      setTimelinePanelRef(timelinePanelRef);
+      refHasBeenSet.current = true;
     }
-
-    // We only want to do this setup once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setTimelinePanelRef]);
 
   const generateEmptyChartDateRange = useCallback(() => {
     const dateRange: DateRangeType = [];
 
     // Get today's date and set start and end dates
     const today = new Date();
-    const startDate = new Date(today.getFullYear(), today.getMonth(), 1); // Start of the current month
-    const endDate = new Date(today.getFullYear() + 6, today.getMonth(), 1); // Start of the same month 3 years later
+    const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    const endDate = new Date(today.getFullYear() + 6, today.getMonth(), 1);
     const current = new Date(startDate);
 
     while (current < endDate) {
@@ -58,23 +60,18 @@ const GanttChartTimelinePanel = () => {
       // Loop through each month of the current year
       while (current.getFullYear() === currentYear && current < endDate) {
         const currentMonth = current.getMonth();
-
-        // Get the total number of days in the current month
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         totalDays += daysInMonth;
 
-        // Add the month data to the months array
         months.push({
           month: currentMonth,
           days: daysInMonth,
         });
 
-        // Move to the first day of the next month
         current.setMonth(currentMonth + 1);
         current.setDate(1);
       }
 
-      // After finishing all months of the current year, add the year data to dateRange
       dateRange.push({
         year: currentYear,
         months: months,
@@ -82,44 +79,80 @@ const GanttChartTimelinePanel = () => {
       });
     }
 
-    setChartDateRange(dateRange);
-    if (prevChartDateRange.current.length === 0) prevChartDateRange.current = dateRange;
-  }, [setChartDateRange]);
+    return dateRange;
+  }, []);
 
   // Calculate the new date range
-  const ComputeNewDateRange = useCallback(() => {
-    const allDates = rows.flatMap(row => [new Date(row.start), new Date(row.end)]);
-
-    if (allDates.length === 0) {
-      generateEmptyChartDateRange();
+  const computeNewDateRange = useCallback(() => {
+    if (rows.length === 0) {
+      const emptyRange = generateEmptyChartDateRange();
+      setChartDateRange(emptyRange);
+      if (prevChartDateRange.current.length === 0) {
+        prevChartDateRange.current = emptyRange;
+      }
       return;
     }
 
+    const allDates = rows.flatMap(row => [new Date(row.start), new Date(row.end)]);
     const earliestDate = new Date(Math.min(...allDates.map(date => date.getTime())));
     const latestDate = new Date(Math.max(...allDates.map(date => date.getTime())));
 
-    const DateRangeResult = initializeDateRange(earliestDate, latestDate);
-    setChartDateRange(DateRangeResult);
+    const dateRangeResult = initializeDateRange(earliestDate, latestDate);
+    setChartDateRange(dateRangeResult);
     if (prevChartDateRange.current.length === 0) {
-      prevChartDateRange.current = DateRangeResult;
+      prevChartDateRange.current = dateRangeResult;
     }
   }, [rows, setChartDateRange, generateEmptyChartDateRange]);
 
-  const handleInitializeDateRange = useCallback(() => {
-    if (!rows || rows.length === 0) {
-      // check Row list if there are row, if not generate empty chart
-      generateEmptyChartDateRange();
-    } else if (isChartBorderReached) {
-      // check if chart boundary is reached to expand the chart
-      setIsChartBorderReached(false);
-      ComputeNewDateRange();
-    } else if (chartDateRange.length === 0) {
-      // first load chart if there are row in the list
-      ComputeNewDateRange();
-    }
-  }, [rows, isChartBorderReached, chartDateRange, generateEmptyChartDateRange, setIsChartBorderReached, ComputeNewDateRange]);
+  // Initialize the date range - only run once and then set flag
+  useEffect(() => {
+    if (!dateRangeInitialized) {
+      // First set loading state to true
+      setIsLoading(true);
 
-  // New timeline panel drag and move handler
+      // Check what type of initialization is needed
+      if (!rows || rows.length === 0) {
+        const emptyRange = generateEmptyChartDateRange();
+        setChartDateRange(emptyRange);
+      } else if (isChartBorderReached) {
+        setIsChartBorderReached(false);
+        computeNewDateRange();
+      } else if (chartDateRange.length === 0) {
+        computeNewDateRange();
+      }
+
+      // Mark as initialized and finish loading
+      setDateRangeInitialized(true);
+      setIsLoading(false);
+    }
+  }, [
+    dateRangeInitialized,
+    rows,
+    isChartBorderReached,
+    chartDateRange.length,
+    generateEmptyChartDateRange,
+    computeNewDateRange,
+    setChartDateRange,
+    setIsChartBorderReached,
+    setIsLoading,
+  ]);
+
+  // Handle time frame view changes
+  useEffect(() => {
+    if (dateRangeInitialized && prevTimeFrameView.current !== chartTimeFrameView) {
+      prevTimeFrameView.current = chartTimeFrameView;
+
+      // Don't re-initialize completely, just recompute the date range
+      if (rows.length === 0) {
+        const emptyRange = generateEmptyChartDateRange();
+        setChartDateRange(emptyRange);
+      } else {
+        computeNewDateRange();
+      }
+    }
+  }, [dateRangeInitialized, chartTimeFrameView, rows, generateEmptyChartDateRange, computeNewDateRange, setChartDateRange]);
+
+  // Safe timeline panel drag handler
   const handleTimelinePanelMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       // Don't initiate timeline dragging if we clicked on a gantt bar or resizer
@@ -139,19 +172,10 @@ const GanttChartTimelinePanel = () => {
     [startTimelineDrag],
   );
 
-  // Initialize the date range
-  useEffect(() => {
-    handleInitializeDateRange();
-    setIsLoading(false);
-  }, [rows, setIsLoading, handleInitializeDateRange]);
-
-  // Handle time frame view changes
-  useEffect(() => {
-    if (prevTimeFrameView.current !== chartTimeFrameView) {
-      prevTimeFrameView.current = chartTimeFrameView;
-      handleInitializeDateRange();
-    }
-  }, [chartTimeFrameView, handleInitializeDateRange]);
+  // If still loading or date range not initialized, show loading state
+  if (!dateRangeInitialized || chartDateRange.length === 0) {
+    return <div>Loading timeline...</div>;
+  }
 
   return (
     <div
