@@ -13,7 +13,6 @@ export const useGanttInteractions = () => {
   const interactionState = useInteractionStore(state => state.interactionState);
   const setInteractionState = useInteractionStore(state => state.setInteractionState);
   const autoScrollRef = useInteractionStore(state => state.autoScrollRef);
-  const updateRow = useGanttChartStore(state => state.updateRow);
   const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
   const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
   const zoomWidth = useGanttChartStore(state => state.zoomWidth);
@@ -198,7 +197,7 @@ export const useGanttInteractions = () => {
           const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
 
           if (daysMoved !== 0) {
-            updateRow(currentBarId, rowItem => {
+            useGanttChartStore.getState().updateSpecificRow(currentBarId, rowItem => {
               const newStartDate = new Date(rowItem.start);
               newStartDate.setDate(newStartDate.getDate() + daysMoved);
 
@@ -234,7 +233,7 @@ export const useGanttInteractions = () => {
             const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
 
             if (daysMoved !== 0) {
-              updateRow(currentBarId, rowItem => {
+              useGanttChartStore.getState().updateSpecificRow(currentBarId, rowItem => {
                 const newStartDate = new Date(rowItem.start);
                 newStartDate.setDate(newStartDate.getDate() + daysMoved);
 
@@ -254,7 +253,7 @@ export const useGanttInteractions = () => {
             const daysChanged = Math.round((newWidth - currentStartWidth) / gridInterval);
 
             if (daysChanged !== 0) {
-              updateRow(currentBarId, rowItem => {
+              useGanttChartStore.getState().updateSpecificRow(currentBarId, rowItem => {
                 const newEndDate = new Date(rowItem.end);
                 newEndDate.setDate(newEndDate.getDate() + daysChanged);
 
@@ -295,7 +294,7 @@ export const useGanttInteractions = () => {
         autoScrollRef.current = null;
       }
     };
-  }, [interactionState, autoScrollRef, timelinePanelRef, setInteractionState, updateRow, setPreviousContainerScrollLeftPosition]);
+  }, [interactionState, autoScrollRef, timelinePanelRef, setInteractionState, setPreviousContainerScrollLeftPosition]);
 
   // Return any methods that might be needed by components
   return {

@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
-import { Row } from '../../../../../types/row';
-import { useInteractionStore } from '../../../../../stores/useInteractionStore';
-import { useGanttChartStore } from '../../../../../stores/GanttChartStore';
+import { Row } from '../../../../../../types/row';
+import { useInteractionStore } from '../../../../../../stores/useInteractionStore';
+import { useGanttChartStore } from '../../../../../../stores/GanttChartStore';
 
 interface BarDragDropHandlerProps {
   index: number;

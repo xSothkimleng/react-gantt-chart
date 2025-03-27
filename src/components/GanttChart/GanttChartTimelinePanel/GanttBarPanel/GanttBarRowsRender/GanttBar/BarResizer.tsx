@@ -1,6 +1,6 @@
 import React from 'react';
-import { Row } from '../../../../../types/row';
-import { useInteractionStore } from '../../../../../stores/useInteractionStore';
+import { Row } from '../../../../../../types/row';
+import { useInteractionStore } from '../../../../../../stores/useInteractionStore';
 
 interface ResizeButtonProps {
   position: 'left' | 'right';

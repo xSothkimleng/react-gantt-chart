@@ -155,7 +155,7 @@ function App() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div style={{ height: '100vh', width: '80%', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}>
+        <div style={{ height: '100vh', width: '80%', overflowY: 'scroll' }}>
           <GanttChart
             columns={columns}
             rows={rows}

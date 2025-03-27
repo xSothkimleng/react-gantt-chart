@@ -5,6 +5,7 @@ import { TimeFrameSettingType } from '../types/timeFrameSettingType';
 import { timeFrameSetting } from '../constants/timeFrameSetting';
 import { DateRangeType } from '../types/dateRangeType';
 import { updateNestedRowById } from '../utils/rowUtils';
+import { findRowById } from '../utils/ganttBarUtils';
 
 type GanttChartStore = {
   // state
@@ -25,6 +26,7 @@ type GanttChartStore = {
   setColumn: (column: Column) => void;
   setRow: (row: Row[]) => void;
   updateRow: (rowId: string | number, updateFn: (row: Row) => Row) => void;
+  updateSpecificRow: (rowId: string | number, updateFn: (row: Row) => Row) => void;
   setChartTimeFrameView: (view: TimeFrameSettingType) => void;
   setShowSidebar: (showSidebar: boolean) => void;
   toggleCollapse: (itemId: string) => void;
@@ -58,6 +60,25 @@ export const useGanttChartStore = create<GanttChartStore>((set, get) => ({
     set(state => ({
       rows: updateNestedRowById(state.rows, rowId, updateFn),
     })),
+  updateSpecificRow: (rowId, updateFn) => {
+    const state = get();
+
+    // Find the row first to see if an update is even needed
+    const originalRow = findRowById(state.rows, rowId);
+    if (!originalRow) return;
+
+    // Create the updated row
+    const updatedRow = updateFn(originalRow);
+
+    // Only update if something actually changed
+    if (JSON.stringify(originalRow) !== JSON.stringify(updatedRow)) {
+      // Update the rows immutably
+      const updatedRows = updateNestedRowById(state.rows, rowId, updateFn);
+
+      // Set the updated rows
+      set({ rows: updatedRows });
+    }
+  },
   setChartTimeFrameView: view => set({ chartTimeFrameView: view }),
   setShowSidebar: showSidebar => set({ showSidebar }),
   setButtonContainer: component => set({ ButtonContainer: component }),
