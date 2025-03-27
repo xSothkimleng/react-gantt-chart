@@ -53,6 +53,9 @@ export const useInteractionStore = create<InteractionStateStore>(set => ({
   previousContainerScrollLeftPosition: 0,
 
   setInteractionState: state => set({ interactionState: state }),
+  setBoundaries: (left, right) => set({ leftBoundary: left, rightBoundary: right }),
+  setIsChartBorderReached: reached => set({ isChartBorderReached: reached }),
+  setPreviousContainerScrollLeftPosition: position => set({ previousContainerScrollLeftPosition: position }),
 
   startBarDrag: ({ barId, startX, startLeft, rowData }) =>
     set({
@@ -86,8 +89,4 @@ export const useInteractionStore = create<InteractionStateStore>(set => ({
         scrollLeft,
       },
     }),
-
-  setBoundaries: (left, right) => set({ leftBoundary: left, rightBoundary: right }),
-  setIsChartBorderReached: reached => set({ isChartBorderReached: reached }),
-  setPreviousContainerScrollLeftPosition: position => set({ previousContainerScrollLeftPosition: position }),
 }));

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import GanttBar from './GanttBar';
-import GanttChartLoading from '../../../Loading';
+import GanttChartLoading from '../../../Loading/spinner';
 import { Row } from '../../../../types/row';
 import { useGanttChartStore } from '../../../../stores/GanttChartStore';
 import { getTotalDayInChartDateRange } from '../../../../utils/ganttBarUtils';

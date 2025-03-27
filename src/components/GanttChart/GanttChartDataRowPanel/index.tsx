@@ -3,8 +3,8 @@ import React, { useState, useCallback } from 'react';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../assets/icons/icons';
 import { Row } from '../../../types/row';
 import { progressFormatter } from '../../../utils/progressFormater';
-import './styles.css';
 import { useGanttChartStore } from '../../../stores/GanttChartStore';
+import './styles.css';
 
 const GanttChartDataRowPanel = React.memo(() => {
   const columns = useGanttChartStore(state => state.columns);

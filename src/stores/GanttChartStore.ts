@@ -59,7 +59,6 @@ export const useGanttChartStore = create<GanttChartStore>((set, get) => ({
       rows: updateNestedRowById(state.rows, rowId, updateFn),
     })),
   setChartTimeFrameView: view => set({ chartTimeFrameView: view }),
-
   setShowSidebar: showSidebar => set({ showSidebar }),
   setButtonContainer: component => set({ ButtonContainer: component }),
   setExternalGetSelectedRow: fn => set({ externalGetSelectedRow: fn }),

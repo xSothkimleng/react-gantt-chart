@@ -242,8 +242,8 @@ const GanttChartTimelinePanel = () => {
       className='gnatt-timeline-panel'
       style={{
         cursor: interactionState.mode === 'timelineDragging' ? 'grabbing' : 'grab',
-        position: 'relative',
-        zIndex: 1,
+        // position: 'relative',
+        // zIndex: 1001,
       }}>
       <TimeAxisPrimary />
       <TimeAxisSecondary />

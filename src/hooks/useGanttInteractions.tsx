@@ -27,9 +27,7 @@ export const useGanttInteractions = () => {
     dayWidth.current = chartTimeFrameView.dayWidthUnit + zoomWidth;
   }, [chartTimeFrameView, zoomWidth]);
 
-  /**
-   * Handle automatic scrolling when dragging near the edge of the container
-   */
+  // Handle automatic scrolling when dragging near the edge of the container
   const handleAutoScroll = (e: MouseEvent) => {
     if (interactionState.mode === 'idle' || !timelinePanelRef) return;
 

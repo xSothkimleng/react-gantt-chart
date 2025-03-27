@@ -9,8 +9,8 @@ import {
 } from '../../../../../utils/ganttBarUtils';
 import { progressFormatter } from '../../../../../utils/progressFormater';
 import { useInteractionStore } from '../../../../../stores/useInteractionStore';
-import './styles.css';
 import { useGanttChartStore } from '../../../../../stores/GanttChartStore';
+import './styles.css';
 
 type GanttBarProps = {
   index: number;
@@ -18,7 +18,7 @@ type GanttBarProps = {
 };
 
 const GanttBar: React.FC<GanttBarProps> = ({ index, row }) => {
-  console.log('bar', index);
+  console.log('index', index);
   const isLoading = useGanttChartStore(state => state.isLoading);
   const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
   const zoomWidth = useGanttChartStore(state => state.zoomWidth);
