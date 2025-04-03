@@ -18,7 +18,7 @@ const columns: Column = {
 };
 
 function format() {
-  return 'Custom Label';
+  return ' : Custom Label';
 }
 
 const processJsonData = (data: any[]): Row[] => {
@@ -48,7 +48,7 @@ const processJsonData = (data: any[]): Row[] => {
         currentProgress: month.actual,
         maxProgress: month.target,
         showProgressIndicator: {
-          showLabel: true,
+          showLabel: false,
           showProgressBar: false,
         },
         start: new Date(month.start).toISOString(),
@@ -64,10 +64,9 @@ const processJsonData = (data: any[]): Row[] => {
           currentProgress: week.actual,
           maxProgress: week.target,
           showProgressIndicator: {
-            showLabel: true,
-            showProgressBar: true,
+            showLabel: false,
+            showProgressBar: false,
           },
-
           start: new Date(week.start).toISOString(),
           end: new Date(week.end).toISOString(),
           isLocked: false,

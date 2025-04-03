@@ -2,13 +2,11 @@ import { memo, useState } from 'react';
 import { useRowsStore } from '../../../../../stores/useRowsStore'; // Changed
 import { useUIStore } from '../../../../../stores/useUIStore'; // Added
 import { Row } from '../../../../../types/row';
-import { progressFormatter } from '../../../../../utils/progressFormater';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../../../assets/icons/icons';
 import { useShallow } from 'zustand/shallow'; // Added for optimization
 
 const progressDisplay = (row: Row) => {
-  if (row.currentProgress === undefined || row.maxProgress === undefined) return '';
-  return progressFormatter(row.currentProgress, row.maxProgress);
+  return row.progressIndicatorLabel ?? '';
 };
 
 const renderRowContent = (row: Row, key: string) => {
