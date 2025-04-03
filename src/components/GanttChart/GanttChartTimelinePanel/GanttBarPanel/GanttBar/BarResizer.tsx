@@ -1,6 +1,8 @@
-import React from 'react';
+// For BarResizer.tsx
+import React, { useCallback } from 'react';
 import { Row } from '../../../../../types/row';
 import { useInteractionStore } from '../../../../../stores/useInteractionStore';
+import { useShallow } from 'zustand/shallow';
 
 interface ResizeButtonProps {
   position: 'left' | 'right';
@@ -11,34 +13,30 @@ interface ResizeButtonProps {
 }
 
 const BarResizer: React.FC<ResizeButtonProps> = ({ position, ganttBarRef, row }) => {
-  const startBarResize = useInteractionStore(state => state.startBarResize);
+  const startBarResize = useInteractionStore(useShallow(state => state.startBarResize));
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent dragging or timeline drag
-    console.log(`Resize handle ${position} mousedown`);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation(); // Prevent dragging or timeline drag
 
-    if (row.isLocked) return;
+      if (row.isLocked) return;
 
-    if (ganttBarRef.current) {
-      const barWidth = parseInt(ganttBarRef.current.style.width || '0', 10);
-      const barLeft = parseInt(ganttBarRef.current.style.left || '0', 10);
+      if (ganttBarRef.current) {
+        const barWidth = parseInt(ganttBarRef.current.style.width || '0', 10);
+        const barLeft = parseInt(ganttBarRef.current.style.left || '0', 10);
 
-      console.log(`Starting ${position} resize:`, {
-        barId: row.id.toString(),
-        width: barWidth,
-        left: barLeft,
-      });
-
-      startBarResize({
-        barId: row.id.toString(),
-        edge: position,
-        startX: e.clientX,
-        startWidth: barWidth,
-        startLeft: barLeft,
-        rowData: row,
-      });
-    }
-  };
+        startBarResize({
+          barId: row.id.toString(),
+          edge: position,
+          startX: e.clientX,
+          startWidth: barWidth,
+          startLeft: barLeft,
+          rowData: row,
+        });
+      }
+    },
+    [ganttBarRef, position, row, startBarResize],
+  );
 
   return (
     <div

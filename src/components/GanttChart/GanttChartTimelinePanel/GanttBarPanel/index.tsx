@@ -1,22 +1,32 @@
-import { memo, useEffect, useMemo } from 'react';
+// For GanttBarPanel/index.tsx
+import React, { useEffect, useMemo } from 'react';
 import GanttChartLoading from '../../../Loading';
-import { useGanttChartStore } from '../../../../stores/useGanttChartStore';
+import { useConfigStore } from '../../../../stores/useConfigStore';
 import { getTotalDayInChartDateRange } from '../../../../utils/ganttBarUtils';
 import { useInteractionStore } from '../../../../stores/useInteractionStore';
 import GanttBarPanelRowTree from './RowTree';
+import { useShallow } from 'zustand/shallow';
 import './styles.css';
 
 const GanttBarPanel = () => {
-  const isLoading = useGanttChartStore(state => state.isLoading);
-  const chartDateRange = useGanttChartStore(state => state.chartDateRange);
-  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
-  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
+  // Get only what we need from the stores with useShallow
+  const { isLoading, chartDateRange, chartTimeFrameView, zoomWidth } = useConfigStore(
+    useShallow(state => ({
+      isLoading: state.isLoading,
+      chartDateRange: state.chartDateRange,
+      chartTimeFrameView: state.chartTimeFrameView,
+      zoomWidth: state.zoomWidth,
+    })),
+  );
+
   const setBoundaries = useInteractionStore(state => state.setBoundaries);
 
+  // Memoize dayWidth calculation
   const dayWidth = useMemo(() => {
     return chartTimeFrameView.dayWidthUnit + zoomWidth;
   }, [chartTimeFrameView.dayWidthUnit, zoomWidth]);
 
+  // Memoize boundaries calculation
   const boundaries = useMemo(() => {
     // Skip calculation if chart date range is empty
     if (!chartDateRange || chartDateRange.length === 0) {
@@ -44,6 +54,19 @@ const GanttBarPanel = () => {
     }
   }, [boundaries.left, boundaries.right, setBoundaries]);
 
+  // Create a memoized background style for the grid
+  const backgroundStyle = useMemo(() => {
+    return {
+      background: `repeating-linear-gradient(
+        to right,
+        transparent,
+        transparent ${dayWidth - 1}px,
+        rgba(0,0,0,0.05) ${dayWidth - 1}px,
+        rgba(0,0,0,0.05) ${dayWidth}px
+      )`,
+    };
+  }, [dayWidth]);
+
   if (isLoading || chartDateRange.length === 0) {
     return (
       <div style={{ background: 'rgba(0,0,0,0.2)', width: '100%', height: '100%' }}>
@@ -53,20 +76,10 @@ const GanttBarPanel = () => {
   }
 
   return (
-    <div
-      className='gantt-bar-panel'
-      style={{
-        background: `repeating-linear-gradient(
-          to right,
-          transparent,
-          transparent ${dayWidth - 1}px,
-          rgba(0,0,0,0.05) ${dayWidth - 1}px,
-          rgba(0,0,0,0.05) ${dayWidth}px
-        )`,
-      }}>
+    <div className='gantt-bar-panel' style={backgroundStyle}>
       <GanttBarPanelRowTree />
     </div>
   );
 };
 
-export default memo(GanttBarPanel);
+export default React.memo(GanttBarPanel);

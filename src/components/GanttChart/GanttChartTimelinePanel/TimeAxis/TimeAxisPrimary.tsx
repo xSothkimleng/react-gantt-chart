@@ -13,13 +13,13 @@ const TimeAxisPrimary = React.memo(() => {
   const renderView = () => {
     switch (chartTimeFrameView.name) {
       case timeFrameSetting.monthly.name:
-        return MonthlyView();
+        return <MonthlyView />;
       case timeFrameSetting.yearly.name:
-        return YearlyView();
+        return <YearlyView />;
       case timeFrameSetting.quarterMonth.name:
-        return QuarterMonthView();
+        return <QuarterMonthView />;
       case timeFrameSetting.quarterYear.name:
-        return QuarterYearView();
+        return <QuarterYearView />;
       default:
         return null;
     }

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo, useCallback } from 'react';
 import BarResizer from './BarResizer';
 import BarProgressIndicator from './BarProgressIndicator';
 import BarDragDropHandler from './BarDragDropHandler';
@@ -6,118 +6,116 @@ import {
   calculateDurationBetweenDate,
   calculateGanttBarPositionFromInitialStartingPoint,
 } from '../../../../../utils/ganttBarUtils';
-import { progressFormatter } from '../../../../../utils/progressFormater';
 import { useInteractionStore } from '../../../../../stores/useInteractionStore';
+import { useConfigStore } from '../../../../../stores/useConfigStore';
+import { useRowsStore } from '../../../../../stores/useRowsStore';
+import { useShallow } from 'zustand/shallow';
 import './styles.css';
-import { useGanttChartStore } from '../../../../../stores/useGanttChartStore';
+import BarProgressText from './BarProgressText';
 
+class GanttBarErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('GanttBar Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            padding: '10px',
+            border: '1px solid #ff0000',
+            borderRadius: '4px',
+            color: '#ff0000',
+          }}>
+          Error loading GanttBar. Please try refreshing.
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Define prop types clearly
 type GanttBarProps = {
   index: number;
   rowId: string | number;
 };
 
 const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
-  console.log('GanttBar Rendered', rowId);
-  console.log('GanttBar Rendered', index);
-  const row = useGanttChartStore(state => state.getRowById(rowId));
-  const isLoading = useGanttChartStore(state => state.isLoading);
-  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
-  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
-  const chartDateRange = useGanttChartStore(state => state.chartDateRange);
+  // Get row data with useShallow to prevent re-renders on unrelated state changes
+  const row = useRowsStore(useShallow(state => state.getRowById(rowId)));
 
-  const interactionState = useInteractionStore(state => state.interactionState);
+  // Get only the required state from interaction store
+  const interactionMode = useInteractionStore(state => state.interactionState.mode);
+
+  // Get only the needed config values
+  const { chartTimeFrameView, chartDateRange, zoomWidth } = useConfigStore(
+    useShallow(state => ({
+      chartTimeFrameView: state.chartTimeFrameView,
+      chartDateRange: state.chartDateRange,
+      zoomWidth: state.zoomWidth,
+    })),
+  );
 
   const [isHovered, setIsHovered] = useState(false);
   const ganttBarRef = useRef<HTMLDivElement | null>(null);
   const startLeftPosition = useRef<number>(0);
 
-  if (!row) return null;
-
-  const durationBarWidth = calculateDurationBetweenDate(row.start, row.end);
-  const width = durationBarWidth * (chartTimeFrameView.dayWidthUnit + zoomWidth);
-  const positionLeft =
-    calculateGanttBarPositionFromInitialStartingPoint(row.start, chartDateRange[0]) *
-    (chartTimeFrameView.dayWidthUnit + zoomWidth);
-  startLeftPosition.current = positionLeft;
-
-  const progressDisplay = () => {
-    if (row.currentProgress === undefined || row.maxProgress === undefined) return '';
-
-    return progressFormatter(row.currentProgress, row.maxProgress);
-  };
-
-  class GanttBarErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-    constructor(props: { children: React.ReactNode }) {
-      super(props);
-      this.state = { hasError: false };
+  // Memoize calculations that depend on row data
+  const { width, positionLeft } = useMemo(() => {
+    if (!row || !chartDateRange.length) {
+      return { width: 0, positionLeft: 0 };
     }
 
-    static getDerivedStateFromError() {
-      return { hasError: true };
-    }
+    const durationBarWidth = calculateDurationBetweenDate(row.start, row.end);
+    const dayWidthUnit = chartTimeFrameView.dayWidthUnit + zoomWidth;
 
-    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-      console.error('GanttBar Error:', error, errorInfo);
-    }
+    const width = durationBarWidth * dayWidthUnit;
+    const positionLeft = calculateGanttBarPositionFromInitialStartingPoint(row.start, chartDateRange[0]) * dayWidthUnit;
 
-    render() {
-      if (this.state.hasError) {
-        return (
-          <div
-            style={{
-              padding: '10px',
-              border: '1px solid #ff0000',
-              borderRadius: '4px',
-              color: '#ff0000',
-            }}>
-            Error loading GanttBar. Please try refreshing.
-          </div>
-        );
-      }
+    return { width, positionLeft };
+  }, [row, chartDateRange, chartTimeFrameView.dayWidthUnit, zoomWidth]);
 
-      return this.props.children;
-    }
+  // Memoize event handlers
+  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+
+  // Update the ref value - must be done outside of render conditionals
+  if (row) {
+    startLeftPosition.current = positionLeft;
   }
 
-  // Loading Spinner Component
-  const LoadingSpinner: React.FC = () => (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100%',
-        width: '100%',
-      }}>
-      <div
-        style={{
-          width: '20px',
-          height: '20px',
-          border: '2px solid #ffffff',
-          borderTop: '2px solid transparent',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-        }}
-      />
-    </div>
-  );
+  // Handle the case when there's no row data (avoid conditional rendering)
+  if (!row) {
+    return null;
+  }
 
   return (
     <GanttBarErrorBoundary>
       <div
         ref={ganttBarRef}
         data-bar-id={row.id.toString()}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         role='button'
         aria-label={`GanttBar: ${row.name}`}
-        aria-busy={isLoading}
         className='gantt-bar'
         style={{
           top: `${index * 41}px`,
           left: `${positionLeft}px`,
           width: `${width}px`,
-          cursor: interactionState.mode === 'barResizing' ? 'ew-resize' : 'grab',
+          cursor: interactionMode === 'barResizing' ? 'ew-resize' : 'grab',
           opacity: isHovered ? 0.9 : 1,
         }}>
         <div
@@ -126,34 +124,16 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
             background: row.highlight ? 'var(--gantt-bar-highlight-background)' : 'var(--gantt-bar-default-background)',
             boxShadow: isHovered ? 'var(--gantt-bar-boxShadow-hover)' : 'none',
           }}>
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <>
-              {row.showProgressIndicator?.showProgressBar && <BarProgressIndicator item={row} />}
-              <BarDragDropHandler index={index} row={row} startLeftPosition={startLeftPosition} ganttBarRef={ganttBarRef} />
-              {/* <BarResizer
-                position='left'
-                row={row}
-                width={width}
-                ganttBarRef={ganttBarRef}
-                startLeftPosition={startLeftPosition}
-              /> */}
-              <BarResizer
-                position='right'
-                row={row}
-                width={width}
-                ganttBarRef={ganttBarRef}
-                startLeftPosition={startLeftPosition}
-              />
-              <div className='gantt-bar-text-cell'>
-                <p className='gantt-bar-text' title={row.name}>
-                  {row.name}
-                </p>
-                {row.showProgressIndicator?.showLabel && <span className='gnatt-bar-progress-text'>{progressDisplay()}</span>}
-              </div>
-            </>
-          )}
+          {row.showProgressIndicator?.showProgressBar && <BarProgressIndicator item={row} />}
+          <BarDragDropHandler index={index} row={row} startLeftPosition={startLeftPosition} ganttBarRef={ganttBarRef} />
+          <BarResizer position='left' row={row} width={width} ganttBarRef={ganttBarRef} startLeftPosition={startLeftPosition} />
+          <BarResizer position='right' row={row} width={width} ganttBarRef={ganttBarRef} startLeftPosition={startLeftPosition} />
+          <div className='gantt-bar-text-cell'>
+            <p className='gantt-bar-text' title={row.name}>
+              {row.name}
+            </p>
+            {row.showProgressIndicator?.showLabel && <BarProgressText row={row} />}
+          </div>
         </div>
       </div>
     </GanttBarErrorBoundary>

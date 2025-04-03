@@ -61,8 +61,6 @@ export const useRowsStore = create<RowsState>((set, get) => ({
   },
 
   getVisibleRows: () => {
-    // Implementation for getting visible rows based on collapse state
-    // This is a placeholder - you'll need to implement the actual logic
     return get().rows;
   },
 }));
