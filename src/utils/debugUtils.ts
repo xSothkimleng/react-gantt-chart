@@ -1,4 +1,6 @@
-import { useGanttChartStore } from '../stores/GanttChartStore';
+// Add to src/utils/debugUtils.ts (create this file)
+
+import { useGanttChartStore } from '../stores/useGanttChartStore';
 import { useInteractionStore } from '../stores/useInteractionStore';
 import { useUIStore } from '../stores/useUIStore';
 

@@ -17,6 +17,10 @@ const columns: Column = {
   end: { name: 'Monthly Subscription', show: false },
 };
 
+function format() {
+  return 'Custom Label';
+}
+
 const processJsonData = (data: any[]): Row[] => {
   const rows: Row[] = [];
 
@@ -30,7 +34,7 @@ const processJsonData = (data: any[]): Row[] => {
         showLabel: true,
         showProgressBar: true,
       },
-      progressIndicatorLabelFormatter: () => ` : anything here : ${quarter.actual}$ / ${quarter.target}$`,
+      progressIndicatorLabel: `${format()}`,
       start: new Date(quarter.start).toISOString(),
       end: new Date(quarter.end).toISOString(),
       isLocked: false,
@@ -45,7 +49,7 @@ const processJsonData = (data: any[]): Row[] => {
         maxProgress: month.target,
         showProgressIndicator: {
           showLabel: true,
-          showProgressBar: true,
+          showProgressBar: false,
         },
         start: new Date(month.start).toISOString(),
         end: new Date(month.end).toISOString(),
@@ -59,6 +63,11 @@ const processJsonData = (data: any[]): Row[] => {
           name: `Week ${week.number}`,
           currentProgress: week.actual,
           maxProgress: week.target,
+          showProgressIndicator: {
+            showLabel: true,
+            showProgressBar: true,
+          },
+
           start: new Date(week.start).toISOString(),
           end: new Date(week.end).toISOString(),
           isLocked: false,
@@ -74,6 +83,37 @@ const processJsonData = (data: any[]): Row[] => {
 };
 
 const rows = processJsonData(jsonData);
+
+const ButtonContainer = () => {
+  return (
+    <div style={{ display: 'flex', gap: '3px' }}>
+      <button
+        style={{
+          cursor: 'pointer',
+          padding: '4px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          color: 'rgba(0,0,0,0.5)',
+          transition: 'color 0.2s ease',
+        }}>
+        <PlusIcon />
+      </button>
+      <button
+        style={{
+          cursor: 'pointer',
+          padding: '4px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          color: 'rgba(0,0,0,0.5)',
+          transition: 'color 0.2s ease',
+        }}>
+        <SubtractIcon />
+      </button>
+    </div>
+  );
+};
 
 function App() {
   const [currentView, setCurrentView] = useState<TimeFrameSettingType>(timeFrameSetting.monthly);
@@ -92,37 +132,6 @@ function App() {
     } else {
       console.log('Manual test: Timeline panel NOT found');
     }
-  };
-
-  const ButtonContainer = () => {
-    return (
-      <div style={{ display: 'flex', gap: '3px' }}>
-        <button
-          style={{
-            cursor: 'pointer',
-            padding: '4px',
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            color: 'rgba(0,0,0,0.5)',
-            transition: 'color 0.2s ease',
-          }}>
-          <PlusIcon />
-        </button>
-        <button
-          style={{
-            cursor: 'pointer',
-            padding: '4px',
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            color: 'rgba(0,0,0,0.5)',
-            transition: 'color 0.2s ease',
-          }}>
-          <SubtractIcon />
-        </button>
-      </div>
-    );
   };
 
   return (
@@ -154,18 +163,16 @@ function App() {
         </button>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div style={{ height: '100vh', width: '80%', overflowY: 'scroll' }}>
-          <GanttChart
-            columns={columns}
-            rows={rows}
-            defaultView={currentView}
-            showSidebar={showSidebar}
-            getSelectedRow={getSelectedRow}
-            ButtonContainer={ButtonContainer}
-            className='user-gantt-style'
-          />
-        </div>
+      <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}>
+        <GanttChart
+          columns={columns}
+          rows={rows}
+          defaultView={currentView}
+          showSidebar={showSidebar}
+          getSelectedRow={getSelectedRow}
+          ButtonContainer={ButtonContainer}
+          className='user-gantt-style'
+        />
       </div>
     </div>
   );

@@ -131,20 +131,3 @@ export const scrollToEarliestBar = (
     behavior: 'smooth',
   });
 };
-
-export function findRowById(rows: Row[], targetId: string | number): Row | null {
-  const targetIdStr = targetId.toString();
-
-  for (const row of rows) {
-    if (row.id.toString() === targetIdStr) {
-      return row;
-    }
-
-    if (row.children && row.children.length > 0) {
-      const found = findRowById(row.children, targetId);
-      if (found) return found;
-    }
-  }
-
-  return null;
-}

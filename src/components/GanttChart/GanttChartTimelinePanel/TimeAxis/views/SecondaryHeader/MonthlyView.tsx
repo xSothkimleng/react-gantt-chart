@@ -1,4 +1,4 @@
-import { useGanttChartStore } from '../../../../../../stores/GanttChartStore';
+import { useGanttChartStore } from '../../../../../../stores/useGanttChartStore';
 import './styles.css';
 
 const MonthlyView = () => {

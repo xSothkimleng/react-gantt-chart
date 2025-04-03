@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useInteractionStore } from '../stores/useInteractionStore';
 import { useUIStore } from '../stores/useUIStore';
 import { snapToGridValuePosition } from '../utils/ganttBarUtils';
-import { useGanttChartStore } from '../stores/GanttChartStore';
+import { useGanttChartStore } from '../stores/useGanttChartStore';
 
 /**
  * Hook that handles all Gantt chart interactions like dragging and resizing
@@ -13,6 +13,7 @@ export const useGanttInteractions = () => {
   const interactionState = useInteractionStore(state => state.interactionState);
   const setInteractionState = useInteractionStore(state => state.setInteractionState);
   const autoScrollRef = useInteractionStore(state => state.autoScrollRef);
+  const updateRow = useGanttChartStore(state => state.updateRow);
   const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
   const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
   const zoomWidth = useGanttChartStore(state => state.zoomWidth);
@@ -26,7 +27,9 @@ export const useGanttInteractions = () => {
     dayWidth.current = chartTimeFrameView.dayWidthUnit + zoomWidth;
   }, [chartTimeFrameView, zoomWidth]);
 
-  // Handle automatic scrolling when dragging near the edge of the container
+  /**
+   * Handle automatic scrolling when dragging near the edge of the container
+   */
   const handleAutoScroll = (e: MouseEvent) => {
     if (interactionState.mode === 'idle' || !timelinePanelRef) return;
 
@@ -197,12 +200,14 @@ export const useGanttInteractions = () => {
           const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
 
           if (daysMoved !== 0) {
-            useGanttChartStore.getState().updateSpecificRow(currentBarId, rowItem => {
+            updateRow(currentBarId, rowItem => {
               const newStartDate = new Date(rowItem.start);
               newStartDate.setDate(newStartDate.getDate() + daysMoved);
 
               const newEndDate = new Date(rowItem.end);
               newEndDate.setDate(newEndDate.getDate() + daysMoved);
+
+              console.log('spread of row item', { ...rowItem });
 
               return {
                 ...rowItem,
@@ -233,7 +238,7 @@ export const useGanttInteractions = () => {
             const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
 
             if (daysMoved !== 0) {
-              useGanttChartStore.getState().updateSpecificRow(currentBarId, rowItem => {
+              updateRow(currentBarId, rowItem => {
                 const newStartDate = new Date(rowItem.start);
                 newStartDate.setDate(newStartDate.getDate() + daysMoved);
 
@@ -253,7 +258,7 @@ export const useGanttInteractions = () => {
             const daysChanged = Math.round((newWidth - currentStartWidth) / gridInterval);
 
             if (daysChanged !== 0) {
-              useGanttChartStore.getState().updateSpecificRow(currentBarId, rowItem => {
+              updateRow(currentBarId, rowItem => {
                 const newEndDate = new Date(rowItem.end);
                 newEndDate.setDate(newEndDate.getDate() + daysChanged);
 
@@ -294,10 +299,5 @@ export const useGanttInteractions = () => {
         autoScrollRef.current = null;
       }
     };
-  }, [interactionState, autoScrollRef, timelinePanelRef, setInteractionState, setPreviousContainerScrollLeftPosition]);
-
-  // Return any methods that might be needed by components
-  return {
-    // You can expose any additional methods here if needed
-  };
+  }, [interactionState, autoScrollRef, timelinePanelRef, setInteractionState, updateRow, setPreviousContainerScrollLeftPosition]);
 };

@@ -7,7 +7,7 @@ import { Row } from '../../types/row';
 import GanttChartContent from './GanttChartContent';
 import { initializeStores } from '../../utils/initializeStores';
 import { useGanttInteractions } from '../../hooks/useGanttInteractions';
-import { useGanttChartStore } from '../../stores/GanttChartStore';
+import { useGanttChartStore } from '../../stores/useGanttChartStore';
 
 export interface GanttChartProps {
   rows: Row[];

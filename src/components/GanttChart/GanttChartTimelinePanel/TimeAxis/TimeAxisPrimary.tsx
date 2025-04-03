@@ -4,7 +4,7 @@ import YearlyView from './views/PrimaryHeader/YearlyView';
 import QuarterMonthView from './views/PrimaryHeader/QuarterMonthView';
 import QuarterYearView from './views/PrimaryHeader/QuarterYearView';
 import React from 'react';
-import { useGanttChartStore } from '../../../../stores/GanttChartStore';
+import { useGanttChartStore } from '../../../../stores/useGanttChartStore';
 
 const TimeAxisPrimary = React.memo(() => {
   const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);

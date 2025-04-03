@@ -8,7 +8,7 @@ import { DateRangeType, MonthDataType } from '../../../types/dateRangeType';
 import { initializeDateRange } from '../../../utils/dateUtils';
 import { scrollToEarliestBar } from '../../../utils/ganttBarUtils';
 import './styles.css';
-import { useGanttChartStore } from '../../../stores/GanttChartStore';
+import { useGanttChartStore } from '../../../stores/useGanttChartStore';
 import { useInteractionStore } from '../../../stores/useInteractionStore';
 import { useUIStore } from '../../../stores/useUIStore';
 
@@ -172,11 +172,6 @@ const GanttChartTimelinePanel = () => {
 
   // Add effect for scrolling to the earliest Gantt bar
   useEffect(() => {
-    // Only perform scroll if:
-    // 1. Date range is initialized and not empty
-    // 2. We have rows with data
-    // 3. Timeline panel ref exists
-    // 4. We haven't performed initial scroll yet OR the view has changed
     if (
       dateRangeInitialized &&
       chartDateRange.length > 0 &&
@@ -242,8 +237,8 @@ const GanttChartTimelinePanel = () => {
       className='gnatt-timeline-panel'
       style={{
         cursor: interactionState.mode === 'timelineDragging' ? 'grabbing' : 'grab',
-        // position: 'relative',
-        // zIndex: 1001,
+        position: 'relative',
+        zIndex: 1,
       }}>
       <TimeAxisPrimary />
       <TimeAxisSecondary />

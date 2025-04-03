@@ -9,21 +9,15 @@
   height: 100%;
   border-right: 1px solid var(--gantt-global-border-color);
   border-top: 1px solid var(--gantt-global-border-color);
-  border-bottom: 1px solid var(--gantt-global-border-color);
-  position: relative;
 }
 
 /* Panel Header Styles */
 .gantt-data-panel-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
   display: grid;
+  border-bottom: 1px solid var(--gantt-global-border-color);
   height: 49px;
   min-width: max-content;
-  border-bottom: 1px solid var(--gantt-global-border-color);
   background: var(--gantt-data-panel-header-background);
-  border-left: 1px solid var(--gantt-global-border-color);
 }
 
 .gantt-data-panel-header-cell {

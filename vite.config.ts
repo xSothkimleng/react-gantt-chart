@@ -24,6 +24,7 @@ export default defineConfig({
       fileName: format => `react-gantt-chart.${format}.js`,
       formats: ['es', 'umd'],
     },
+    cssCodeSplit: false,
     rollupOptions: {
       external: ['react', 'react-dom', 'lodash'],
       output: {
@@ -32,6 +33,7 @@ export default defineConfig({
           'react-dom': 'ReactDOM',
           lodash: '_',
         },
+        assetFileNames: 'style.[ext]', // Simple pattern for all assets
       },
     },
   },

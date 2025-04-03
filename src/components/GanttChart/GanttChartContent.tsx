@@ -1,9 +1,8 @@
 import React from 'react';
 import GanttChartTimelinePanel from './GanttChartTimelinePanel';
 import GanttChartDataRowPanel from './GanttChartDataRowPanel';
-import { useGanttChartStore } from '../../stores/GanttChartStore';
-import './styles.css';
 import '../../styles/theme.css';
+import { useGanttChartStore } from '../../stores/useGanttChartStore';
 
 interface GanttChartContentProps {
   className?: string;
@@ -20,7 +19,7 @@ const GanttChartContent: React.FC<GanttChartContentProps> = ({ className = '' })
           height: '100%',
           width: '100%',
           display: 'grid',
-          borderBottom: '1px solid var(--gantt-global-border-color)',
+          borderBottom: '0px solid var(--gantt-global-border-color)',
           gridTemplateColumns: isShowSidebar ? 'var(--gantt-sidebar-width-fr) var(--gantt-timeline-width-fr)' : '0fr 1fr',
           transition: 'grid-template-columns var(--gantt-sidebar-transition-duration)',
         }}>

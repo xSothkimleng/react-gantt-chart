@@ -5,11 +5,10 @@
   grid-template-rows: auto auto 1fr;
   overflow-x: scroll;
   height: 100%;
-  z-index: 1;
   user-select: none;
   position: relative;
+  z-index: 1;
   cursor: grab;
-  border-right: 1px solid var(--gantt-global-border-color);
 }
 
 .gnatt-timeline-panel.dragging {

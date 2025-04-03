@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
-import { Row } from '../../../../../../types/row';
-import { useInteractionStore } from '../../../../../../stores/useInteractionStore';
-import { useGanttChartStore } from '../../../../../../stores/GanttChartStore';
+import { Row } from '../../../../../types/row';
+import { useInteractionStore } from '../../../../../stores/useInteractionStore';
+import { useGanttChartStore } from '../../../../../stores/useGanttChartStore';
 
 interface BarDragDropHandlerProps {
   index: number;
@@ -38,6 +38,7 @@ const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, ro
       });
 
       // Only start dragging if there's a valid reference to the bar
+
       startBarDrag({
         barId: row.id.toString(),
         startX: e.clientX,

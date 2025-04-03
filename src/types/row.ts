@@ -1,4 +1,4 @@
-import { progressIndicator, progressIndicatorLabel } from './progressIndicator';
+import { progressIndicator } from './progressIndicator';
 
 interface DefaultRowSetting {
   id: string | number;
@@ -14,7 +14,6 @@ export interface Row extends DefaultRowSetting {
   maxProgress?: number;
   isLocked?: boolean;
   showProgressIndicator?: progressIndicator;
-  progressIndicatorLabel?: progressIndicatorLabel;
-  progressIndicatorLabelFormatter?: () => string;
+  progressIndicatorLabel?: string;
   [key: string]: unknown;
 }

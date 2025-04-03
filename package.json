@@ -1,7 +1,7 @@
 {
-  "name": "react-gantt-chart",
+  "name": "react-gantt-chart-adv-msp",
   "private": false,
-  "version": "0.1.6",
+  "version": "0.2.1",
   "type": "module",
   "main": "./dist/react-gantt-chart.umd.js",
   "module": "./dist/react-gantt-chart.es.js",
@@ -11,7 +11,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/react-gantt-chart.es.js",
       "require": "./dist/react-gantt-chart.umd.js"
-    }
+    },
+    "./style.css": "./style.css"
   },
   "files": [
     "dist"

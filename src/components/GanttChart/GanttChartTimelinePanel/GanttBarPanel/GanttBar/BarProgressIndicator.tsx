@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row } from '../../../../../../types/row';
+import { Row } from '../../../../../types/row';
 
 type BarProgressIndicatorProps = {
   item: Row;

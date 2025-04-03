@@ -1,0 +1,295 @@
+.gantt-primary-header-monthly {
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  border-right: 1px solid lightgray;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 10px;
+  font-size: var(--gantt-primary-header-font-size);
+  font-weight: var(--gantt-primary-header-font-weight);
+  background: var(--gantt-primary-header-background);
+}
+.gantt-primary-header-quarter-month {
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  border-right: 1px solid lightgray;
+  -webkit-user-select: none;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--gantt-primary-header-font-size);
+  font-weight: var(--gantt-primary-header-font-weight);
+  background: var(--gantt-primary-header-background);
+}
+.gantt-primary-header-yearly {
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  border-right: 1px solid lightgray;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 10px;
+  font-size: var(--gantt-primary-header-font-size);
+  font-weight: var(--gantt-primary-header-font-weight);
+  background: var(--gantt-primary-header-background);
+}
+.gantt-primary-header-quarter-year {
+  border-top: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+  border-right: 1px solid lightgray;
+  -webkit-user-select: none;
+  user-select: none;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--gantt-primary-header-font-size);
+  font-weight: var(--gantt-primary-header-font-weight);
+  background: var(--gantt-primary-header-background);
+}
+.gantt-secondary-header-monthly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-right: 1px solid lightgray;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+  font-size: var(--gantt-secondary-header-font-size);
+  font-weight: var(--gantt-secondary-header-font-weight);
+  background: var(--gantt-secondary-header-background);
+}
+.gantt-secondary-header-quarter-month {
+  text-align: center;
+  border-right: 1px solid lightgray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--gantt-secondary-header-font-size);
+  font-weight: var(--gantt-secondary-header-font-weight);
+  background: var(--gantt-secondary-header-background);
+}
+.gantt-secondary-header-quarter-year,
+.gantt-secondary-header-yearly {
+  text-align: center;
+  border-right: 1px solid lightgray;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--gantt-secondary-header-font-size);
+  font-weight: var(--gantt-secondary-header-font-weight);
+  background: var(--gantt-secondary-header-background);
+}
+.gantt-bar {
+  position: absolute;
+  height: 40px;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease-in-out;
+}
+.gantt-bar-cell-overlay {
+  position: relative;
+  border-radius: 1px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  transition: box-shadow 0.2s ease-in-out;
+}
+.gantt-bar-text-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+  flex: 1;
+  padding: 0 8px;
+  position: relative;
+}
+.gantt-bar-text {
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-user-select: none;
+  user-select: none;
+  color: var(--gantt-bar-text-color);
+  font-size: var(--gantt-bar-text-font-size);
+  font-weight: var(--gantt-bar-text-font-weight);
+}
+.gnatt-bar-progress-text {
+  white-space: nowrap;
+  color: var(--gantt-bar-progress-text-color);
+  font-size: var(--gantt-bar-progress-text-font-size);
+  font-weight: var(--gantt-bar-progress-text-font-weight);
+}
+.gantt-bar-progress-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--gantt-bar-progress-indicator-background);
+}
+.gantt-bar-resize-handle {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 30;
+  width: var(--gantt-bar-resize-handle-width);
+  background: var(--gantt-bar-resize-handle-background);
+}
+.gnatt-timeline-panel {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  overflow-x: scroll;
+  height: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+  position: relative;
+  z-index: 1;
+  cursor: grab;
+}
+.gnatt-timeline-panel.dragging {
+  cursor: grabbing !important;
+}
+.gantt-bar:hover .gantt-bar-cell-overlay {
+  box-shadow: var(--gantt-bar-boxShadow-hover) !important;
+}
+.gantt-bar-resize-handle {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 30;
+  width: var(--gantt-bar-resize-handle-width);
+  background: var(--gantt-bar-resize-handle-background);
+  cursor: ew-resize;
+}
+.gantt-bar-resize-handle:hover {
+  background: #0000004d;
+}
+.gantt-data-panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  height: 100%;
+  border-right: 1px solid var(--gantt-global-border-color);
+  border-top: 1px solid var(--gantt-global-border-color);
+}
+.gantt-data-panel-header {
+  display: grid;
+  border-bottom: 1px solid var(--gantt-global-border-color);
+  height: 49px;
+  min-width: max-content;
+  background: var(--gantt-data-panel-header-background);
+}
+.gantt-data-panel-header-cell {
+  text-align: left;
+  border-left: 1px solid var(--gantt-global-border-color);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 10px;
+  overflow: hidden;
+}
+.gantt-data-panel-header-cell-content {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  font-weight: var(--gantt-data-panel-header-font-weight);
+  font-size: var(--gantt-data-panel-header-font-size);
+}
+.gantt-data-panel-row-container {
+  display: grid;
+  min-width: max-content;
+  overflow: hidden;
+  border-bottom: 1px solid var(--gantt-global-border-color);
+}
+.gantt-data-panel-collapse-button {
+  margin-right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+.gantt-data-panel-row-cell {
+  position: relative;
+  border-left: 1px solid var(--gantt-global-border-color);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 40px;
+  padding: 0 10px;
+  background: var(--gantt-data-panel-row-background);
+}
+.gantt-data-panel-row-cell-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  width: 100%;
+  font-size: var(--gantt-data-panel-row-font-size);
+  font-weight: var(--gantt-data-panel-row-font-weight);
+}
+.gantt-data-panel-row-cell-action-buttons {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+:root {
+  --gantt-sidebar-width-fr: 0.2fr;
+  --gantt-timeline-width-fr: 1fr;
+  --gantt-global-border-color: lightGray;
+  --gantt-sidebar-transition-duration: 0.05s;
+  --gantt-data-panel-header-background: #f0f0f0;
+  --gantt-data-panel-header-font-weight: 600;
+  --gantt-data-panel-header-font-size: 0.9em;
+  --gantt-data-panel-row-background: #f9f9f9;
+  --gantt-data-panel-row-font-size: 0.9em;
+  --gantt-data-panel-row-font-weight: 400;
+  --gantt-primary-header-background: #f0f0f0;
+  --gantt-primary-header-font-weight: 500;
+  --gantt-primary-header-font-size: 0.8em;
+  --gantt-secondary-header-background: #f0f0f0;
+  --gantt-secondary-header-font-weight: 400;
+  --gantt-secondary-header-font-size: 0.8em;
+  --gantt-bar-text-color: white;
+  --gantt-bar-text-font-size: 0.9em;
+  --gantt-bar-text-font-weight: 400;
+  --gantt-bar-default-background: #4169e1;
+  --gantt-bar-highlight-background: #32de84;
+  --gantt-bar-boxShadow-hover: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --gantt-bar-progress-text-color: white;
+  --gantt-bar-progress-text-font-size: 0.9em;
+  --gantt-bar-progress-text-font-weight: 400;
+  --gantt-bar-progress-indicator-background: rgba(41, 185, 106, 0.6);
+  --gantt-bar-resize-handle-background: rgba(0, 0, 0, 0.2);
+  --gantt-bar-resize-handle-width: 8px;
+}

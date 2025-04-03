@@ -1,6 +1,6 @@
 import { useUIStore } from '../stores/useUIStore';
 import { useInteractionStore } from '../stores/useInteractionStore';
-import { useGanttChartStore } from '../stores/GanttChartStore';
+import { useGanttChartStore } from '../stores/useGanttChartStore';
 
 /**
  * Zoom in function that increases the zoom level
