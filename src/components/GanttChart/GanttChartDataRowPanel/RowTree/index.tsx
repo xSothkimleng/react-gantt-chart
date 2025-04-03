@@ -1,5 +1,6 @@
 'use client';
-import { useGanttChartStore } from '../../../../stores/useGanttChartStore';
+import { useRowsStore } from '../../../../stores/useRowsStore';
+import { useShallow } from 'zustand/shallow';
 import '../styles.css';
 import DataRow from './Row';
 
@@ -9,7 +10,7 @@ type DataRowTree = {
 };
 
 const DataRowTree: React.FC<DataRowTree> = ({ visibleFields, gridTemplateColumns }) => {
-  const rows = useGanttChartStore(state => state.rows);
+  const rows = useRowsStore(useShallow(state => state.rows));
 
   return (
     <div>
@@ -23,7 +24,9 @@ const DataRowTree: React.FC<DataRowTree> = ({ visibleFields, gridTemplateColumns
           No Data
         </div>
       ) : (
-        rows.map(row => <DataRow rowId={row.id} gridTemplateColumns={gridTemplateColumns} visibleFields={visibleFields} />)
+        rows.map(row => (
+          <DataRow key={row.id} rowId={row.id} gridTemplateColumns={gridTemplateColumns} visibleFields={visibleFields} />
+        ))
       )}
     </div>
   );

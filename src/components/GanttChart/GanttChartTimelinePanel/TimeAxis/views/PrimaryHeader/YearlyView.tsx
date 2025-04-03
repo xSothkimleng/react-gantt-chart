@@ -1,10 +1,12 @@
-import { useGanttChartStore } from '../../../../../../stores/useGanttChartStore';
+import React from 'react';
+import { useConfigStore } from '../../../../../../stores/useConfigStore';
+import { useShallow } from 'zustand/shallow';
 import './styles.css';
 
-const YearlyView = () => {
-  const chartDateRange = useGanttChartStore(state => state.chartDateRange);
-  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
-  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
+const YearlyView = React.memo(() => {
+  const chartDateRange = useConfigStore(useShallow(state => state.chartDateRange));
+  const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
+  const zoomWidth = useConfigStore(state => state.zoomWidth);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', height: `${25}px` }}>
@@ -20,6 +22,6 @@ const YearlyView = () => {
       ))}
     </div>
   );
-};
+});
 
 export default YearlyView;

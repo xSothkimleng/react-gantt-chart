@@ -7,7 +7,8 @@ import { Row } from '../../types/row';
 import GanttChartContent from './GanttChartContent';
 import { initializeStores } from '../../utils/initializeStores';
 import { useGanttInteractions } from '../../hooks/useGanttInteractions';
-import { useGanttChartStore } from '../../stores/useGanttChartStore';
+import { useConfigStore } from '../../stores/useConfigStore';
+import { useUIStore } from '../../stores/useUIStore';
 
 export interface GanttChartProps {
   rows: Row[];
@@ -28,8 +29,14 @@ const GanttChart: React.FC<GanttChartProps> = ({
   defaultView = timeFrameSetting.monthly,
   className = '',
 }) => {
-  const setShowSidebar = useGanttChartStore(state => state.setShowSidebar);
-  const setChartTimeFrameView = useGanttChartStore(state => state.setChartTimeFrameView);
+  // Use the config store for sidebar and chart view
+  const setShowSidebar = useConfigStore(state => state.setShowSidebar);
+  const setChartTimeFrameView = useConfigStore(state => state.setChartTimeFrameView);
+
+  // Use the UI store for external handlers
+  const setButtonContainer = useUIStore(state => state.setButtonContainer);
+  const setExternalGetSelectedRow = useUIStore(state => state.setExternalGetSelectedRow);
+
   // Track whether we've initialized stores to prevent multiple initializations
   const isInitialized = useRef(false);
 
@@ -47,6 +54,13 @@ const GanttChart: React.FC<GanttChartProps> = ({
     }
   }, [rows, columns, getSelectedRow, ButtonContainer]);
 
+  // Set UI props when they change
+  useEffect(() => {
+    setButtonContainer(ButtonContainer);
+    setExternalGetSelectedRow(getSelectedRow);
+  }, [ButtonContainer, getSelectedRow, setButtonContainer, setExternalGetSelectedRow]);
+
+  // Set configuration props when they change
   useEffect(() => {
     setShowSidebar(showSidebar);
   }, [showSidebar, setShowSidebar]);

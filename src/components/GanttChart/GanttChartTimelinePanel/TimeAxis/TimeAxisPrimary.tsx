@@ -1,13 +1,13 @@
+import React from 'react';
 import { timeFrameSetting } from '../../../../constants/timeFrameSetting';
 import MonthlyView from './views/PrimaryHeader/MonthlyView';
 import YearlyView from './views/PrimaryHeader/YearlyView';
 import QuarterMonthView from './views/PrimaryHeader/QuarterMonthView';
 import QuarterYearView from './views/PrimaryHeader/QuarterYearView';
-import React from 'react';
-import { useGanttChartStore } from '../../../../stores/useGanttChartStore';
+import { useConfigStore } from '../../../../stores/useConfigStore';
 
 const TimeAxisPrimary = React.memo(() => {
-  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
+  const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
 
   // Render view based on chartTimeFrameView
   const renderView = () => {

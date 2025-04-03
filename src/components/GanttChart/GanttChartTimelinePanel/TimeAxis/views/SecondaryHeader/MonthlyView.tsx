@@ -1,10 +1,12 @@
-import { useGanttChartStore } from '../../../../../../stores/useGanttChartStore';
+import React from 'react';
+import { useConfigStore } from '../../../../../../stores/useConfigStore';
+import { useShallow } from 'zustand/shallow';
 import './styles.css';
 
-const MonthlyView = () => {
-  const chartDateRange = useGanttChartStore(state => state.chartDateRange);
-  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
-  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
+const MonthlyView = React.memo(() => {
+  const chartDateRange = useConfigStore(useShallow(state => state.chartDateRange));
+  const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
+  const zoomWidth = useConfigStore(state => state.zoomWidth);
 
   // Function to get the day name based on the month index, day index, and year
   // @ts-expect-error - TS complains about the missing toLocaleDateString method
@@ -39,6 +41,6 @@ const MonthlyView = () => {
       )}
     </div>
   );
-};
+});
 
 export default MonthlyView;

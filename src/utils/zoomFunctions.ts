@@ -1,24 +1,23 @@
 import { useUIStore } from '../stores/useUIStore';
-import { useInteractionStore } from '../stores/useInteractionStore';
-import { useGanttChartStore } from '../stores/useGanttChartStore';
+import { useConfigStore } from '../stores/useConfigStore';
 
 /**
  * Zoom in function that increases the zoom level
  * This is exported for external use
  */
 export function zoomIn() {
-  const ganttChartStore = useGanttChartStore.getState();
+  const configStore = useConfigStore.getState();
   const uiStore = useUIStore.getState();
-  const interactionStore = useInteractionStore.getState();
 
   // Get current values
-  const { zoomWidth } = ganttChartStore;
+  const { zoomWidth } = configStore;
   const { timelinePanelRef } = uiStore;
-  const { setPreviousContainerScrollLeftPosition } = interactionStore;
+
+  const setPreviousScrollPosition = uiStore.setPreviousScrollPosition;
 
   // Update zoom width in the store
   const newZoomWidth = zoomWidth + 10;
-  useGanttChartStore.setState({ zoomWidth: newZoomWidth });
+  useConfigStore.setState({ zoomWidth: newZoomWidth });
 
   // Handle panel scrolling if ref exists
   if (timelinePanelRef?.current) {
@@ -36,7 +35,7 @@ export function zoomIn() {
 
       // Apply the new scroll position
       container.scrollLeft = newScrollLeft;
-      setPreviousContainerScrollLeftPosition(newScrollLeft);
+      setPreviousScrollPosition(newScrollLeft);
     });
   }
 }
@@ -46,20 +45,19 @@ export function zoomIn() {
  * This is exported for external use
  */
 export function zoomOut() {
-  const ganttChartStore = useGanttChartStore.getState();
+  const configStore = useConfigStore.getState();
   const uiStore = useUIStore.getState();
-  const interactionStore = useInteractionStore.getState();
 
   // Get current values
-  const { zoomWidth } = ganttChartStore;
+  const { zoomWidth } = configStore;
   const { timelinePanelRef } = uiStore;
-  const { setPreviousContainerScrollLeftPosition } = interactionStore;
+  const setPreviousScrollPosition = uiStore.setPreviousScrollPosition;
 
   // Update zoom width in the store with minimum limit
   const newZoomWidth = zoomWidth - 10;
   if (newZoomWidth < 0) return;
 
-  useGanttChartStore.setState({ zoomWidth: newZoomWidth });
+  useConfigStore.setState({ zoomWidth: newZoomWidth });
 
   // Handle panel scrolling if ref exists
   if (timelinePanelRef?.current) {
@@ -77,7 +75,7 @@ export function zoomOut() {
 
       // Apply the new scroll position
       container.scrollLeft = newScrollLeft;
-      setPreviousContainerScrollLeftPosition(newScrollLeft);
+      setPreviousScrollPosition(newScrollLeft);
     });
   }
 }

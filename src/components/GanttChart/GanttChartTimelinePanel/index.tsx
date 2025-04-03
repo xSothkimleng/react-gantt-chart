@@ -8,19 +8,31 @@ import { DateRangeType, MonthDataType } from '../../../types/dateRangeType';
 import { initializeDateRange } from '../../../utils/dateUtils';
 import { scrollToEarliestBar } from '../../../utils/ganttBarUtils';
 import './styles.css';
-import { useGanttChartStore } from '../../../stores/useGanttChartStore';
+import { useRowsStore } from '../../../stores/useRowsStore'; // Changed
+import { useConfigStore } from '../../../stores/useConfigStore'; // Changed
 import { useInteractionStore } from '../../../stores/useInteractionStore';
-import { useUIStore } from '../../../stores/useUIStore';
+import { useUIStore } from '../../../stores/useUIStore'; // Changed
+import { useShallow } from 'zustand/shallow'; // Added for optimization
 
 const GanttChartTimelinePanel = () => {
-  const rows = useGanttChartStore(state => state.rows);
-  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
-  const chartDateRange = useGanttChartStore(state => state.chartDateRange);
-  const isChartBorderReached = useGanttChartStore(state => state.isChartBorderReached);
-  const setChartDateRange = useGanttChartStore(state => state.setChartDateRange);
-  const setIsLoading = useGanttChartStore(state => state.setIsLoading);
-  const setIsChartBorderReached = useGanttChartStore(state => state.setIsChartBorderReached);
-  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
+  // Get rows from rowsStore
+  const rows = useRowsStore(useShallow(state => state.rows));
+
+  // Get chart configuration from configStore
+  const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
+  const chartDateRange = useConfigStore(useShallow(state => state.chartDateRange));
+  const setChartDateRange = useConfigStore(state => state.setChartDateRange);
+  const setIsLoading = useConfigStore(state => state.setIsLoading);
+  const getDayWidth = useConfigStore(state => state.getDayWidth);
+
+  // Get interaction state
+  const isChartBorderReached = useInteractionStore(state => state.isChartBorderReached);
+  const setIsChartBorderReached = useInteractionStore(state => state.setIsChartBorderReached);
+  const interactionState = useInteractionStore(state => state.interactionState);
+  const startTimelineDrag = useInteractionStore(state => state.startTimelineDrag);
+
+  // Get UI elements
+  const setTimelinePanelRef = useUIStore(state => state.setTimelinePanelRef);
 
   // State to track if date range has been initialized
   const [dateRangeInitialized, setDateRangeInitialized] = useState(false);
@@ -31,14 +43,9 @@ const GanttChartTimelinePanel = () => {
 
   // Create ref for time panel
   const timelinePanelRef = useRef<HTMLDivElement>(null);
-  const { setTimelinePanelRef } = useUIStore();
 
   // Track whether ref has been set to avoid multiple setTimelinePanelRef calls
   const refHasBeenSet = useRef(false);
-
-  // Get interaction state and actions
-  const interactionState = useInteractionStore(state => state.interactionState);
-  const startTimelineDrag = useInteractionStore(state => state.startTimelineDrag);
 
   const prevChartDateRange = useRef<DateRangeType>([]);
   const prevTimeFrameView = useRef(chartTimeFrameView);
@@ -50,7 +57,7 @@ const GanttChartTimelinePanel = () => {
       setTimelinePanelRef(timelinePanelRef);
       refHasBeenSet.current = true;
 
-      // Log to confirm it's set correctly - you can remove this later
+      // Log to confirm it's set correctly
       console.log('Timeline panel ref set:', timelinePanelRef.current);
     }
   }, [setTimelinePanelRef, timelinePanelRef.current]);
@@ -182,7 +189,7 @@ const GanttChartTimelinePanel = () => {
       // Small delay to ensure DOM is fully rendered
       const timeoutId = setTimeout(() => {
         // Calculate day width based on current view and zoom
-        const dayWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
+        const dayWidth = getDayWidth();
 
         // Scroll to the earliest bar with a small left padding (80px)
         scrollToEarliestBar(timelinePanelRef, rows, chartDateRange, dayWidth, 80);
@@ -193,7 +200,7 @@ const GanttChartTimelinePanel = () => {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [dateRangeInitialized, chartDateRange, rows, initialScrollPerformed, chartTimeFrameView, zoomWidth]);
+  }, [dateRangeInitialized, chartDateRange, rows, initialScrollPerformed, getDayWidth]);
 
   // Safe timeline panel drag handler
   const handleTimelinePanelMouseDown = useCallback(

@@ -1,32 +1,38 @@
-// src/stores/useUIStore.ts
 import { create } from 'zustand';
+import { Row } from '../types/row';
 
-interface UIState {
-  activeDataIndex: number | null;
+interface UIStore {
+  // State
   timelinePanelRef: { current: HTMLDivElement | null } | null;
-  isTimelinePanelRefSet: boolean;
+  previousScrollPosition: number;
+  selectedRowId: string | null;
+  externalGetSelectedRow?: (row: Row) => void;
+  ButtonContainer?: React.FC;
 
-  // UI actions
-  setActiveDataIndex: (index: number | null) => void;
+  // Actions
   setTimelinePanelRef: (ref: React.RefObject<HTMLDivElement>) => void;
+  setPreviousScrollPosition: (position: number) => void;
+  setSelectedRowId: (id: string | null) => void;
+  setExternalGetSelectedRow: (fn: ((row: Row) => void) | undefined) => void;
+  setButtonContainer: (component: React.FC | undefined) => void;
 }
 
-export const useUIStore = create<UIState>(set => ({
-  activeDataIndex: null,
+export const useUIStore = create<UIStore>(set => ({
+  // State
   timelinePanelRef: null,
-  isTimelinePanelRefSet: false,
+  previousScrollPosition: 0,
+  selectedRowId: null,
+  externalGetSelectedRow: undefined,
+  ButtonContainer: undefined,
 
-  setActiveDataIndex: index => {
-    set({ activeDataIndex: index });
-  },
-
+  // Actions
   setTimelinePanelRef: ref => {
-    // Only update if ref has a current value
     if (ref && ref.current) {
-      set({
-        timelinePanelRef: { current: ref.current },
-        isTimelinePanelRefSet: true,
-      });
+      set({ timelinePanelRef: { current: ref.current } });
     }
   },
+  setPreviousScrollPosition: position => set({ previousScrollPosition: position }),
+  setSelectedRowId: id => set({ selectedRowId: id }),
+  setExternalGetSelectedRow: fn => set({ externalGetSelectedRow: fn }),
+  setButtonContainer: component => set({ ButtonContainer: component }),
 }));

@@ -2,14 +2,14 @@ import React from 'react';
 import GanttChartTimelinePanel from './GanttChartTimelinePanel';
 import GanttChartDataRowPanel from './GanttChartDataRowPanel';
 import '../../styles/theme.css';
-import { useGanttChartStore } from '../../stores/useGanttChartStore';
+import { useConfigStore } from '../../stores/useConfigStore';
 
 interface GanttChartContentProps {
   className?: string;
 }
 
 const GanttChartContent: React.FC<GanttChartContentProps> = ({ className = '' }) => {
-  const isShowSidebar = useGanttChartStore(state => state.showSidebar);
+  const isShowSidebar = useConfigStore(state => state.showSidebar);
 
   return (
     <div className={`gantt-chart-container ${className}`}>

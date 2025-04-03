@@ -1,8 +1,10 @@
 import { memo, useState } from 'react';
-import { useGanttChartStore } from '../../../../../stores/useGanttChartStore';
+import { useRowsStore } from '../../../../../stores/useRowsStore'; // Changed
+import { useUIStore } from '../../../../../stores/useUIStore'; // Added
 import { Row } from '../../../../../types/row';
 import { progressFormatter } from '../../../../../utils/progressFormater';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../../../assets/icons/icons';
+import { useShallow } from 'zustand/shallow'; // Added for optimization
 
 const progressDisplay = (row: Row) => {
   if (row.currentProgress === undefined || row.maxProgress === undefined) return '';
@@ -24,17 +26,30 @@ type DataRowType = {
 };
 
 const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns, visibleFields }) => {
-  const row = useGanttChartStore(state => state.getRowById(rowId));
-  const collapsedItems = useGanttChartStore(state => state.collapsedItems);
-  const selectRow = useGanttChartStore(state => state.externalGetSelectedRow);
-  const toggleCollapse = useGanttChartStore(state => state.toggleCollapse);
-  const ButtonContainer = useGanttChartStore(state => state.ButtonContainer);
+  // Get row data from rowsStore
+  const row = useRowsStore(state => state.getRowById(rowId));
+
+  // Get collapsed state from rowsStore
+  const collapsedItems = useRowsStore(useShallow(state => state.collapsedItems));
+  const toggleCollapse = useRowsStore(state => state.toggleCollapse);
+
+  // Get UI elements from uiStore
+  const externalGetSelectedRow = useUIStore(state => state.externalGetSelectedRow);
+  const ButtonContainer = useUIStore(state => state.ButtonContainer);
+
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
 
-  if (!row) return;
+  if (!row) return null;
 
   const hasChildren = Array.isArray(row.children) && (row.children as Row[]).length > 0;
   const isCollapsed = collapsedItems.has(row.id.toString());
+
+  // Create a memoized handler for row selection
+  const handleRowSelect = () => {
+    if (externalGetSelectedRow) {
+      externalGetSelectedRow(row);
+    }
+  };
 
   return (
     <div key={row.id}>
@@ -46,7 +61,7 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
         {visibleFields.map(([key], index) => (
           <div
             key={`${row.id}-${key}-${index}`}
-            onClick={() => selectRow && selectRow(row)}
+            onClick={handleRowSelect}
             onMouseEnter={() => setHoveredRowId(row.id.toString())}
             onMouseLeave={() => setHoveredRowId(null)}
             className='gantt-data-panel-row-cell'

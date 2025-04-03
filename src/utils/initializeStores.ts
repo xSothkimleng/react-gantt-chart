@@ -1,12 +1,10 @@
 // src/utils/initializeStores.ts
 import { Column } from '../types/column';
 import { Row } from '../types/row';
-import { useGanttChartStore } from '../stores/useGanttChartStore';
+import { useRowsStore } from '../stores/useRowsStore';
+import { useConfigStore } from '../stores/useConfigStore';
 import { useInteractionStore } from '../stores/useInteractionStore';
 import { useUIStore } from '../stores/useUIStore';
-
-// Create auto-scroll ref value correctly typed
-const autoScrollRefValue = { current: null as number | null };
 
 interface InitializeStoresProps {
   rows: Row[];
@@ -16,32 +14,36 @@ interface InitializeStoresProps {
 }
 
 export const initializeStores = ({ rows, columns, getSelectedRow, ButtonContainer }: InitializeStoresProps) => {
+  // Initialize UI Store
   useUIStore.setState({
-    activeDataIndex: null,
     timelinePanelRef: null,
-    isTimelinePanelRefSet: false,
+    previousScrollPosition: 0,
+    selectedRowId: null,
+    externalGetSelectedRow: getSelectedRow,
+    ButtonContainer,
   });
 
+  // Initialize Interaction Store
   useInteractionStore.setState({
     interactionState: { mode: 'idle' },
-    autoScrollRef: autoScrollRefValue,
     leftBoundary: 0,
     rightBoundary: 0,
     isChartBorderReached: false,
-    previousContainerScrollLeftPosition: 0,
   });
 
-  useGanttChartStore.setState({
-    isLoading: true,
+  // Initialize Config Store
+  useConfigStore.setState({
     columns: columns || ({} as Column),
+    chartDateRange: [],
+    isLoading: true,
+  });
+
+  // Initialize Rows Store
+  useRowsStore.setState({
     rows: rows || [],
     collapsedItems: new Set<string>(),
-    ButtonContainer,
-    externalGetSelectedRow: getSelectedRow,
-    chartDateRange: [], // Will be populated by components
-    isChartBorderReached: false,
-    zoomWidth: 0,
   });
 
-  useGanttChartStore.setState({ isLoading: false });
+  // Set loading to false after initialization
+  useConfigStore.setState({ isLoading: false });
 };

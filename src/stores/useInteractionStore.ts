@@ -1,4 +1,3 @@
-// src/stores/useInteractionStore.ts
 import { create } from 'zustand';
 import { Row } from '../types/row';
 
@@ -19,13 +18,13 @@ export type InteractionState =
       rowData: Row;
     };
 
-interface InteractionStateStore {
+interface InteractionStore {
+  // State
   interactionState: InteractionState;
   autoScrollRef: { current: number | null };
   leftBoundary: number;
   rightBoundary: number;
   isChartBorderReached: boolean;
-  previousContainerScrollLeftPosition: number;
 
   // Actions
   setInteractionState: (state: InteractionState) => void;
@@ -41,53 +40,30 @@ interface InteractionStateStore {
   startTimelineDrag: (params: { startX: number; scrollLeft: number }) => void;
   setBoundaries: (left: number, right: number) => void;
   setIsChartBorderReached: (reached: boolean) => void;
-  setPreviousContainerScrollLeftPosition: (position: number) => void;
 }
 
-export const useInteractionStore = create<InteractionStateStore>(set => ({
+export const useInteractionStore = create<InteractionStore>(set => ({
+  // State
   interactionState: { mode: 'idle' },
   autoScrollRef: autoScrollRefValue,
   leftBoundary: 0,
   rightBoundary: 0,
   isChartBorderReached: false,
-  previousContainerScrollLeftPosition: 0,
 
+  // Actions
   setInteractionState: state => set({ interactionState: state }),
-
   startBarDrag: ({ barId, startX, startLeft, rowData }) =>
     set({
-      interactionState: {
-        mode: 'barDragging',
-        barId,
-        startX,
-        startLeft,
-        rowData,
-      },
+      interactionState: { mode: 'barDragging', barId, startX, startLeft, rowData },
     }),
-
   startBarResize: ({ barId, edge, startX, startWidth, startLeft, rowData }) =>
     set({
-      interactionState: {
-        mode: 'barResizing',
-        barId,
-        edge,
-        startX,
-        startWidth,
-        startLeft,
-        rowData,
-      },
+      interactionState: { mode: 'barResizing', barId, edge, startX, startWidth, startLeft, rowData },
     }),
-
   startTimelineDrag: ({ startX, scrollLeft }) =>
     set({
-      interactionState: {
-        mode: 'timelineDragging',
-        startX,
-        scrollLeft,
-      },
+      interactionState: { mode: 'timelineDragging', startX, scrollLeft },
     }),
-
   setBoundaries: (left, right) => set({ leftBoundary: left, rightBoundary: right }),
   setIsChartBorderReached: reached => set({ isChartBorderReached: reached }),
-  setPreviousContainerScrollLeftPosition: position => set({ previousContainerScrollLeftPosition: position }),
 }));

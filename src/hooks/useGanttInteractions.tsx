@@ -1,31 +1,38 @@
 import { useEffect, useRef } from 'react';
 import { useInteractionStore } from '../stores/useInteractionStore';
 import { useUIStore } from '../stores/useUIStore';
+import { useConfigStore } from '../stores/useConfigStore';
+import { useRowsStore } from '../stores/useRowsStore';
 import { snapToGridValuePosition } from '../utils/ganttBarUtils';
-import { useGanttChartStore } from '../stores/useGanttChartStore';
 
 /**
  * Hook that handles all Gantt chart interactions like dragging and resizing
  * This replaces the interaction handling that was previously in GanttChartProvider
  */
 export const useGanttInteractions = () => {
-  // Get only the state and actions we need from each store
+  // Get interaction state from interaction store
   const interactionState = useInteractionStore(state => state.interactionState);
   const setInteractionState = useInteractionStore(state => state.setInteractionState);
   const autoScrollRef = useInteractionStore(state => state.autoScrollRef);
-  const updateRow = useGanttChartStore(state => state.updateRow);
+  const setIsChartBorderReached = useInteractionStore(state => state.setIsChartBorderReached);
+
+  // Get UI elements from UI store
   const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
-  const chartTimeFrameView = useGanttChartStore(state => state.chartTimeFrameView);
-  const zoomWidth = useGanttChartStore(state => state.zoomWidth);
-  const setPreviousContainerScrollLeftPosition = useInteractionStore(state => state.setPreviousContainerScrollLeftPosition);
+  const setPreviousScrollPosition = useUIStore(state => state.setPreviousScrollPosition);
 
-  // Store the last day width to avoid expensive recalculations
-  const dayWidth = useRef(chartTimeFrameView.dayWidthUnit + zoomWidth);
+  // Get chart configuration from config store
+  const getDayWidth = useConfigStore(state => state.getDayWidth);
 
-  // Update stored day width when chartTimeFrameView or zoomWidth changes
+  // Get row operations from row store
+  const updateRow = useRowsStore(state => state.updateRow);
+
+  // Store the day width in a ref to avoid recalculations
+  const dayWidth = useRef(getDayWidth());
+
+  // Update day width when it changes
   useEffect(() => {
-    dayWidth.current = chartTimeFrameView.dayWidthUnit + zoomWidth;
-  }, [chartTimeFrameView, zoomWidth]);
+    dayWidth.current = getDayWidth();
+  }, [getDayWidth]);
 
   /**
    * Handle automatic scrolling when dragging near the edge of the container
@@ -183,7 +190,7 @@ export const useGanttInteractions = () => {
         case 'timelineDragging': {
           if (timelinePanelRef?.current) {
             timelinePanelRef.current.style.cursor = 'grab';
-            setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
+            setPreviousScrollPosition(timelinePanelRef.current.scrollLeft);
           }
           break;
         }
@@ -207,8 +214,6 @@ export const useGanttInteractions = () => {
               const newEndDate = new Date(rowItem.end);
               newEndDate.setDate(newEndDate.getDate() + daysMoved);
 
-              console.log('spread of row item', { ...rowItem });
-
               return {
                 ...rowItem,
                 start: newStartDate.toISOString(),
@@ -218,7 +223,7 @@ export const useGanttInteractions = () => {
           }
 
           if (timelinePanelRef?.current) {
-            setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
+            setPreviousScrollPosition(timelinePanelRef.current.scrollLeft);
           }
           break;
         }
@@ -271,7 +276,7 @@ export const useGanttInteractions = () => {
           }
 
           if (timelinePanelRef?.current) {
-            setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
+            setPreviousScrollPosition(timelinePanelRef.current.scrollLeft);
           }
           break;
         }
@@ -282,6 +287,9 @@ export const useGanttInteractions = () => {
         cancelAnimationFrame(autoScrollRef.current);
         autoScrollRef.current = null;
       }
+
+      // Set chart border reached to false after interaction is complete
+      setIsChartBorderReached(false);
     };
 
     // Add event listeners
@@ -299,5 +307,13 @@ export const useGanttInteractions = () => {
         autoScrollRef.current = null;
       }
     };
-  }, [interactionState, autoScrollRef, timelinePanelRef, setInteractionState, updateRow, setPreviousContainerScrollLeftPosition]);
+  }, [
+    interactionState,
+    autoScrollRef,
+    timelinePanelRef,
+    setInteractionState,
+    updateRow,
+    setPreviousScrollPosition,
+    setIsChartBorderReached,
+  ]);
 };

@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useCallback } from 'react';
 import './styles.css';
-import { useGanttChartStore } from '../../../stores/useGanttChartStore';
+import { useConfigStore } from '../../../stores/useConfigStore'; // Changed from useGanttChartStore
 import DataRowTree from './RowTree';
 
 const GanttChartDataRowPanel = React.memo(() => {
-  const columns = useGanttChartStore(state => state.columns);
+  // Get columns from configStore instead of ganttChartStore
+  const columns = useConfigStore(state => state.columns);
 
   const getColumnWidth = useCallback((key: string) => {
     switch (key) {
