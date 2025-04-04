@@ -24,7 +24,7 @@ export default defineConfig({
       fileName: format => `react-gantt-chart.${format}.js`,
       formats: ['es', 'umd'],
     },
-    cssCodeSplit: false,
+    cssCodeSplit: false, // Ensure CSS is not split into chunks
     rollupOptions: {
       external: ['react', 'react-dom', 'lodash'],
       output: {
@@ -33,8 +33,20 @@ export default defineConfig({
           'react-dom': 'ReactDOM',
           lodash: '_',
         },
-        assetFileNames: 'style.[ext]', // Simple pattern for all assets
+        assetFileNames: (assetInfo): string => {
+          // Makes all CSS files output as 'style.css'
+          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+            return 'style.css';
+          }
+          return assetInfo.name || 'asset-[hash].[ext]';
+        },
       },
     },
+    // Make sure to copy the style.css file to the dist directory as well
+    emptyOutDir: true, // Clear the output directory before build
+  },
+  css: {
+    // Make sure styles are processed correctly
+    postcss: {}, // Add any postcss processing if needed
   },
 });

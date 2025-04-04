@@ -5,3 +5,4 @@ export type { Row } from './types/row';
 export { timeFrameSetting } from './constants/timeFrameSetting';
 export type { TimeFrameSettingType } from './types/timeFrameSettingType';
 export { zoomIn, zoomOut } from './utils/zoomFunctions';
+import './styles/theme.css';
