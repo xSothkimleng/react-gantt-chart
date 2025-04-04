@@ -15,7 +15,7 @@
 .gantt-data-panel-header {
   display: grid;
   border-bottom: 1px solid var(--gantt-global-border-color);
-  height: 49px;
+  height: 48px;
   min-width: max-content;
   background: var(--gantt-data-panel-header-background);
 }

@@ -134,7 +134,7 @@ function App() {
   };
 
   return (
-    <div style={{ height: '100%' }}>
+    <div style={{ height: '100%', position: 'relative' }}>
       <div style={{ display: 'flex', gap: 2 }}>
         <select
           style={{ background: 'rgba(0,0,0,0.08)', border: 'none' }}
@@ -162,17 +162,17 @@ function App() {
         </button>
       </div>
 
-      <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}>
-        <GanttChart
-          columns={columns}
-          rows={rows}
-          defaultView={currentView}
-          showSidebar={showSidebar}
-          getSelectedRow={getSelectedRow}
-          ButtonContainer={ButtonContainer}
-          className='user-gantt-style'
-        />
-      </div>
+      {/* <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}> */}
+      <GanttChart
+        columns={columns}
+        rows={rows}
+        defaultView={currentView}
+        showSidebar={showSidebar}
+        getSelectedRow={getSelectedRow}
+        ButtonContainer={ButtonContainer}
+        className='user-gantt-style'
+      />
+      {/* </div> */}
     </div>
   );
 }

@@ -7,12 +7,12 @@ import GanttBarPanel from './GanttBarPanel';
 import { DateRangeType, MonthDataType } from '../../../types/dateRangeType';
 import { initializeDateRange } from '../../../utils/dateUtils';
 import { scrollToEarliestBar } from '../../../utils/ganttBarUtils';
-import './styles.css';
-import { useRowsStore } from '../../../stores/useRowsStore'; // Changed
-import { useConfigStore } from '../../../stores/useConfigStore'; // Changed
+import { useRowsStore } from '../../../stores/useRowsStore';
+import { useConfigStore } from '../../../stores/useConfigStore';
 import { useInteractionStore } from '../../../stores/useInteractionStore';
-import { useUIStore } from '../../../stores/useUIStore'; // Changed
-import { useShallow } from 'zustand/shallow'; // Added for optimization
+import { useUIStore } from '../../../stores/useUIStore';
+import { useShallow } from 'zustand/shallow';
+import './styles.css';
 
 const GanttChartTimelinePanel = () => {
   // Get rows from rowsStore
@@ -244,7 +244,6 @@ const GanttChartTimelinePanel = () => {
       className='gnatt-timeline-panel'
       style={{
         cursor: interactionState.mode === 'timelineDragging' ? 'grabbing' : 'grab',
-        position: 'relative',
         zIndex: 1,
       }}>
       <TimeAxisPrimary />

@@ -14,6 +14,7 @@ interface ResizeButtonProps {
 
 const BarResizer: React.FC<ResizeButtonProps> = ({ position, ganttBarRef, row }) => {
   const startBarResize = useInteractionStore(useShallow(state => state.startBarResize));
+  console.log('BarResizer render', position, row.id);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {

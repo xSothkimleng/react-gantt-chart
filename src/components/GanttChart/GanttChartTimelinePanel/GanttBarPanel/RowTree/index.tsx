@@ -20,7 +20,7 @@ const GanttBarPanelRowTree = () => {
       const isCollapsed = collapsedItems.has(row.id.toString());
 
       return (
-        <div key={row.id.toString()}>
+        <div key={row.id.toString()} style={{ position: 'absolute' }}>
           <GanttBar index={rowIndex} rowId={row.id} />
           {row.children && !isCollapsed && row.children.map(childRow => renderRow(childRow))}
         </div>
