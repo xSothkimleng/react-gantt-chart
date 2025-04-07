@@ -56,9 +56,6 @@ const GanttChartTimelinePanel = () => {
       // Make sure we're passing the actual DOM element reference
       setTimelinePanelRef(timelinePanelRef);
       refHasBeenSet.current = true;
-
-      // Log to confirm it's set correctly
-      console.log('Timeline panel ref set:', timelinePanelRef.current);
     }
   }, [setTimelinePanelRef, timelinePanelRef.current]);
 
@@ -205,7 +202,7 @@ const GanttChartTimelinePanel = () => {
   // Safe timeline panel drag handler
   const handleTimelinePanelMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      console.log('Timeline panel mousedown');
+      // console.log('Timeline panel mousedown');
 
       // Don't initiate timeline dragging if we clicked on a gantt bar or resizer
       if ((e.target as HTMLElement).closest('.gantt-bar') || (e.target as HTMLElement).closest('.gantt-bar-resize-handle')) {
@@ -215,10 +212,10 @@ const GanttChartTimelinePanel = () => {
 
       const container = timelinePanelRef.current;
       if (container) {
-        console.log('Starting timeline drag', {
-          startX: e.pageX - container.offsetLeft,
-          scrollLeft: container.scrollLeft,
-        });
+        // console.log('Starting timeline drag', {
+        //   startX: e.pageX - container.offsetLeft,
+        //   scrollLeft: container.scrollLeft,
+        // });
 
         startTimelineDrag({
           startX: e.pageX - container.offsetLeft,

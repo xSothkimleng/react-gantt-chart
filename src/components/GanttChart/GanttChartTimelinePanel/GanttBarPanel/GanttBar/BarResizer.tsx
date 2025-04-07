@@ -1,4 +1,3 @@
-// For BarResizer.tsx
 import React, { useCallback } from 'react';
 import { Row } from '../../../../../types/row';
 import { useInteractionStore } from '../../../../../stores/useInteractionStore';
@@ -14,11 +13,10 @@ interface ResizeButtonProps {
 
 const BarResizer: React.FC<ResizeButtonProps> = ({ position, ganttBarRef, row }) => {
   const startBarResize = useInteractionStore(useShallow(state => state.startBarResize));
-  console.log('BarResizer render', position, row.id);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      e.stopPropagation(); // Prevent dragging or timeline drag
+      e.stopPropagation();
 
       if (row.isLocked) return;
 

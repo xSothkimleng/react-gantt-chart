@@ -228,18 +228,19 @@ export const useGanttInteractions = () => {
 
           if (currentEdge === 'left') {
             // Snap left edge to grid
-            const newLeft = snapToGridValuePosition(barElement.style.left, dayWidth.current);
-            const newWidth = parseInt(barElement.style.width) + (parseInt(barElement.style.left) - newLeft);
+            const gridInterval = dayWidth.current;
+            const newLeft = snapToGridValuePosition(barElement.style.left, gridInterval);
+            const newWidth = Math.round(parseInt(barElement.style.width) / gridInterval) * gridInterval;
+            const daysChanged = Math.round((newWidth - currentStartWidth) / gridInterval);
+
+            // shallow copy the bar element for illusion magic trick
             barElement.style.left = `${newLeft}px`;
             barElement.style.width = `${newWidth}px`;
 
-            // Update start date
-            const daysMoved = Math.round((newLeft - currentStartLeft) / dayWidth.current);
-
-            if (daysMoved !== 0) {
+            if (daysChanged !== 0 || daysChanged !== 0) {
               updateRow(currentBarId, rowItem => {
                 const newStartDate = new Date(rowItem.start);
-                newStartDate.setDate(newStartDate.getDate() + daysMoved);
+                newStartDate.setDate(newStartDate.getDate() - daysChanged);
 
                 return {
                   ...rowItem,
