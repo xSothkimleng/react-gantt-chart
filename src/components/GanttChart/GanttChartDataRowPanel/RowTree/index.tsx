@@ -1,6 +1,7 @@
 'use client';
-import { useRowsStore } from '../../../../stores/useRowsStore';
 import { useShallow } from 'zustand/shallow';
+import { useRowsStore } from '../../../../stores/useRowsStore';
+// import { useShallow } from 'zustand/shallow';
 import '../styles.css';
 import DataRow from './Row';
 
@@ -10,11 +11,11 @@ type DataRowTree = {
 };
 
 const DataRowTree: React.FC<DataRowTree> = ({ visibleFields, gridTemplateColumns }) => {
-  const rows = useRowsStore(useShallow(state => state.rows));
+  const rootIds = useRowsStore(useShallow(state => state.rootIds));
 
   return (
     <div>
-      {rows.length === 0 ? (
+      {rootIds.length === 0 ? (
         <div
           style={{
             gridColumn: `span ${visibleFields.length}`,
@@ -24,8 +25,8 @@ const DataRowTree: React.FC<DataRowTree> = ({ visibleFields, gridTemplateColumns
           No Data
         </div>
       ) : (
-        rows.map(row => (
-          <DataRow key={row.id} rowId={row.id} gridTemplateColumns={gridTemplateColumns} visibleFields={visibleFields} />
+        rootIds.map(rowId => (
+          <DataRow key={rowId} rowId={rowId} gridTemplateColumns={gridTemplateColumns} visibleFields={visibleFields} />
         ))
       )}
     </div>

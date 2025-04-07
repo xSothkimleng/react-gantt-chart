@@ -1,9 +1,10 @@
-import { memo, useState } from 'react';
-import { useRowsStore } from '../../../../../stores/useRowsStore'; // Changed
-import { useUIStore } from '../../../../../stores/useUIStore'; // Added
+import { memo, useState, useCallback } from 'react';
+import { useRowsStore } from '../../../../../stores/useRowsStore';
+import { useUIStore } from '../../../../../stores/useUIStore';
 import { Row } from '../../../../../types/row';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../../../assets/icons/icons';
-import { useShallow } from 'zustand/shallow'; // Added for optimization
+import { useShallow } from 'zustand/shallow';
+// import { useShallow } from 'zustand/shallow';
 
 const progressDisplay = (row: Row) => {
   return row.progressIndicatorLabel ?? '';
@@ -24,11 +25,14 @@ type DataRowType = {
 };
 
 const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns, visibleFields }) => {
-  // Get row data from rowsStore
-  const row = useRowsStore(state => state.getRowById(rowId));
+  // Get specific row data by ID
+  const row = useRowsStore(useShallow(state => state.getRowById(String(rowId))));
 
-  // Get collapsed state from rowsStore
-  const collapsedItems = useRowsStore(useShallow(state => state.collapsedItems));
+  // Get child IDs for this row
+  const childIds = useRowsStore(useShallow(state => state.parentChildMap[String(rowId)] || []));
+
+  // Get collapsed state only for this specific row
+  const isCollapsed = useRowsStore(state => state.collapsedItems.has(String(rowId)));
   const toggleCollapse = useRowsStore(state => state.toggleCollapse);
 
   // Get UI elements from uiStore
@@ -37,17 +41,33 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
 
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
 
-  if (!row) return null;
-
-  const hasChildren = Array.isArray(row.children) && (row.children as Row[]).length > 0;
-  const isCollapsed = collapsedItems.has(row.id.toString());
-
   // Create a memoized handler for row selection
-  const handleRowSelect = () => {
-    if (externalGetSelectedRow) {
+  const handleRowSelect = useCallback(() => {
+    if (externalGetSelectedRow && row) {
       externalGetSelectedRow(row);
     }
-  };
+  }, [externalGetSelectedRow, row]);
+
+  const handleMouseEnter = useCallback(() => {
+    if (row) setHoveredRowId(String(row.id));
+  }, [row]);
+
+  const handleMouseLeave = useCallback(() => {
+    setHoveredRowId(null);
+  }, []);
+
+  const handleToggleCollapse = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      toggleCollapse(String(rowId));
+    },
+    [rowId, toggleCollapse],
+  );
+
+  if (!row) return null;
+
+  // Check if this row has children using the childIds
+  const hasChildren = childIds.length > 0;
 
   return (
     <div key={row.id}>
@@ -60,25 +80,20 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
           <div
             key={`${row.id}-${key}-${index}`}
             onClick={handleRowSelect}
-            onMouseEnter={() => setHoveredRowId(row.id.toString())}
-            onMouseLeave={() => setHoveredRowId(null)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             className='gantt-data-panel-row-cell'
             style={{
               paddingLeft: key === 'name' ? `${depth * 20}px` : '10px',
               fontWeight: row.highlight ? 'bold' : 'normal',
             }}>
             {key === 'name' && hasChildren && (
-              <button
-                className='gantt-data-panel-collapse-button '
-                onClick={e => {
-                  e.stopPropagation();
-                  toggleCollapse(row.id.toString());
-                }}>
+              <button className='gantt-data-panel-collapse-button' onClick={handleToggleCollapse}>
                 {isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
               </button>
             )}
             <p className='gantt-data-panel-row-cell-content'>{renderRowContent(row, key)}</p>
-            {key === 'name' && ButtonContainer && hoveredRowId === row.id.toString() && (
+            {key === 'name' && ButtonContainer && hoveredRowId === String(row.id) && (
               <div className='gantt-data-panel-row-cell-action-buttons'>
                 <ButtonContainer />
               </div>
@@ -86,13 +101,13 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
           </div>
         ))}
       </div>
+      {/* Render children only if not collapsed and there are children */}
       {hasChildren &&
         !isCollapsed &&
-        row.children &&
-        row.children.map(childRow => (
+        childIds.map(childId => (
           <DataRow
-            key={childRow.id}
-            rowId={childRow.id}
+            key={childId}
+            rowId={childId}
             depth={depth + 1}
             gridTemplateColumns={gridTemplateColumns}
             visibleFields={visibleFields}

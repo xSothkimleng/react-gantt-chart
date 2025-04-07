@@ -2,33 +2,38 @@
 import React, { useMemo } from 'react';
 import GanttBar from '../GanttBar';
 import { useRowsStore } from '../../../../../stores/useRowsStore';
-import { Row } from '../../../../../types/row';
 import { useShallow } from 'zustand/shallow';
 
 const GanttBarPanelRowTree = () => {
-  const rows = useRowsStore(useShallow(state => state.rows));
+  // Get only the IDs and structure, not the entire row data
+  const rootIds = useRowsStore(useShallow(state => state.rootIds));
+  const parentChildMap = useRowsStore(useShallow(state => state.parentChildMap));
   const collapsedItems = useRowsStore(useShallow(state => state.collapsedItems));
 
-  // Memoize the entire tree structure to prevent unnecessary re-renders
+  // Memoize the tree rendering logic
   const renderedTree = useMemo(() => {
-    if (rows.length === 0) return null;
+    if (rootIds.length === 0) return null;
 
     let currentIndex = 0;
 
-    const renderRow = (row: Row) => {
+    const renderRowById = (id: string) => {
       const rowIndex = currentIndex++;
-      const isCollapsed = collapsedItems.has(row.id.toString());
+      const isCollapsed = collapsedItems.has(id);
+      const childIds = parentChildMap[id] || [];
 
       return (
-        <div key={row.id.toString()} style={{ position: 'absolute' }}>
-          <GanttBar index={rowIndex} rowId={row.id} />
-          {row.children && !isCollapsed && row.children.map(childRow => renderRow(childRow))}
+        <div key={id} style={{ position: 'absolute' }}>
+          {/* Pass only the ID, not the entire row object */}
+          <GanttBar index={rowIndex} rowId={id} />
+
+          {/* Render children only if not collapsed and children exist */}
+          {!isCollapsed && childIds.length > 0 && childIds.map(childId => renderRowById(childId))}
         </div>
       );
     };
 
-    return rows.map(row => renderRow(row));
-  }, [rows, collapsedItems]);
+    return rootIds.map(id => renderRowById(id));
+  }, [rootIds, parentChildMap, collapsedItems]);
 
   return renderedTree;
 };

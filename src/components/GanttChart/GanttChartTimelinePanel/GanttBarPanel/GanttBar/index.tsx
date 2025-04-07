@@ -54,7 +54,7 @@ type GanttBarProps = {
 
 const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
   // Get row data with useShallow to prevent re-renders on unrelated state changes
-  const row = useRowsStore(useShallow(state => state.getRowById(rowId)));
+  const row = useRowsStore(state => state.getRowById(rowId));
 
   // Get only the required state from interaction store
   const interactionMode = useInteractionStore(state => state.interactionState.mode);

@@ -40,9 +40,10 @@ export const initializeStores = ({ rows, columns, getSelectedRow, ButtonContaine
 
   // Initialize Rows Store
   useRowsStore.setState({
-    rows: rows || [],
     collapsedItems: new Set<string>(),
   });
+
+  useRowsStore.getState().setRows(rows || []);
 
   // Set loading to false after initialization
   useConfigStore.setState({ isLoading: false });
