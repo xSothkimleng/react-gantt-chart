@@ -1,44 +1,44 @@
 import { create } from 'zustand';
 import { Row } from '../types/row';
-// import { updateNestedRowById } from '../utils/rowUtils';
 
 type RowsState = {
-  // granular approach
+  // Normalized data structure
   rowsById: Record<string, Row>;
   rootIds: string[];
   parentChildMap: Record<string, string[]>;
-  getAllRows: () => Row[];
-  setRows: (rows: Row[]) => void;
-  getRowsCount: () => number;
-  getDateBoundaries: () => { earliest: Date; latest: Date };
-  findEarliestRow: () => Row | undefined;
+  updateTimestamp: number;
 
-  // State
+  // Original state
   rows: Row[];
   collapsedItems: Set<string>;
 
   // Actions
-  // setRows: (rows: Row[]) => void;
+  getAllRows: () => Row[];
+  memoizedRows: () => Row[];
+  setRows: (rows: Row[]) => void;
+  getRowsCount: () => number;
+  getDateBoundaries: () => { earliest: Date; latest: Date };
+  findEarliestRow: () => Row | undefined;
   updateRow: (rowId: string | number, updateFn: (row: Row) => Row) => void;
   toggleCollapse: (itemId: string) => void;
 
   // Selectors
   getRowById: (rowId: string | number) => Row | undefined;
-  getVisibleRows: () => Row[]; // Returns only non-collapsed rows
+  getVisibleRows: () => Row[];
 };
 
 export const useRowsStore = create<RowsState>((set, get) => ({
-  // new approach
+  // Normalized data structure
   rowsById: {},
   rootIds: [],
   parentChildMap: {},
+  updateTimestamp: Date.now(),
 
-  // State
+  // Original state
   rows: [],
   collapsedItems: new Set<string>(),
 
   // Actions
-  // setRows: rows => set({ rows }),
   setRows: rows => {
     const rowsById: Record<string, Row> = {};
     const rootIds: string[] = [];
@@ -72,64 +72,13 @@ export const useRowsStore = create<RowsState>((set, get) => ({
     // Process all rows
     rows.forEach(row => processRow(row));
 
-    set({ rowsById, rootIds, parentChildMap });
-  },
-
-  // updateRow: (rowId, updateFn) =>
-  //   set(state => ({
-  //     rows: updateNestedRowById(state.rows, rowId, updateFn),
-  //   })),
-  updateRow: (rowId, updateFn) => {
-    const id = String(rowId);
-    const row = get().rowsById[id];
-
-    if (row) {
-      set(state => ({
-        rowsById: {
-          ...state.rowsById,
-          [id]: updateFn(row),
-        },
-      }));
-    }
-  },
-
-  toggleCollapse: itemId => {
-    set(state => {
-      const newCollapsedItems = new Set(state.collapsedItems);
-      if (newCollapsedItems.has(itemId)) {
-        newCollapsedItems.delete(itemId);
-      } else {
-        newCollapsedItems.add(itemId);
-      }
-      return { collapsedItems: newCollapsedItems };
+    set({
+      rowsById,
+      rootIds,
+      parentChildMap,
+      rows, // Make sure to set the original rows array too
+      updateTimestamp: Date.now(),
     });
-  },
-
-  // Selectors
-  // getRowById: rowId => {
-  //   const rows = get().rows;
-  //   const findRowById = (rows: Row[], id: string | number): Row | undefined => {
-  //     for (const row of rows) {
-  //       if (row.id === id) {
-  //         return row;
-  //       }
-  //       if (row.children) {
-  //         const foundRow = findRowById(row.children, id);
-  //         if (foundRow) {
-  //           return foundRow;
-  //         }
-  //       }
-  //     }
-  //     return undefined;
-  //   };
-  //   return findRowById(rows, rowId);
-  // },
-  getRowById: rowId => {
-    return get().rowsById[String(rowId)];
-  },
-
-  getVisibleRows: () => {
-    return get().rows;
   },
 
   getAllRows: () => {
@@ -152,7 +101,61 @@ export const useRowsStore = create<RowsState>((set, get) => ({
     return buildRowHierarchy(rootIds);
   },
 
-  // more new approach
+  // Memoized version of getAllRows to prevent infinite loops
+  memoizedRows: (() => {
+    let cachedRows: Row[] | null = null;
+    let lastUpdateTimestamp = -1;
+
+    return () => {
+      const currentTimestamp = get().updateTimestamp;
+      if (cachedRows && lastUpdateTimestamp === currentTimestamp) {
+        return cachedRows;
+      }
+
+      const result = get().getAllRows();
+
+      // Cache the result
+      cachedRows = result;
+      lastUpdateTimestamp = currentTimestamp;
+      return result;
+    };
+  })(),
+
+  updateRow: (rowId, updateFn) => {
+    const id = String(rowId);
+    const row = get().rowsById[id];
+
+    if (row) {
+      set(state => ({
+        rowsById: {
+          ...state.rowsById,
+          [id]: updateFn(row),
+        },
+        updateTimestamp: Date.now(),
+      }));
+    }
+  },
+
+  toggleCollapse: itemId => {
+    set(state => {
+      const newCollapsedItems = new Set(state.collapsedItems);
+      if (newCollapsedItems.has(itemId)) {
+        newCollapsedItems.delete(itemId);
+      } else {
+        newCollapsedItems.add(itemId);
+      }
+      return { collapsedItems: newCollapsedItems };
+    });
+  },
+
+  getRowById: rowId => {
+    return get().rowsById[String(rowId)];
+  },
+
+  getVisibleRows: () => {
+    return get().memoizedRows();
+  },
+
   getDateBoundaries: () => {
     const { rowsById } = get();
     if (Object.keys(rowsById).length === 0) {

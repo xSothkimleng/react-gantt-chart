@@ -54,13 +54,11 @@ const GanttChart: React.FC<GanttChartProps> = ({
     }
   }, [rows, columns, getSelectedRow, ButtonContainer]);
 
-  // Set UI props when they change
   useEffect(() => {
     setButtonContainer(ButtonContainer);
     setExternalGetSelectedRow(getSelectedRow);
   }, [ButtonContainer, getSelectedRow, setButtonContainer, setExternalGetSelectedRow]);
 
-  // Set configuration props when they change
   useEffect(() => {
     setShowSidebar(showSidebar);
   }, [showSidebar, setShowSidebar]);
@@ -69,7 +67,6 @@ const GanttChart: React.FC<GanttChartProps> = ({
     setChartTimeFrameView(defaultView);
   }, [defaultView, setChartTimeFrameView]);
 
-  // Initialize interaction handlers
   useGanttInteractions();
 
   return <GanttChartContent className={className} />;

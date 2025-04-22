@@ -6,10 +6,6 @@ import { snapToGridValuePosition } from '../utils/ganttBarUtils';
 import { useRowsStore } from '../stores/useRowsStore';
 import { useConfigStore } from '../stores/useConfigStore';
 
-/**
- * Hook that handles all Gantt chart interactions like dragging and resizing
- * This replaces the interaction handling that was previously in GanttChartProvider
- */
 export const useGanttInteractions = () => {
   const interactionState = useInteractionStore(state => state.interactionState);
   const setInteractionState = useInteractionStore(state => state.setInteractionState);
@@ -182,6 +178,8 @@ export const useGanttInteractions = () => {
       // Finalize the interaction
       switch (currentMode) {
         case 'timelineDragging': {
+          console.log('Timeline dragging ended');
+          console.log('timeline', timelinePanelRef);
           if (timelinePanelRef?.current) {
             timelinePanelRef.current.style.cursor = 'grab';
             setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);
