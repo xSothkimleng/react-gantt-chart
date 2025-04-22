@@ -69,6 +69,10 @@ const GanttChart: React.FC<GanttChartProps> = ({
 
   useGanttInteractions();
 
+  useEffect(() => {
+    console.log('Current Rows :', rows);
+  }, [rows]);
+
   return <GanttChartContent className={className} />;
 };
 

@@ -41,7 +41,6 @@ export const initializeStores = ({ rows, columns, getSelectedRow, ButtonContaine
   // Initialize Rows Store
   useRowsStore.setState({
     collapsedItems: new Set<string>(),
-    rows: [],
   });
 
   useRowsStore.getState().setRows(rows || []);

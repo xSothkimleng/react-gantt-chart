@@ -42,9 +42,12 @@ const GanttChartTimelinePanel = () => {
 
   // Create ref for time panel
   const timelinePanelRef = useRef<HTMLDivElement>(null);
-
   const prevChartDateRange = useRef<DateRangeType>([]);
   const prevTimeFrameView = useRef(chartTimeFrameView);
+
+  // Add refs to track rows processing state
+  const rowsProcessedRef = useRef(false);
+  const prevRowsRef = useRef<typeof rows>([]);
 
   const generateEmptyChartDateRange = useCallback(() => {
     const dateRange: DateRangeType = [];
@@ -111,38 +114,44 @@ const GanttChartTimelinePanel = () => {
     }
   }, [rows, setChartDateRange, generateEmptyChartDateRange]);
 
-  // Initialize the date range - only run once and then set flag
+  // Improved initialization effect that handles both initial loading and rows changes
   useEffect(() => {
-    if (!dateRangeInitialized) {
-      // First set loading state to true
+    const handleInitialization = () => {
+      console.log('Initializing date range...');
       setIsLoading(true);
 
-      // Check what type of initialization is needed
-      if (!rows || rows.length === 0) {
+      if (rows.length === 0) {
         const emptyRange = generateEmptyChartDateRange();
-        console.log('No rows found, setting empty date range 2:', emptyRange);
+        console.log('No rows found, setting empty date range:', emptyRange);
         setChartDateRange(emptyRange);
-      } else if (isChartBorderReached) {
-        setIsChartBorderReached(false);
-        computeNewDateRange();
-      } else if (chartDateRange.length === 0) {
+      } else {
         computeNewDateRange();
       }
 
       setDateRangeInitialized(true);
       setIsLoading(false);
+    };
+
+    // Initial load or rows changed from empty to non-empty
+    const rowsJustLoaded = prevRowsRef.current.length === 0 && rows.length > 0;
+
+    if (!rowsProcessedRef.current || rowsJustLoaded) {
+      handleInitialization();
+      rowsProcessedRef.current = true;
     }
-  }, [
-    dateRangeInitialized,
-    rows,
-    isChartBorderReached,
-    chartDateRange.length,
-    generateEmptyChartDateRange,
-    computeNewDateRange,
-    setChartDateRange,
-    setIsChartBorderReached,
-    setIsLoading,
-  ]);
+
+    // Update the previous rows reference
+    prevRowsRef.current = [...rows];
+  }, [rows, generateEmptyChartDateRange, computeNewDateRange, setChartDateRange, setIsLoading]);
+
+  // Separate effect for handling border reached
+  useEffect(() => {
+    if (isChartBorderReached && dateRangeInitialized) {
+      console.log('Chart border reached, expanding range...');
+      setIsChartBorderReached(false);
+      computeNewDateRange();
+    }
+  }, [isChartBorderReached, dateRangeInitialized, setIsChartBorderReached, computeNewDateRange]);
 
   // Handle time frame view changes
   useEffect(() => {
@@ -166,6 +175,7 @@ const GanttChartTimelinePanel = () => {
     }
   }, [dateRangeInitialized, chartTimeFrameView, rows, generateEmptyChartDateRange, computeNewDateRange, setChartDateRange]);
 
+  // scrolling effect
   useEffect(() => {
     if (dateRangeInitialized && chartDateRange.length > 0 && rows.length > 0 && !initialScrollPerformed) {
       const timeoutId = setTimeout(() => {
@@ -180,6 +190,7 @@ const GanttChartTimelinePanel = () => {
     }
   }, [dateRangeInitialized, chartDateRange, rows, initialScrollPerformed, getDayWidth]);
 
+  // dragging effect
   const handleTimelinePanelMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if ((e.target as HTMLElement).closest('.gantt-bar') || (e.target as HTMLElement).closest('.gantt-bar-resize-handle')) {
@@ -205,6 +216,7 @@ const GanttChartTimelinePanel = () => {
     [globalTimelinePanelRef, setTimelinePanelRef, startTimelineDrag],
   );
 
+  // loading effect
   if (!dateRangeInitialized || chartDateRange.length === 0) {
     return <div>Loading timeline...</div>;
   }

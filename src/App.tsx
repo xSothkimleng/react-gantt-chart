@@ -117,20 +117,18 @@ const ButtonContainer = () => {
 function App() {
   const [currentView, setCurrentView] = useState<TimeFrameSettingType>(timeFrameSetting.monthly);
   const [showSidebar, setShowSidebar] = useState<boolean>(true);
+  const [currentRow, setCurrentRow] = useState<Row[]>([]);
+
+  const myPromise = new Promise(resolve => {
+    setTimeout(() => {
+      resolve(2000);
+    }, 2000);
+  });
+
+  myPromise.then(() => setCurrentRow(rows));
 
   const getSelectedRow = (row: Row) => {
     console.log('Selected item', row);
-  };
-
-  const testInteraction = () => {
-    const timelinePanelRef = document.querySelector('.gnatt-timeline-panel');
-    if (timelinePanelRef) {
-      console.log('Manual test: Timeline panel found');
-      // Test scrolling the timeline
-      (timelinePanelRef as HTMLElement).scrollLeft += 100;
-    } else {
-      console.log('Manual test: Timeline panel NOT found');
-    }
   };
 
   return (
@@ -157,21 +155,21 @@ function App() {
             <PlusIcon /> Zoom In
           </button>
         </div>
-        <button onClick={testInteraction} style={{ marginLeft: 'auto', background: '#ff8800', color: 'white' }}>
-          Test Interaction
-        </button>
       </div>
 
       <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}>
-        <GanttChart
-          columns={columns}
-          rows={rows}
-          defaultView={currentView}
-          showSidebar={showSidebar}
-          getSelectedRow={getSelectedRow}
-          ButtonContainer={ButtonContainer}
-          className='user-gantt-style'
-        />
+        {currentRow.length === 0 && <div style={{ textAlign: 'center', padding: '20px' }}>Loading...</div>}
+        {currentRow.length > 0 && (
+          <GanttChart
+            columns={columns}
+            rows={currentRow}
+            defaultView={currentView}
+            showSidebar={showSidebar}
+            getSelectedRow={getSelectedRow}
+            ButtonContainer={ButtonContainer}
+            className='user-gantt-style'
+          />
+        )}
       </div>
     </div>
   );

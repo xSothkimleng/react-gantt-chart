@@ -7,9 +7,6 @@ type RowsState = {
   rootIds: string[];
   parentChildMap: Record<string, string[]>;
   updateTimestamp: number;
-
-  // Original state
-  rows: Row[];
   collapsedItems: Set<string>;
 
   // Actions
@@ -33,9 +30,6 @@ export const useRowsStore = create<RowsState>((set, get) => ({
   rootIds: [],
   parentChildMap: {},
   updateTimestamp: Date.now(),
-
-  // Original state
-  rows: [],
   collapsedItems: new Set<string>(),
 
   // Actions
@@ -76,7 +70,7 @@ export const useRowsStore = create<RowsState>((set, get) => ({
       rowsById,
       rootIds,
       parentChildMap,
-      rows, // Make sure to set the original rows array too
+      // rows,
       updateTimestamp: Date.now(),
     });
   },
@@ -101,7 +95,7 @@ export const useRowsStore = create<RowsState>((set, get) => ({
     return buildRowHierarchy(rootIds);
   },
 
-  // Memoized version of getAllRows to prevent infinite loops
+  // Memoized version of getAllRows to prevent infinite loops because cannot use useMemo
   memoizedRows: (() => {
     let cachedRows: Row[] | null = null;
     let lastUpdateTimestamp = -1;
