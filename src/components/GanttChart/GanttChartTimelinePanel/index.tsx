@@ -31,6 +31,7 @@ const GanttChartTimelinePanel = () => {
 
   // Get UI elements
   const setTimelinePanelRef = useUIStore(state => state.setTimelinePanelRef);
+  const globalTimelinePanelRef = useUIStore(state => state.timelinePanelRef);
 
   // State to track if date range has been initialized
   const [dateRangeInitialized, setDateRangeInitialized] = useState(false);
@@ -42,20 +43,8 @@ const GanttChartTimelinePanel = () => {
   // Create ref for time panel
   const timelinePanelRef = useRef<HTMLDivElement>(null);
 
-  // Track whether ref has been set to avoid multiple setTimelinePanelRef calls
-  const refHasBeenSet = useRef(false);
-
   const prevChartDateRange = useRef<DateRangeType>([]);
   const prevTimeFrameView = useRef(chartTimeFrameView);
-
-  // Set timelinePanelRef in the store once on component mount
-  useEffect(() => {
-    if (timelinePanelRef.current) {
-      // Make sure we're passing the actual DOM element reference
-      setTimelinePanelRef(timelinePanelRef);
-      refHasBeenSet.current = true;
-    }
-  }, [setTimelinePanelRef]);
 
   const generateEmptyChartDateRange = useCallback(() => {
     const dateRange: DateRangeType = [];
@@ -110,12 +99,8 @@ const GanttChartTimelinePanel = () => {
     }
 
     const allDates = rows.flatMap(row => [new Date(row.start), new Date(row.end)]);
-    console.log('All dates:', allDates);
     const earliestDate = new Date(Math.min(...allDates.map(date => date.getTime())));
-    console.log('Earliest date:', earliestDate);
     const latestDate = new Date(Math.max(...allDates.map(date => date.getTime())));
-    console.log('Latest date:', latestDate);
-
     const dateRangeResult = initializeDateRange(earliestDate, latestDate);
 
     console.log('Date range result:', dateRangeResult);
@@ -181,24 +166,13 @@ const GanttChartTimelinePanel = () => {
     }
   }, [dateRangeInitialized, chartTimeFrameView, rows, generateEmptyChartDateRange, computeNewDateRange, setChartDateRange]);
 
-  // Add effect for scrolling to the earliest Gantt bar
   useEffect(() => {
-    if (
-      dateRangeInitialized &&
-      chartDateRange.length > 0 &&
-      rows.length > 0 &&
-      timelinePanelRef.current &&
-      !initialScrollPerformed
-    ) {
-      // Small delay to ensure DOM is fully rendered
+    if (dateRangeInitialized && chartDateRange.length > 0 && rows.length > 0 && !initialScrollPerformed) {
       const timeoutId = setTimeout(() => {
-        // Calculate day width based on current view and zoom
         const dayWidth = getDayWidth();
 
-        // Scroll to the earliest bar with a small left padding (80px)
         scrollToEarliestBar(timelinePanelRef, rows, chartDateRange, dayWidth, 80);
 
-        // Mark initial scroll as performed
         setInitialScrollPerformed(true);
       }, 100);
 
@@ -206,15 +180,15 @@ const GanttChartTimelinePanel = () => {
     }
   }, [dateRangeInitialized, chartDateRange, rows, initialScrollPerformed, getDayWidth]);
 
-  // Safe timeline panel drag handler
   const handleTimelinePanelMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      // console.log('Timeline panel mousedown');
-
-      // Don't initiate timeline dragging if we clicked on a gantt bar or resizer
       if ((e.target as HTMLElement).closest('.gantt-bar') || (e.target as HTMLElement).closest('.gantt-bar-resize-handle')) {
         console.log('Ignoring mousedown on gantt bar or resizer');
         return;
+      }
+
+      if (globalTimelinePanelRef == null) {
+        setTimelinePanelRef(timelinePanelRef);
       }
 
       const container = timelinePanelRef.current;
@@ -228,10 +202,9 @@ const GanttChartTimelinePanel = () => {
         console.log('No valid timelinePanelRef for drag');
       }
     },
-    [startTimelineDrag, timelinePanelRef],
+    [globalTimelinePanelRef, setTimelinePanelRef, startTimelineDrag],
   );
 
-  // If still loading or date range not initialized, show loading state
   if (!dateRangeInitialized || chartDateRange.length === 0) {
     return <div>Loading timeline...</div>;
   }

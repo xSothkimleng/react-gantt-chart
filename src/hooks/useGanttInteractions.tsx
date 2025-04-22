@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { useInteractionStore } from '../stores/useInteractionStore';
 import { useUIStore } from '../stores/useUIStore';
 import { snapToGridValuePosition } from '../utils/ganttBarUtils';
-
 import { useRowsStore } from '../stores/useRowsStore';
 import { useConfigStore } from '../stores/useConfigStore';
 
@@ -178,8 +177,6 @@ export const useGanttInteractions = () => {
       // Finalize the interaction
       switch (currentMode) {
         case 'timelineDragging': {
-          console.log('Timeline dragging ended');
-          console.log('timeline', timelinePanelRef);
           if (timelinePanelRef?.current) {
             timelinePanelRef.current.style.cursor = 'grab';
             setPreviousContainerScrollLeftPosition(timelinePanelRef.current.scrollLeft);

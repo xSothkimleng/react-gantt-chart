@@ -46,6 +46,5 @@ export const initializeStores = ({ rows, columns, getSelectedRow, ButtonContaine
 
   useRowsStore.getState().setRows(rows || []);
 
-  // Set loading to false after initialization
   useConfigStore.setState({ isLoading: false });
 };
