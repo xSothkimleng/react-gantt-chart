@@ -7,13 +7,12 @@ import { useInteractionStore } from '../stores/useInteractionStore';
 import { useUIStore } from '../stores/useUIStore';
 
 interface InitializeStoresProps {
-  rows: Row[];
   columns?: Column;
   getSelectedRow?: (row: Row) => void;
   ButtonContainer?: React.FC;
 }
 
-export const initializeStores = ({ rows, columns, getSelectedRow, ButtonContainer }: InitializeStoresProps) => {
+export const initializeStores = ({ columns, getSelectedRow, ButtonContainer }: InitializeStoresProps) => {
   // Initialize UI Store
   useUIStore.setState({
     timelinePanelRef: null,
@@ -42,8 +41,6 @@ export const initializeStores = ({ rows, columns, getSelectedRow, ButtonContaine
   useRowsStore.setState({
     collapsedItems: new Set<string>(),
   });
-
-  useRowsStore.getState().setRows(rows || []);
 
   useConfigStore.setState({ isLoading: false });
 };

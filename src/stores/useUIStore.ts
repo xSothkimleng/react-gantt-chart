@@ -29,7 +29,6 @@ export const useUIStore = create<UIStore>(set => ({
   setTimelinePanelRef: ref => {
     set({ timelinePanelRef: ref });
   },
-
   setPreviousScrollPosition: position => set({ previousScrollPosition: position }),
   setSelectedRowId: id => set({ selectedRowId: id }),
   setExternalGetSelectedRow: fn => set({ externalGetSelectedRow: fn }),

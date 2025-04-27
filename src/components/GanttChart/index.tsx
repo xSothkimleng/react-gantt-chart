@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { timeFrameSetting } from '../../constants/timeFrameSetting';
 import { TimeFrameSettingType } from '../../types/timeFrameSettingType';
 import { Column } from '../../types/column';
@@ -9,6 +9,7 @@ import { initializeStores } from '../../utils/initializeStores';
 import { useGanttInteractions } from '../../hooks/useGanttInteractions';
 import { useConfigStore } from '../../stores/useConfigStore';
 import { useUIStore } from '../../stores/useUIStore';
+import { useRowsStore } from '../../stores/useRowsStore';
 
 export interface GanttChartProps {
   rows: Row[];
@@ -29,36 +30,43 @@ const GanttChart: React.FC<GanttChartProps> = ({
   defaultView = timeFrameSetting.monthly,
   className = '',
 }) => {
-  // Use the config store for sidebar and chart view
+  // Store actions
+  const setRows = useRowsStore(state => state.setRows);
   const setShowSidebar = useConfigStore(state => state.setShowSidebar);
   const setChartTimeFrameView = useConfigStore(state => state.setChartTimeFrameView);
-
-  // Use the UI store for external handlers
   const setButtonContainer = useUIStore(state => state.setButtonContainer);
   const setExternalGetSelectedRow = useUIStore(state => state.setExternalGetSelectedRow);
+  const setColumns = useConfigStore(state => state.setColumns);
 
-  // Track whether we've initialized stores to prevent multiple initializations
-  const isInitialized = useRef(false);
-
-  // Move store initialization to an effect to avoid state updates during render
+  // Initialize stores on first render only
   useEffect(() => {
-    if (!isInitialized.current) {
-      // Initialize stores only once
-      initializeStores({
-        rows,
-        columns,
-        getSelectedRow,
-        ButtonContainer,
-      });
-      isInitialized.current = true;
-    }
-  }, [rows, columns, getSelectedRow, ButtonContainer]);
+    initializeStores({
+      columns: columns || ({} as Column),
+      getSelectedRow,
+      ButtonContainer,
+    });
+  }, []);
 
+  // Update rows whenever they change
+  useEffect(() => {
+    console.log('Rows updated:', rows);
+    if (rows) {
+      setRows(rows);
+    }
+  }, [rows, setRows]);
+
+  // Update columns when they change
+  useEffect(() => {
+    setColumns(columns || ({} as Column));
+  }, [columns, setColumns]);
+
+  // Update UI-related props
   useEffect(() => {
     setButtonContainer(ButtonContainer);
     setExternalGetSelectedRow(getSelectedRow);
   }, [ButtonContainer, getSelectedRow, setButtonContainer, setExternalGetSelectedRow]);
 
+  // Update config settings
   useEffect(() => {
     setShowSidebar(showSidebar);
   }, [showSidebar, setShowSidebar]);
@@ -67,11 +75,8 @@ const GanttChart: React.FC<GanttChartProps> = ({
     setChartTimeFrameView(defaultView);
   }, [defaultView, setChartTimeFrameView]);
 
+  // Set up interactions
   useGanttInteractions();
-
-  useEffect(() => {
-    console.log('Current Rows :', rows);
-  }, [rows]);
 
   return <GanttChartContent className={className} />;
 };

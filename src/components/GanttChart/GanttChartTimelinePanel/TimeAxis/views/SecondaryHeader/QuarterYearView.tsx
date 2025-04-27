@@ -25,6 +25,7 @@ const QuarterYearView = React.memo(() => {
               className='gantt-secondary-header-quarter-year '
               style={{
                 width: `${totalDaysInQuarter * (chartTimeFrameView.dayWidthUnit + zoomWidth)}px`,
+                borderBottom: '1px solid lightgray',
               }}>
               <p style={{ margin: '0', padding: '0' }}>
                 {quarterLabel} - {year.year}

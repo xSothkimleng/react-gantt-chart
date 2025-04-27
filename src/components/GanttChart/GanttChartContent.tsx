@@ -17,6 +17,7 @@ const GanttChartContent: React.FC<GanttChartContentProps> = ({ className = '' })
         style={{
           position: 'relative',
           height: '100%',
+          // minHeight: 'calc(100vh - var(--gantt-header-height))',
           width: '100%',
           display: 'grid',
           borderBottom: '0px solid var(--gantt-global-border-color)',

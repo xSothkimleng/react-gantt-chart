@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { Row } from '../types/row';
 
+type ConditionFunction = (state: RowsState) => boolean;
+
 type RowsState = {
   // Normalized data structure
   rowsById: Record<string, Row>;
@@ -8,9 +10,11 @@ type RowsState = {
   parentChildMap: Record<string, string[]>;
   updateTimestamp: number;
   collapsedItems: Set<string>;
+  isRowsReady: boolean;
 
   // Actions
   getAllRows: () => Row[];
+  setRowsReady: (isReady: boolean) => void;
   memoizedRows: () => Row[];
   setRows: (rows: Row[]) => void;
   getRowsCount: () => number;
@@ -18,6 +22,7 @@ type RowsState = {
   findEarliestRow: () => Row | undefined;
   updateRow: (rowId: string | number, updateFn: (row: Row) => Row) => void;
   toggleCollapse: (itemId: string) => void;
+  waitForRows: (condition?: ConditionFunction | null) => Promise<RowsState>;
 
   // Selectors
   getRowById: (rowId: string | number) => Row | undefined;
@@ -31,8 +36,13 @@ export const useRowsStore = create<RowsState>((set, get) => ({
   parentChildMap: {},
   updateTimestamp: Date.now(),
   collapsedItems: new Set<string>(),
+  isRowsReady: false,
 
   // Actions
+  setRowsReady: isReady => {
+    set({ isRowsReady: isReady });
+  },
+
   setRows: rows => {
     const rowsById: Record<string, Row> = {};
     const rootIds: string[] = [];
@@ -70,8 +80,32 @@ export const useRowsStore = create<RowsState>((set, get) => ({
       rowsById,
       rootIds,
       parentChildMap,
-      // rows,
+      isRowsReady: true,
       updateTimestamp: Date.now(),
+    });
+
+    // Log for debugging
+    console.log('Rows updated in store:', Object.keys(rowsById).length);
+  },
+
+  waitForRows: (condition?: ConditionFunction | null) => {
+    return new Promise<RowsState>(resolve => {
+      const state = get();
+
+      // Check if condition is already met
+      if (Object.keys(state.rowsById).length > 0 && (!condition || condition(state))) {
+        return resolve(state);
+      }
+
+      // Otherwise subscribe and wait
+      const unsubscribe = useRowsStore.subscribe((newState, prevState) => {
+        if (newState.updateTimestamp !== prevState.updateTimestamp) {
+          if (!condition || condition(newState)) {
+            unsubscribe();
+            resolve(newState);
+          }
+        }
+      });
     });
   },
 
@@ -95,7 +129,7 @@ export const useRowsStore = create<RowsState>((set, get) => ({
     return buildRowHierarchy(rootIds);
   },
 
-  // Memoized version of getAllRows to prevent infinite loops because cannot use useMemo
+  // Memoized version of getAllRows to prevent infinite loops because cannot use useShallow due to constructor
   memoizedRows: (() => {
     let cachedRows: Row[] | null = null;
     let lastUpdateTimestamp = -1;

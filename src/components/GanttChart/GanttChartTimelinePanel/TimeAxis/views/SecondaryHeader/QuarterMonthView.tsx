@@ -29,6 +29,7 @@ const QuarterMonthView = React.memo(() => {
                   key={`${month.month}-${year.year}-${index}`}
                   className='gantt-secondary-header-quarter-month'
                   style={{
+                    borderBottom: '1px solid lightgray',
                     // @ts-expect-error - TS complains about the missing width prop
                     width: `${(chartTimeFrameView.dayWidthUnit + zoomWidth) * month.days}px`,
                   }}>

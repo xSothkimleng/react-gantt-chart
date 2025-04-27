@@ -17,6 +17,7 @@ const YearlyView = React.memo(() => {
             className='gantt-secondary-header-yearly'
             style={{
               width: `${(chartTimeFrameView.dayWidthUnit + zoomWidth) * month.days}px`,
+              borderBottom: '1px solid lightgray',
             }}>
             <p style={{ margin: '0', padding: '0' }}>
               {new Date(year.year, month.month).toLocaleString('default', { month: 'long' })} - {year.year}

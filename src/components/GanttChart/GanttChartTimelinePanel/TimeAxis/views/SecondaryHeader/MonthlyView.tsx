@@ -30,6 +30,7 @@ const MonthlyView = React.memo(() => {
                 style={{
                   width: `${chartTimeFrameView.dayWidthUnit + zoomWidth}px`,
                   background: isWeekend ? '#f0f0f0' : 'transparent',
+                  borderBottom: '1px solid lightgray',
                 }}>
                 <p style={{ margin: '0', padding: '0' }}>
                   {dayName} {dayIndex + 1}

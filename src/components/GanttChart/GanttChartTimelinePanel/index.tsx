@@ -15,6 +15,7 @@ import './styles.css';
 const GanttChartTimelinePanel = () => {
   // Get rows from rowsStore
   const rows = useRowsStore(state => state.memoizedRows());
+  const isRowsReady = useRowsStore(state => state.isRowsReady);
 
   // Get chart configuration from configStore
   const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
@@ -44,10 +45,6 @@ const GanttChartTimelinePanel = () => {
   const timelinePanelRef = useRef<HTMLDivElement>(null);
   const prevChartDateRange = useRef<DateRangeType>([]);
   const prevTimeFrameView = useRef(chartTimeFrameView);
-
-  // Add refs to track rows processing state
-  const rowsProcessedRef = useRef(false);
-  const prevRowsRef = useRef<typeof rows>([]);
 
   const generateEmptyChartDateRange = useCallback(() => {
     const dateRange: DateRangeType = [];
@@ -90,10 +87,10 @@ const GanttChartTimelinePanel = () => {
 
   // Calculate the new date range
   const computeNewDateRange = useCallback(() => {
-    console.log('Computing new date range...');
+    // console.log('Computing new date range...');
     if (rows.length === 0) {
       const emptyRange = generateEmptyChartDateRange();
-      console.log('No rows found, setting empty date range 1:', emptyRange);
+      // console.log('No rows found, setting empty date range 1:', emptyRange);
       setChartDateRange(emptyRange);
       if (prevChartDateRange.current.length === 0) {
         prevChartDateRange.current = emptyRange;
@@ -106,7 +103,7 @@ const GanttChartTimelinePanel = () => {
     const latestDate = new Date(Math.max(...allDates.map(date => date.getTime())));
     const dateRangeResult = initializeDateRange(earliestDate, latestDate);
 
-    console.log('Date range result:', dateRangeResult);
+    // console.log('Date range result:', dateRangeResult);
 
     setChartDateRange(dateRangeResult);
     if (prevChartDateRange.current.length === 0) {
@@ -117,12 +114,12 @@ const GanttChartTimelinePanel = () => {
   // Improved initialization effect that handles both initial loading and rows changes
   useEffect(() => {
     const handleInitialization = () => {
-      console.log('Initializing date range...');
+      // console.log('Initializing date range...');
       setIsLoading(true);
 
       if (rows.length === 0) {
         const emptyRange = generateEmptyChartDateRange();
-        console.log('No rows found, setting empty date range:', emptyRange);
+        // console.log('No rows found, setting empty date range:', emptyRange);
         setChartDateRange(emptyRange);
       } else {
         computeNewDateRange();
@@ -132,22 +129,15 @@ const GanttChartTimelinePanel = () => {
       setIsLoading(false);
     };
 
-    // Initial load or rows changed from empty to non-empty
-    const rowsJustLoaded = prevRowsRef.current.length === 0 && rows.length > 0;
-
-    if (!rowsProcessedRef.current || rowsJustLoaded) {
+    if (isRowsReady) {
       handleInitialization();
-      rowsProcessedRef.current = true;
     }
-
-    // Update the previous rows reference
-    prevRowsRef.current = [...rows];
-  }, [rows, generateEmptyChartDateRange, computeNewDateRange, setChartDateRange, setIsLoading]);
+  }, [rows, generateEmptyChartDateRange, computeNewDateRange, setChartDateRange, setIsLoading, isRowsReady]);
 
   // Separate effect for handling border reached
   useEffect(() => {
     if (isChartBorderReached && dateRangeInitialized) {
-      console.log('Chart border reached, expanding range...');
+      // console.log('Chart border reached, expanding range...');
       setIsChartBorderReached(false);
       computeNewDateRange();
     }
@@ -161,7 +151,7 @@ const GanttChartTimelinePanel = () => {
       // Don't re-initialize completely, just recompute the date range
       if (rows.length === 0) {
         const emptyRange = generateEmptyChartDateRange();
-        console.log('No rows found, setting empty date range 3:', emptyRange);
+        // console.log('No rows found, setting empty date range 3:', emptyRange);
         setChartDateRange(emptyRange);
       } else {
         computeNewDateRange();
@@ -181,6 +171,12 @@ const GanttChartTimelinePanel = () => {
       const timeoutId = setTimeout(() => {
         const dayWidth = getDayWidth();
 
+        console.log('scroll effect', timelinePanelRef.current);
+        if (globalTimelinePanelRef == null) {
+          setTimelinePanelRef(timelinePanelRef);
+          console.log('Global timelinePanelRef in scroll effect is set');
+        }
+
         scrollToEarliestBar(timelinePanelRef, rows, chartDateRange, dayWidth, 80);
 
         setInitialScrollPerformed(true);
@@ -188,7 +184,15 @@ const GanttChartTimelinePanel = () => {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [dateRangeInitialized, chartDateRange, rows, initialScrollPerformed, getDayWidth]);
+  }, [
+    dateRangeInitialized,
+    chartDateRange,
+    rows,
+    initialScrollPerformed,
+    getDayWidth,
+    globalTimelinePanelRef,
+    setTimelinePanelRef,
+  ]);
 
   // dragging effect
   const handleTimelinePanelMouseDown = useCallback(
@@ -216,8 +220,7 @@ const GanttChartTimelinePanel = () => {
     [globalTimelinePanelRef, setTimelinePanelRef, startTimelineDrag],
   );
 
-  // loading effect
-  if (!dateRangeInitialized || chartDateRange.length === 0) {
+  if (chartDateRange.length === 0) {
     return <div>Loading timeline...</div>;
   }
 

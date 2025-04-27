@@ -117,15 +117,25 @@ const ButtonContainer = () => {
 function App() {
   const [currentView, setCurrentView] = useState<TimeFrameSettingType>(timeFrameSetting.monthly);
   const [showSidebar, setShowSidebar] = useState<boolean>(true);
-  const [currentRow, setCurrentRow] = useState<Row[]>([]);
 
-  const myPromise = new Promise(resolve => {
-    setTimeout(() => {
-      resolve(2000);
-    }, 2000);
-  });
+  // const [currentRow, setCurrentRow] = useState<Row[]>(rows);
+  // const counterRef = useRef<number>(0);
 
-  myPromise.then(() => setCurrentRow(rows));
+  // const myPromise = new Promise(resolve => {
+  //   setTimeout(() => {
+  //     counterRef.current = counterRef.current + 1;
+  //     console.log('Counter:', counterRef.current);
+  //     resolve(2000);
+  //   }, 2000);
+  // });
+
+  // myPromise.then(() => {
+  //   if (counterRef.current % 2 == 0) {
+  //     setCurrentRow(rows);
+  //   } else {
+  //     setCurrentRow([]);
+  //   }
+  // });
 
   const getSelectedRow = (row: Row) => {
     console.log('Selected item', row);
@@ -158,18 +168,15 @@ function App() {
       </div>
 
       <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}>
-        {currentRow.length === 0 && <div style={{ textAlign: 'center', padding: '20px' }}>Loading...</div>}
-        {currentRow.length > 0 && (
-          <GanttChart
-            columns={columns}
-            rows={currentRow}
-            defaultView={currentView}
-            showSidebar={showSidebar}
-            getSelectedRow={getSelectedRow}
-            ButtonContainer={ButtonContainer}
-            className='user-gantt-style'
-          />
-        )}
+        <GanttChart
+          columns={columns}
+          rows={rows}
+          defaultView={currentView}
+          showSidebar={showSidebar}
+          getSelectedRow={getSelectedRow}
+          ButtonContainer={ButtonContainer}
+          className='user-gantt-style'
+        />
       </div>
     </div>
   );
