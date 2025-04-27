@@ -23,7 +23,7 @@
 .gantt-bar-text-cell {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0px !important;
   z-index: 10;
   flex: 1;
   padding: 0 8px;

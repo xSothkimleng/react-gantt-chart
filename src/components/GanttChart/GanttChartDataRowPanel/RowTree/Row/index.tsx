@@ -11,7 +11,7 @@ const progressDisplay = (row: Row) => {
 };
 
 const renderRowContent = (row: Row, key: string) => {
-  if (key === 'name' && row.showProgressIndicator?.showLabel) {
+  if (key === 'name' && row.showProgressIndicator?.showLabelOnSideBar) {
     return `${String(row[key] || '')}${progressDisplay(row)}`;
   }
   return String(row[key as keyof typeof row] || '');

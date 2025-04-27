@@ -11,7 +11,6 @@ import { useConfigStore } from '../../../../../stores/useConfigStore';
 import { useRowsStore } from '../../../../../stores/useRowsStore';
 import { useShallow } from 'zustand/shallow';
 import './styles.css';
-import BarProgressText from './BarProgressText';
 
 class GanttBarErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: { children: React.ReactNode }) {
@@ -131,8 +130,8 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
           <div className='gantt-bar-text-cell'>
             <p className='gantt-bar-text' title={row.name}>
               {row.name}
+              {row.showProgressIndicator?.showLabelOnGanttBar && row.progressIndicatorLabel}
             </p>
-            {row.showProgressIndicator?.showLabel && <BarProgressText row={row} />}
           </div>
         </div>
       </div>

@@ -30,14 +30,15 @@ const processJsonData = (data: any[]): Row[] => {
       name: `Quarter ${quarter.number}`,
       currentProgress: quarter.actual,
       maxProgress: quarter.target,
-      showProgressIndicator: {
-        showLabel: true,
-        showProgressBar: true,
-      },
-      progressIndicatorLabel: `${format()}`,
       start: new Date(quarter.start).toISOString(),
       end: new Date(quarter.end).toISOString(),
       isLocked: false,
+      progressIndicatorLabel: `${format()}`,
+      showProgressIndicator: {
+        showLabelOnGanttBar: true,
+        showLabelOnSideBar: true,
+        showProgressBar: true,
+      },
       children: [],
     };
 
@@ -47,9 +48,11 @@ const processJsonData = (data: any[]): Row[] => {
         name: month.name,
         currentProgress: month.actual,
         maxProgress: month.target,
+        progressIndicatorLabel: ` : ${month.actual} / ${month.target}`,
         showProgressIndicator: {
-          showLabel: false,
-          showProgressBar: false,
+          showLabelOnGanttBar: true,
+          showLabelOnSideBar: false,
+          showProgressBar: true,
         },
         start: new Date(month.start).toISOString(),
         end: new Date(month.end).toISOString(),
@@ -64,7 +67,8 @@ const processJsonData = (data: any[]): Row[] => {
           currentProgress: week.actual,
           maxProgress: week.target,
           showProgressIndicator: {
-            showLabel: false,
+            showLabelOnGanttBar: true,
+            showLabelOnSideBar: true,
             showProgressBar: false,
           },
           start: new Date(week.start).toISOString(),

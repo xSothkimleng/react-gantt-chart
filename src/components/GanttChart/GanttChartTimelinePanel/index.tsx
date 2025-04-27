@@ -171,10 +171,10 @@ const GanttChartTimelinePanel = () => {
       const timeoutId = setTimeout(() => {
         const dayWidth = getDayWidth();
 
-        console.log('scroll effect', timelinePanelRef.current);
+        // console.log('scroll effect', timelinePanelRef.current);
         if (globalTimelinePanelRef == null) {
           setTimelinePanelRef(timelinePanelRef);
-          console.log('Global timelinePanelRef in scroll effect is set');
+          // console.log('Global timelinePanelRef in scroll effect is set');
         }
 
         scrollToEarliestBar(timelinePanelRef, rows, chartDateRange, dayWidth, 80);
@@ -230,8 +230,8 @@ const GanttChartTimelinePanel = () => {
       onMouseDown={handleTimelinePanelMouseDown}
       className='gnatt-timeline-panel'
       style={{
-        cursor: interactionState.mode === 'timelineDragging' ? 'grabbing' : 'grab',
         zIndex: 1,
+        cursor: interactionState.mode === 'timelineDragging' ? 'grabbing' : 'grab',
       }}>
       <TimeAxisPrimary />
       <TimeAxisSecondary />

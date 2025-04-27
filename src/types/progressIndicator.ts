@@ -6,6 +6,7 @@ export type progressIndicatorLabel = {
 };
 
 export type progressIndicator = {
-  showLabel?: boolean;
+  showLabelOnSideBar?: boolean;
+  showLabelOnGanttBar?: boolean;
   showProgressBar?: boolean;
 };
