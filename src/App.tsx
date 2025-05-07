@@ -171,7 +171,6 @@ function App() {
         </div>
       </div>
 
-      {/* <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}> */}
       <GanttChart
         columns={columns}
         rows={rows}
@@ -181,9 +180,8 @@ function App() {
         ButtonContainer={ButtonContainer}
         className='user-gantt-style'
         height='100vh'
-        width={'90%'}
+        width='100%'
       />
-      {/* </div> */}
     </div>
   );
 }
