@@ -10,20 +10,16 @@ const MonthlyView = React.memo(() => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', height: `${25}px` }}>
-      {chartDateRange.map((year, indexYear) =>
-        year.months.map((month, indexMonth) => (
-          <div
-            key={`${month.month}-${indexMonth}-${year.year}-${indexYear}`}
-            className='gantt-primary-header-monthly'
-            style={{
-              width: `${month.days * (chartTimeFrameView.dayWidthUnit + zoomWidth)}px`,
-            }}>
-            <p style={{ margin: '0', padding: '0' }}>
-              {new Date(year.year, month.month).toLocaleString('default', { month: 'long' })} {year.year}
-            </p>
-          </div>
-        )),
-      )}
+      {chartDateRange.map((year, index) => (
+        <div
+          key={`${year.year}-${index}`}
+          className='gantt-primary-header-yearly'
+          style={{
+            width: `${year.totalDayAmount * (chartTimeFrameView.dayWidthUnit + zoomWidth)}px`,
+          }}>
+          {year.year}
+        </div>
+      ))}
     </div>
   );
 });

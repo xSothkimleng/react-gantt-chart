@@ -3,7 +3,7 @@ import { useConfigStore } from '../../../../../../stores/useConfigStore';
 import { useShallow } from 'zustand/shallow';
 import './styles.css';
 
-const MonthlyView = React.memo(() => {
+const WeeklyView = React.memo(() => {
   const chartDateRange = useConfigStore(useShallow(state => state.chartDateRange));
   const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
   const zoomWidth = useConfigStore(state => state.zoomWidth);
@@ -13,14 +13,13 @@ const MonthlyView = React.memo(() => {
       {chartDateRange.map((year, indexYear) =>
         year.months.map((month, indexMonth) => (
           <div
-            key={`${month.month}-${year.year}-${indexMonth}-${indexYear}`}
-            className='gantt-secondary-header-yearly'
+            key={`${month.month}-${indexMonth}-${year.year}-${indexYear}`}
+            className='gantt-primary-header-monthly'
             style={{
-              width: `${(chartTimeFrameView.dayWidthUnit + zoomWidth) * month.days}px`,
-              borderBottom: '1px solid lightgray',
+              width: `${month.days * (chartTimeFrameView.dayWidthUnit + zoomWidth)}px`,
             }}>
             <p style={{ margin: '0', padding: '0' }}>
-              {new Date(year.year, month.month).toLocaleString('default', { month: 'long' })} - {year.year}
+              {new Date(year.year, month.month).toLocaleString('default', { month: 'long' })} {year.year}
             </p>
           </div>
         )),
@@ -29,4 +28,4 @@ const MonthlyView = React.memo(() => {
   );
 });
 
-export default MonthlyView;
+export default WeeklyView;

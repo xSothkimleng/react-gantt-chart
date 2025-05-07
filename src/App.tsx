@@ -119,7 +119,7 @@ const ButtonContainer = () => {
 };
 
 function App() {
-  const [currentView, setCurrentView] = useState<TimeFrameSettingType>(timeFrameSetting.monthly);
+  const [currentView, setCurrentView] = useState<TimeFrameSettingType>(timeFrameSetting.daily);
   const [showSidebar, setShowSidebar] = useState<boolean>(true);
 
   // const [currentRow, setCurrentRow] = useState<Row[]>(rows);
@@ -155,10 +155,10 @@ function App() {
             const viewName = e.target.value as keyof typeof timeFrameSetting;
             setCurrentView(timeFrameSetting[viewName]);
           }}>
+          <option value='daily'>Daily</option>
+          <option value='weekly'>Weekly</option>
           <option value='monthly'>Monthly</option>
           <option value='yearly'>Yearly</option>
-          <option value='quarterMonth'>Quarter Month</option>
-          <option value='quarterYear'>Quarter Year</option>
         </select>
         <button onClick={() => setShowSidebar(!showSidebar)}>Show Sidebar</button>
         <div style={{ display: 'flex', gap: '1px' }}>
@@ -180,7 +180,7 @@ function App() {
         getSelectedRow={getSelectedRow}
         ButtonContainer={ButtonContainer}
         className='user-gantt-style'
-        height='60vh'
+        height='100vh'
         width={'90%'}
       />
       {/* </div> */}

@@ -68,7 +68,7 @@ const GanttChartTimelinePanel = () => {
       if (dataPanelRef?.current) {
         setIsProgrammaticScroll(true);
         dataPanelRef.current.scrollTop = currentScrollTop;
-        setTimeout(() => setIsProgrammaticScroll(false), 50);
+        setTimeout(() => setIsProgrammaticScroll(false), 0);
       }
     };
 
@@ -269,12 +269,13 @@ const GanttChartTimelinePanel = () => {
         borderBottom: '1px solid var(--gantt-global-border-color)',
         borderRight: '1px solid var(--gantt-global-border-color)',
         height: '100%',
-        overflow: 'auto',
+        // overflow: 'auto',
       }}>
       <div style={{ position: 'sticky', top: 0, zIndex: 99 }}>
         <TimeAxisPrimary />
         <TimeAxisSecondary />
       </div>
+
       <GanttBarPanel />
     </div>
   );

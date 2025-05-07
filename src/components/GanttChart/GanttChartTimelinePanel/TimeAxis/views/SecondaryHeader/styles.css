@@ -14,6 +14,20 @@
   /* background: var(--gantt-secondary-header-background); */
 }
 
+.gantt-secondary-header-weekly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-right: 1px solid lightgray;
+  box-sizing: border-box;
+  user-select: none;
+  font-size: var(--gantt-secondary-header-font-size);
+  font-weight: var(--gantt-secondary-header-font-weight);
+  /* background: var(--gantt-secondary-header-background); */
+}
+
 .gantt-secondary-header-quarter-month {
   text-align: center;
   border-right: 1px solid lightgray;

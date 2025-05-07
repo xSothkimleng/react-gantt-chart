@@ -5,9 +5,5 @@
   border-right: 1px solid lightgray;
   box-sizing: border-box;
   /* overflow-y: auto; */
-  /* overflow: 'visible'; */
-}
-
-.gantt-bar-panel::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  /* overflow: 'auto'; */
 }

@@ -125,8 +125,24 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
           }}>
           {row.showProgressIndicator?.showProgressBar && <BarProgressIndicator item={row} />}
           <BarDragDropHandler index={index} row={row} startLeftPosition={startLeftPosition} ganttBarRef={ganttBarRef} />
-          <BarResizer position='left' row={row} width={width} ganttBarRef={ganttBarRef} startLeftPosition={startLeftPosition} />
-          <BarResizer position='right' row={row} width={width} ganttBarRef={ganttBarRef} startLeftPosition={startLeftPosition} />
+          {isHovered && (
+            <>
+              <BarResizer
+                position='left'
+                row={row}
+                width={width}
+                ganttBarRef={ganttBarRef}
+                startLeftPosition={startLeftPosition}
+              />
+              <BarResizer
+                position='right'
+                row={row}
+                width={width}
+                ganttBarRef={ganttBarRef}
+                startLeftPosition={startLeftPosition}
+              />
+            </>
+          )}
           <div className='gantt-bar-text-cell'>
             <p className='gantt-bar-text' title={row.name}>
               {row.name}

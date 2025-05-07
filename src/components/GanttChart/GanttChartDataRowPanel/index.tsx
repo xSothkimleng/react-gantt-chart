@@ -36,7 +36,7 @@ const GanttChartDataRowPanel = React.memo(() => {
       if (timelinePanelRef?.current) {
         setIsProgrammaticScroll(true);
         timelinePanelRef.current.scrollTop = currentScrollTop;
-        setTimeout(() => setIsProgrammaticScroll(false), 50);
+        setTimeout(() => setIsProgrammaticScroll(false), 0);
       }
     };
 

@@ -29,7 +29,7 @@ type ConfigState = {
 export const useConfigStore = create<ConfigState>((set, get) => ({
   // State
   columns: {} as Column,
-  chartTimeFrameView: timeFrameSetting.monthly,
+  chartTimeFrameView: timeFrameSetting.daily,
   showSidebar: true,
   chartDateRange: [],
   zoomWidth: 0,

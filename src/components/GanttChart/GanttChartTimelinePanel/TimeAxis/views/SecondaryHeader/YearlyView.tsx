@@ -20,7 +20,7 @@ const YearlyView = React.memo(() => {
               borderBottom: '1px solid lightgray',
             }}>
             <p style={{ margin: '0', padding: '0' }}>
-              {new Date(year.year, month.month).toLocaleString('default', { month: 'long' })} - {year.year}
+              {new Date(year.year, month.month).toLocaleString('default', { month: 'short' })}
             </p>
           </div>
         )),
