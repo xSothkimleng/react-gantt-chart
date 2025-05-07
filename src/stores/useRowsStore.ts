@@ -83,9 +83,6 @@ export const useRowsStore = create<RowsState>((set, get) => ({
       isRowsReady: true,
       updateTimestamp: Date.now(),
     });
-
-    // Log for debugging
-    console.log('Rows updated in store:', Object.keys(rowsById).length);
   },
 
   waitForRows: (condition?: ConditionFunction | null) => {

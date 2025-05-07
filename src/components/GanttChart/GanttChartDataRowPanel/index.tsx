@@ -22,20 +22,6 @@ const GanttChartDataRowPanel = React.memo(() => {
     setDataPanelRef(dataPanelRef);
   }, [setDataPanelRef]);
 
-  // Debug log to check scrollable dimensions
-  useEffect(() => {
-    setTimeout(() => {
-      const panel = dataPanelRef.current;
-      if (panel) {
-        console.log('Data panel dimensions:', {
-          clientHeight: panel.clientHeight,
-          scrollHeight: panel.scrollHeight,
-          hasScrollableContent: panel.scrollHeight > panel.clientHeight,
-        });
-      }
-    }, 1000); // Wait for content to render
-  }, []);
-
   // Direct DOM event listener for vertical scrolling
   useEffect(() => {
     const panel = dataPanelRef.current;
@@ -46,7 +32,6 @@ const GanttChartDataRowPanel = React.memo(() => {
       if (isProgrammaticScroll) return;
 
       const currentScrollTop = panel.scrollTop;
-      console.log('Direct data panel scroll handler:', currentScrollTop);
 
       if (timelinePanelRef?.current) {
         setIsProgrammaticScroll(true);
@@ -62,11 +47,6 @@ const GanttChartDataRowPanel = React.memo(() => {
       panel.removeEventListener('scroll', handlePanelScroll);
     };
   }, [timelinePanelRef, isProgrammaticScroll, setIsProgrammaticScroll]);
-
-  // Keep this for any horizontal scrolling needs
-  const handleScroll = useCallback(() => {
-    console.log('React synthetic scroll event in data panel fired');
-  }, []);
 
   const getColumnWidth = useCallback((key: string) => {
     switch (key) {
@@ -87,7 +67,6 @@ const GanttChartDataRowPanel = React.memo(() => {
     <div
       ref={dataPanelRef}
       className='gantt-data-panel'
-      onScroll={handleScroll}
       style={{
         overflow: 'auto', // Make sure both horizontal and vertical scrolling are enabled
         height: '100%', // Ensure full height

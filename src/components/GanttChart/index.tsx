@@ -53,7 +53,6 @@ const GanttChart: React.FC<GanttChartProps> = ({
 
   // Update rows whenever they change
   useEffect(() => {
-    console.log('Rows updated:', rows);
     if (rows) {
       setRows(rows);
     }

@@ -64,7 +64,6 @@ const GanttChartTimelinePanel = () => {
       if (isProgrammaticScroll) return;
 
       const currentScrollTop = panel.scrollTop;
-      console.log('Direct timeline scroll handler:', currentScrollTop);
 
       if (dataPanelRef?.current) {
         setIsProgrammaticScroll(true);
@@ -80,20 +79,6 @@ const GanttChartTimelinePanel = () => {
       panel.removeEventListener('scroll', handlePanelScroll);
     };
   }, [dataPanelRef, isProgrammaticScroll, setIsProgrammaticScroll]);
-
-  // Debug log to check if panel has enough content to enable scrolling
-  useEffect(() => {
-    setTimeout(() => {
-      const panel = timelinePanelRef.current;
-      if (panel) {
-        console.log('Timeline panel dimensions:', {
-          clientHeight: panel.clientHeight,
-          scrollHeight: panel.scrollHeight,
-          hasScrollableContent: panel.scrollHeight > panel.clientHeight,
-        });
-      }
-    }, 1000); // Wait for content to render
-  }, []);
 
   const generateEmptyChartDateRange = useCallback(() => {
     const dateRange: DateRangeType = [];
@@ -243,13 +228,6 @@ const GanttChartTimelinePanel = () => {
     setTimelinePanelRef,
   ]);
 
-  // We'll keep this for horizontal scrolling if needed
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    // No vertical scroll handling here, we're using the direct DOM listener for that
-    console.log('React synthetic scroll event fired');
-  }, []);
-
   // dragging effect
   const handleTimelinePanelMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -284,7 +262,6 @@ const GanttChartTimelinePanel = () => {
     <div
       ref={timelinePanelRef}
       onMouseDown={handleTimelinePanelMouseDown}
-      onScroll={handleScroll}
       className='gnatt-timeline-panel'
       style={{
         zIndex: 1,
