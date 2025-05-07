@@ -7,6 +7,7 @@ import { useInteractionStore } from '../../../../stores/useInteractionStore';
 import GanttBarPanelRowTree from './RowTree';
 import { useShallow } from 'zustand/shallow';
 import './styles.css';
+import TodayLine from './TodayLine';
 
 const GanttBarPanel = () => {
   // Get only what we need from the stores with useShallow
@@ -78,6 +79,7 @@ const GanttBarPanel = () => {
   return (
     <div className='gantt-bar-panel' style={backgroundStyle}>
       <GanttBarPanelRowTree />
+      <TodayLine />
     </div>
   );
 };
