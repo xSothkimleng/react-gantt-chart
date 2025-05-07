@@ -4,6 +4,8 @@ import { useUIStore } from '../../../../../stores/useUIStore';
 import { Row } from '../../../../../types/row';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../../../assets/icons/icons';
 import { useShallow } from 'zustand/shallow';
+import { calculateGanttBarPositionFromInitialStartingPoint } from '../../../../../utils/ganttBarUtils';
+import { useConfigStore } from '../../../../../stores/useConfigStore';
 // import { useShallow } from 'zustand/shallow';
 
 const progressDisplay = (row: Row) => {
@@ -30,6 +32,12 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
 
   // Get child IDs for this row
   const childIds = useRowsStore(useShallow(state => state.parentChildMap[String(rowId)] || []));
+
+  // scroll position for the Gantt bar
+  const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
+  const chartDateRange = useConfigStore(state => state.chartDateRange);
+  const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
+  const zoomWidth = useConfigStore(state => state.zoomWidth);
 
   // Get collapsed state only for this specific row
   const isCollapsed = useRowsStore(state => state.collapsedItems.has(String(rowId)));
@@ -69,6 +77,22 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
   // Check if this row has children using the childIds
   const hasChildren = childIds.length > 0;
 
+  const handleScrollToGanttBar = (row: Row) => {
+    console.log('Scroll to Gantt Bar:', row);
+    if (!timelinePanelRef?.current) {
+      return;
+    }
+
+    const dayWidthUnit = chartTimeFrameView.dayWidthUnit + zoomWidth;
+    const positionLeft = calculateGanttBarPositionFromInitialStartingPoint(row.start, chartDateRange[0]) * dayWidthUnit;
+
+    // Apply smooth scrolling
+    timelinePanelRef.current.scrollTo({
+      left: positionLeft - 50,
+      behavior: 'smooth',
+    });
+  };
+
   return (
     <div key={row.id}>
       <div
@@ -93,8 +117,10 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
               </button>
             )}
             <p className='gantt-data-panel-row-cell-content'>{renderRowContent(row, key)}</p>
+
             {key === 'name' && ButtonContainer && hoveredRowId === String(row.id) && (
               <div className='gantt-data-panel-row-cell-action-buttons'>
+                <button onClick={() => handleScrollToGanttBar(row)}>GO</button>
                 <ButtonContainer />
               </div>
             )}

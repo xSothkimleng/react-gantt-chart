@@ -143,6 +143,7 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
               />
             </>
           )}
+
           <div className='gantt-bar-text-cell'>
             <p className='gantt-bar-text' title={row.name}>
               {row.name}
