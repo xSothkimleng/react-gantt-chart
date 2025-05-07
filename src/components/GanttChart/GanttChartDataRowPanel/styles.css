@@ -4,15 +4,24 @@
 .gantt-data-panel {
   display: grid;
   grid-template-rows: auto 1fr;
-  overflow-x: scroll;
-  overflow-y: hidden;
+  /* overflow-x: auto; */
+  overflow-y: auto;
   height: 100%;
   border-right: 1px solid var(--gantt-global-border-color);
   border-top: 1px solid var(--gantt-global-border-color);
+  border-bottom: 1px solid var(--gantt-global-border-color);
+  position: relative;
+}
+
+.gantt-data-panel::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 /* Panel Header Styles */
 .gantt-data-panel-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: grid;
   border-bottom: 1px solid var(--gantt-global-border-color);
   height: 48px;

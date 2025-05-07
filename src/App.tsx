@@ -171,17 +171,19 @@ function App() {
         </div>
       </div>
 
-      <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}>
-        <GanttChart
-          columns={columns}
-          rows={rows}
-          defaultView={currentView}
-          showSidebar={showSidebar}
-          getSelectedRow={getSelectedRow}
-          ButtonContainer={ButtonContainer}
-          className='user-gantt-style'
-        />
-      </div>
+      {/* <div style={{ height: '100vh', overflowY: 'scroll', borderBottom: '1px solid lightgray' }}> */}
+      <GanttChart
+        columns={columns}
+        rows={rows}
+        defaultView={currentView}
+        showSidebar={showSidebar}
+        getSelectedRow={getSelectedRow}
+        ButtonContainer={ButtonContainer}
+        className='user-gantt-style'
+        height='60vh'
+        width={'90%'}
+      />
+      {/* </div> */}
     </div>
   );
 }

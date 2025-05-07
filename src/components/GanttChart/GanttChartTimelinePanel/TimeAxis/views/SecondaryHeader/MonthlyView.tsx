@@ -29,7 +29,7 @@ const MonthlyView = React.memo(() => {
                 className='gantt-secondary-header-monthly'
                 style={{
                   width: `${chartTimeFrameView.dayWidthUnit + zoomWidth}px`,
-                  background: isWeekend ? '#f0f0f0' : 'transparent',
+                  background: isWeekend ? '#f0f0f0' : 'white',
                   borderBottom: '1px solid lightgray',
                 }}>
                 <p style={{ margin: '0', padding: '0' }}>

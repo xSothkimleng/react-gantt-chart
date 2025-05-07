@@ -22,7 +22,7 @@ const GanttBarPanelRowTree = () => {
       const childIds = parentChildMap[id] || [];
 
       return (
-        <div key={id} style={{ position: 'absolute' }}>
+        <div key={id}>
           {/* Pass only the ID, not the entire row object */}
           <GanttBar index={rowIndex} rowId={id} />
 

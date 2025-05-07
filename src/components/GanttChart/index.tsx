@@ -19,6 +19,8 @@ export interface GanttChartProps {
   ButtonContainer?: React.FC;
   getSelectedRow?: (row: Row) => void;
   className?: string;
+  height?: string | number;
+  width?: string | number;
 }
 
 const GanttChart: React.FC<GanttChartProps> = ({
@@ -29,6 +31,8 @@ const GanttChart: React.FC<GanttChartProps> = ({
   showSidebar = true,
   defaultView = timeFrameSetting.monthly,
   className = '',
+  height,
+  width,
 }) => {
   // Store actions
   const setRows = useRowsStore(state => state.setRows);
@@ -78,7 +82,7 @@ const GanttChart: React.FC<GanttChartProps> = ({
   // Set up interactions
   useGanttInteractions();
 
-  return <GanttChartContent className={className} />;
+  return <GanttChartContent className={className} height={height} width={width} />;
 };
 
 export default GanttChart;
