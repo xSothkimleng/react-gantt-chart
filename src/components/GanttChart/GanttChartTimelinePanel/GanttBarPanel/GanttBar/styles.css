@@ -1,7 +1,7 @@
 .gantt-bar {
   position: absolute;
   height: 40px;
-  z-index: 11;
+
   display: flex;
   align-items: center;
   transition: opacity 0.2s ease-in-out;
@@ -69,4 +69,51 @@
   z-index: 30;
   width: var(--gantt-bar-resize-handle-width);
   background: var(--gantt-bar-resize-handle-background);
+}
+
+/* tool tips  */
+.gantt-bar-tooltip {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+.gantt-bar-tooltip:after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(0, 0, 0, 0.8);
+}
+
+.gantt-bar-tooltip-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gantt-bar-tooltip-dates {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

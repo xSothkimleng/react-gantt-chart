@@ -8,6 +8,7 @@ import { useConfigStore } from '../stores/useConfigStore';
 export const useGanttInteractions = () => {
   const interactionState = useInteractionStore(state => state.interactionState);
   const setInteractionState = useInteractionStore(state => state.setInteractionState);
+  const updateTooltipPosition = useInteractionStore(state => state.updateTooltipPosition);
   const autoScrollRef = useInteractionStore(state => state.autoScrollRef);
   const updateRow = useRowsStore(state => state.updateRow);
   const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
@@ -109,6 +110,11 @@ export const useGanttInteractions = () => {
      */
     const handleMouseMove = (e: MouseEvent) => {
       e.preventDefault();
+
+      // Update tooltip position for all interaction modes (except idle)
+      if (interactionState.mode === 'barDragging' || interactionState.mode === 'barResizing') {
+        updateTooltipPosition(e.clientX, e.clientY);
+      }
 
       // Handle auto-scrolling for all interaction modes
       handleAutoScroll(e);
@@ -294,5 +300,13 @@ export const useGanttInteractions = () => {
         autoScrollRef.current = null;
       }
     };
-  }, [interactionState, autoScrollRef, timelinePanelRef, setInteractionState, updateRow, setPreviousContainerScrollLeftPosition]);
+  }, [
+    interactionState,
+    autoScrollRef,
+    timelinePanelRef,
+    setInteractionState,
+    updateRow,
+    updateTooltipPosition,
+    setPreviousContainerScrollLeftPosition,
+  ]);
 };

@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 import { useConfigStore } from '../../../../../stores/useConfigStore';
 import { calculateGanttBarPositionFromInitialStartingPoint } from '../../../../../utils/ganttBarUtils';
 
 const TodayLine = () => {
   // Get necessary data from the config store
+  const [isHover, setIsHover] = useState(false);
   const { chartDateRange, chartTimeFrameView, zoomWidth } = useConfigStore(
     useShallow(state => ({
       chartDateRange: state.chartDateRange,
@@ -47,7 +48,12 @@ const TodayLine = () => {
   };
 
   return (
-    <div className='gantt-today-line' style={todayLineStyle} title={`Today: ${today.toLocaleDateString()}`}>
+    <div
+      className='gantt-today-line'
+      style={todayLineStyle}
+      title={`Today: ${today.toLocaleDateString()}`}
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}>
       <div style={{ position: 'relative' }}>
         <div
           style={{
@@ -56,6 +62,8 @@ const TodayLine = () => {
             left: '0',
             backgroundColor: '#3CB371',
             zIndex: 97,
+            overflow: isHover ? 'visible' : 'hidden',
+            transition: '0.3s',
           }}>
           <p
             style={{
@@ -63,8 +71,9 @@ const TodayLine = () => {
               fontWeight: '600',
               letterSpacing: '1.5px',
               margin: '0',
-              padding: '0 3px',
               color: 'white',
+              width: isHover ? 'auto' : dayWidth,
+              textAlign: 'center',
             }}>
             Today
           </p>

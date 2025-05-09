@@ -2,6 +2,7 @@ import React, { useRef, useState, useMemo, useCallback } from 'react';
 import BarResizer from './BarResizer';
 import BarProgressIndicator from './BarProgressIndicator';
 import BarDragDropHandler from './BarDragDropHandler';
+import BarTooltip from './ToolTip';
 import {
   calculateDurationBetweenDate,
   calculateGanttBarPositionFromInitialStartingPoint,
@@ -55,8 +56,8 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
   // Get row data with useShallow to prevent re-renders on unrelated state changes
   const row = useRowsStore(state => state.getRowById(rowId));
 
-  // Get only the required state from interaction store
-  const interactionMode = useInteractionStore(state => state.interactionState.mode);
+  // Get interaction state to determine if this bar is being interacted with
+  const interactionState = useInteractionStore(useShallow(state => state.interactionState));
 
   // Get only the needed config values
   const { chartTimeFrameView, chartDateRange, zoomWidth } = useConfigStore(
@@ -100,6 +101,52 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
     return null;
   }
 
+  // Determine if tooltip should be shown for this specific bar
+  const isThisBarBeingDragged =
+    (interactionState.mode === 'barDragging' || interactionState.mode === 'barResizing') &&
+    'barId' in interactionState &&
+    interactionState.barId === row.id.toString();
+
+  // Tooltip visibility and position are stored in the interaction state
+  const showTooltip = isThisBarBeingDragged;
+
+  // Calculate the real-time dates based on the current position/width
+  const calculateRealTimeDates = () => {
+    if (!isThisBarBeingDragged || !ganttBarRef.current) {
+      return { startDate: new Date(row.start), endDate: new Date(row.end) };
+    }
+
+    const dayWidth = chartTimeFrameView.dayWidthUnit + zoomWidth;
+    const barElement = ganttBarRef.current;
+
+    // Get current position and width
+    const currentLeft = parseInt(barElement.style.left || '0', 10);
+    const currentWidth = parseInt(barElement.style.width || '0', 10);
+
+    // Calculate days from origin
+    const daysFromOrigin = Math.round(currentLeft / dayWidth);
+    const durationDays = Math.round(currentWidth / dayWidth);
+
+    // Handle the date range type properly
+    // Assuming chartDateRange[0] contains a date string or timestamp
+    // If it's a complex object, extract the date value from it
+    const originDate =
+      typeof chartDateRange[0] === 'string' || typeof chartDateRange[0] === 'number'
+        ? new Date(chartDateRange[0])
+        : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          new Date((chartDateRange[0] as any).date || (chartDateRange[0] as any).timestamp || row.start);
+
+    const calculatedStartDate = new Date(originDate);
+    calculatedStartDate.setDate(originDate.getDate() + daysFromOrigin);
+
+    const calculatedEndDate = new Date(calculatedStartDate);
+    calculatedEndDate.setDate(calculatedStartDate.getDate() + durationDays);
+
+    return { startDate: calculatedStartDate, endDate: calculatedEndDate };
+  };
+
+  const { startDate, endDate } = calculateRealTimeDates();
+
   return (
     <GanttBarErrorBoundary>
       <div
@@ -114,7 +161,7 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
           top: `${index * 41}px`,
           left: `${positionLeft}px`,
           width: `${width}px`,
-          cursor: interactionMode === 'barResizing' ? 'ew-resize' : 'grab',
+          cursor: interactionState.mode === 'barResizing' ? 'ew-resize' : 'grab',
           opacity: isHovered ? 0.9 : 1,
         }}>
         <div
@@ -143,7 +190,6 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
               />
             </>
           )}
-
           <div className='gantt-bar-text-cell'>
             <p className='gantt-bar-text' title={row.name}>
               {row.name}
@@ -151,6 +197,16 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
             </p>
           </div>
         </div>
+
+        {/* Tooltip component */}
+        {showTooltip && (
+          <BarTooltip
+            startDate={startDate}
+            endDate={endDate}
+            position={'tooltipPosition' in interactionState ? interactionState.tooltipPosition : { x: 0, y: 0 }}
+            visible={showTooltip}
+          />
+        )}
       </div>
     </GanttBarErrorBoundary>
   );
