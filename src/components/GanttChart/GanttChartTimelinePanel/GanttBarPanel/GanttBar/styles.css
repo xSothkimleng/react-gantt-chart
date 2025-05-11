@@ -67,7 +67,7 @@
   top: 0;
   height: 100%;
   z-index: 30;
-  width: var(--gantt-bar-resize-handle-width);
+  width: var(--gantt-bar-resize-handle-width) !important;
   background: var(--gantt-bar-resize-handle-background);
 }
 

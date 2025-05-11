@@ -1,4 +1,3 @@
-// For GanttBarPanel/index.tsx
 import React, { useEffect, useMemo } from 'react';
 import GanttChartLoading from '../../../Loading';
 import { useConfigStore } from '../../../../stores/useConfigStore';
@@ -7,7 +6,6 @@ import { useInteractionStore } from '../../../../stores/useInteractionStore';
 import GanttBarPanelRowTree from './RowTree';
 import { useShallow } from 'zustand/shallow';
 import './styles.css';
-import TodayLine from './TodayLine';
 
 const GanttBarPanel = () => {
   // Get only what we need from the stores with useShallow
@@ -55,19 +53,6 @@ const GanttBarPanel = () => {
     }
   }, [boundaries.left, boundaries.right, setBoundaries]);
 
-  // Create a memoized background style for the grid
-  const backgroundStyle = useMemo(() => {
-    return {
-      background: `repeating-linear-gradient(
-        to right,
-        transparent,
-        transparent ${dayWidth - 1}px,
-        rgba(0,0,0,0.05) ${dayWidth - 1}px,
-        rgba(0,0,0,0.05) ${dayWidth}px
-      )`,
-    };
-  }, [dayWidth]);
-
   if (isLoading || chartDateRange.length === 0) {
     return (
       <div style={{ background: 'rgba(0,0,0,0.2)', width: '100%', height: '100%' }}>
@@ -77,9 +62,8 @@ const GanttBarPanel = () => {
   }
 
   return (
-    <div className='gantt-bar-panel' style={backgroundStyle}>
+    <div className='gantt-bar-panel'>
       <GanttBarPanelRowTree />
-      <TodayLine />
     </div>
   );
 };

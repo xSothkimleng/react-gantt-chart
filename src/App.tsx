@@ -13,7 +13,7 @@ import { zoomIn, zoomOut } from './utils/zoomFunctions';
 const columns: Column = {
   id: { name: 'ID', show: false },
   name: { name: 'Income', show: true },
-  start: { name: 'Recurring', show: true },
+  start: { name: 'Recurring', show: false },
   end: { name: 'Monthly Subscription', show: false },
 };
 
@@ -32,7 +32,7 @@ const processJsonData = (data: any[]): Row[] => {
       maxProgress: quarter.target,
       start: new Date(quarter.start).toISOString(),
       end: new Date(quarter.end).toISOString(),
-      isLocked: false,
+      isLocked: true,
       progressIndicatorLabel: `${format()}`,
       showProgressIndicator: {
         showLabelOnGanttBar: true,
@@ -51,7 +51,7 @@ const processJsonData = (data: any[]): Row[] => {
         progressIndicatorLabel: ` : ${month.actual} / ${month.target}`,
         showProgressIndicator: {
           showLabelOnGanttBar: true,
-          showLabelOnSideBar: false,
+          showLabelOnSideBar: true,
           showProgressBar: true,
         },
         start: new Date(month.start).toISOString(),

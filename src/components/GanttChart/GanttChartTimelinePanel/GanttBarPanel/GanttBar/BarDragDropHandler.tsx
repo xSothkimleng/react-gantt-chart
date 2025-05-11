@@ -23,6 +23,7 @@ const BarDragDropHandler: React.FC<BarDragDropHandlerProps> = ({ ganttBarRef, ro
     e.stopPropagation(); // Prevent timeline drag
 
     if (row.isLocked) {
+      if (selectRow) selectRow(row);
       return;
     }
 
