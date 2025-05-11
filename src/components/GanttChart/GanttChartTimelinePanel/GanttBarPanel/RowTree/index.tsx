@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
 import GanttBar from '../GanttBar';
 import { useRowsStore } from '../../../../../stores/useRowsStore';
-import { useConfigStore } from '../../../../../stores/useConfigStore';
 import { useShallow } from 'zustand/shallow';
-import TodayLine from '../TodayLine';
 import './styles.css';
 
 const GanttBarPanelRowTree = () => {
@@ -11,36 +9,6 @@ const GanttBarPanelRowTree = () => {
   const rootIds = useRowsStore(useShallow(state => state.rootIds));
   const parentChildMap = useRowsStore(useShallow(state => state.parentChildMap));
   const collapsedItems = useRowsStore(useShallow(state => state.collapsedItems));
-
-  // Get the dayWidth from the config store
-  const { chartTimeFrameView, zoomWidth } = useConfigStore(
-    useShallow(state => ({
-      chartTimeFrameView: state.chartTimeFrameView,
-      zoomWidth: state.zoomWidth,
-    })),
-  );
-
-  // Memoize dayWidth calculation
-  const dayWidth = useMemo(() => {
-    return chartTimeFrameView.dayWidthUnit + zoomWidth;
-  }, [chartTimeFrameView.dayWidthUnit, zoomWidth]);
-
-  // Create a memoized background style for the grid
-  const backgroundStyle: React.CSSProperties = useMemo(() => {
-    return {
-      background: `repeating-linear-gradient(
-        to right,
-        transparent,
-        transparent ${dayWidth - 1}px,
-        rgba(0,0,0,0.05) ${dayWidth - 1}px,
-        rgba(0,0,0,0.05) ${dayWidth}px
-      )`,
-      position: 'relative',
-      width: '100%',
-      height: '1000%',
-      // overflow: 'hidden',
-    };
-  }, [dayWidth]);
 
   // Memoize the tree rendering logic
   const renderedTree = useMemo(() => {
@@ -67,12 +35,7 @@ const GanttBarPanelRowTree = () => {
     return rootIds.map(id => renderRowById(id));
   }, [rootIds, parentChildMap, collapsedItems]);
 
-  return (
-    <div style={backgroundStyle} className='gantt-bar-tree-container'>
-      {renderedTree}
-      <TodayLine />
-    </div>
-  );
+  return <div className='gantt-bar-tree-container'>{renderedTree}</div>;
 };
 
 export default React.memo(GanttBarPanelRowTree);

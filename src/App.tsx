@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import './App.css';
 import GanttChart from './components/GanttChart';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { timeFrameSetting } from './constants/timeFrameSetting';
 import { TimeFrameSettingType } from './types/timeFrameSettingType';
 import { PlusIcon, SubtractIcon } from './assets/icons/icons';
@@ -122,24 +122,18 @@ function App() {
   const [currentView, setCurrentView] = useState<TimeFrameSettingType>(timeFrameSetting.daily);
   const [showSidebar, setShowSidebar] = useState<boolean>(true);
 
-  // const [currentRow, setCurrentRow] = useState<Row[]>(rows);
-  // const counterRef = useRef<number>(0);
+  const [currentRow, setCurrentRow] = useState<Row[]>([]);
+  // Use useEffect to load data once after component mount
+  useEffect(() => {
+    // Simulate API call with a 2 second delay
+    const timer = setTimeout(() => {
+      console.log('Data loaded after 2 seconds');
+      setCurrentRow(rows);
+    }, 2000);
 
-  // const myPromise = new Promise(resolve => {
-  //   setTimeout(() => {
-  //     counterRef.current = counterRef.current + 1;
-  //     console.log('Counter:', counterRef.current);
-  //     resolve(2000);
-  //   }, 2000);
-  // });
-
-  // myPromise.then(() => {
-  //   if (counterRef.current % 2 == 0) {
-  //     setCurrentRow(rows);
-  //   } else {
-  //     setCurrentRow([]);
-  //   }
-  // });
+    // Clean up the timer if component unmounts
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array means this runs once after initial render
 
   const getSelectedRow = (row: Row) => {
     console.log('Selected item', row);
@@ -173,7 +167,7 @@ function App() {
 
       <GanttChart
         columns={columns}
-        rows={rows}
+        rows={currentRow}
         defaultView={currentView}
         showSidebar={showSidebar}
         getSelectedRow={getSelectedRow}
