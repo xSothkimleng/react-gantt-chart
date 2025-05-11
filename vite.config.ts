@@ -32,6 +32,7 @@ export default defineConfig({
           react: 'React',
           'react-dom': 'ReactDOM',
           lodash: '_',
+          zustand: 'zustand',
         },
         assetFileNames: (assetInfo): string => {
           // Makes all CSS files output as 'style.css'

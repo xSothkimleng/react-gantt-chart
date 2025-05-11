@@ -22,20 +22,20 @@ if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Get the main style file
-const styleFile = path.resolve(__dirname, '../style.css');
-const mainStyleContent = fs.readFileSync(styleFile, 'utf8');
-
-// Process any theme.css or other CSS files referenced by your components
-const themeFile = path.resolve(__dirname, '../src/styles/theme.css');
+// Process the main styles/index.css file which should import all other CSS files
+const indexCssFile = path.resolve(__dirname, '../src/styles/index.css');
 let processedCSS = '';
 
-if (fs.existsSync(themeFile)) {
-  processedCSS += processCSS(themeFile) + '\n';
+if (fs.existsSync(indexCssFile)) {
+  processedCSS += processCSS(indexCssFile);
 }
 
-// Add the main style.css content
-processedCSS += mainStyleContent;
+// Add any additional CSS not captured by imports
+const styleFile = path.resolve(__dirname, '../style.css');
+if (fs.existsSync(styleFile)) {
+  const styleContent = fs.readFileSync(styleFile, 'utf8');
+  processedCSS += '\n' + styleContent;
+}
 
 // Write the consolidated styles to the dist directory
 fs.writeFileSync(path.resolve(distDir, 'style.css'), processedCSS);
