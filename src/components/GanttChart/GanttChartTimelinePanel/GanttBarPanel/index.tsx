@@ -58,8 +58,7 @@ const GanttBarPanel = () => {
         )`,
       position: 'relative',
       width: '100%',
-      height: '1000%',
-      // overflow: 'hidden',
+      height: '100%',
     };
   }, [dayWidth]);
 

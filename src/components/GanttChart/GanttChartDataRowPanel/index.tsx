@@ -5,13 +5,8 @@ import DataRowTree from './RowTree';
 import { useUIStore } from '../../../stores/useUIStore';
 
 const GanttChartDataRowPanel = React.memo(() => {
-  // Get columns from configStore
   const columns = useConfigStore(state => state.columns);
-
-  // Create ref for data panel
   const dataPanelRef = useRef<HTMLDivElement>(null);
-
-  // Get refs and scroll state from UI store
   const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
   const setDataPanelRef = useUIStore(state => state.setDataPanelRef);
   const isProgrammaticScroll = useUIStore(state => state.isProgrammaticScroll);
@@ -31,6 +26,8 @@ const GanttChartDataRowPanel = React.memo(() => {
       // Don't process if we're programmatically scrolling
       if (isProgrammaticScroll) return;
 
+      console.log('Data panel scrolled');
+      console.log('Panel', panel.style.height);
       const currentScrollTop = panel.scrollTop;
 
       if (timelinePanelRef?.current) {
@@ -68,8 +65,8 @@ const GanttChartDataRowPanel = React.memo(() => {
       ref={dataPanelRef}
       className='gantt-data-panel'
       style={{
-        overflow: 'auto', // Make sure both horizontal and vertical scrolling are enabled
-        height: '100%', // Ensure full height
+        overflow: 'auto',
+        height: '100%',
       }}>
       {/* Table Header */}
       <div

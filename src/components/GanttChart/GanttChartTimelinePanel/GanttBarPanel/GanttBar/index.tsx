@@ -12,6 +12,7 @@ import { useConfigStore } from '../../../../../stores/useConfigStore';
 import { useRowsStore } from '../../../../../stores/useRowsStore';
 import { useShallow } from 'zustand/shallow';
 import './styles.css';
+import { useUIStore } from '../../../../../stores/useUIStore';
 
 class GanttBarErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: { children: React.ReactNode }) {
@@ -55,6 +56,10 @@ type GanttBarProps = {
 const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
   // Get row data with useShallow to prevent re-renders on unrelated state changes
   const row = useRowsStore(state => state.getRowById(rowId));
+
+  // UI Config Store
+  const rowHeight = useUIStore(state => state.rowHeight);
+  const isCompactView = useConfigStore(state => state.isCompactView);
 
   // Get interaction state to determine if this bar is being interacted with
   const interactionState = useInteractionStore(useShallow(state => state.interactionState));
@@ -158,38 +163,42 @@ const GanttBar: React.FC<GanttBarProps> = ({ index, rowId }) => {
         aria-label={`GanttBar: ${row.name}`}
         className='gantt-bar'
         style={{
-          top: `${index * 41}px`,
+          top: isCompactView ? `${(index * (rowHeight + 1)) / 2}px` : `${index * (rowHeight + 1)}px`,
           left: `${positionLeft}px`,
           width: `${width}px`,
           cursor: interactionState.mode === 'barResizing' ? 'ew-resize' : 'grab',
           opacity: isHovered ? 0.9 : 1,
+          height: isCompactView ? `${rowHeight / 2}px` : `${rowHeight}px`,
         }}>
         <div
           className='gantt-bar-cell-overlay'
           style={{
             background: row.highlight ? 'var(--gantt-bar-highlight-background)' : 'var(--gantt-bar-default-background)',
             boxShadow: isHovered ? 'var(--gantt-bar-boxShadow-hover)' : 'none',
+            height: isCompactView ? `calc(${rowHeight / 2}px - 30%)` : `calc(${rowHeight}px - 30%)`,
           }}>
           {row.showProgressIndicator?.showProgressBar && <BarProgressIndicator item={row} />}
           <BarDragDropHandler index={index} row={row} startLeftPosition={startLeftPosition} ganttBarRef={ganttBarRef} />
-          {isHovered && (
-            <>
-              <BarResizer
-                position='left'
-                row={row}
-                width={width}
-                ganttBarRef={ganttBarRef}
-                startLeftPosition={startLeftPosition}
-              />
-              <BarResizer
-                position='right'
-                row={row}
-                width={width}
-                ganttBarRef={ganttBarRef}
-                startLeftPosition={startLeftPosition}
-              />
-            </>
-          )}
+
+          <BarResizer
+            position='left'
+            style={{ left: '-13px' }}
+            row={row}
+            width={width}
+            ganttBarRef={ganttBarRef}
+            startLeftPosition={startLeftPosition}
+            isGanttBarHovered={isHovered}
+          />
+          <BarResizer
+            position='right'
+            style={{ right: '-13px' }}
+            row={row}
+            width={width}
+            ganttBarRef={ganttBarRef}
+            startLeftPosition={startLeftPosition}
+            isGanttBarHovered={isHovered}
+          />
+
           <div className='gantt-bar-text-cell'>
             <p className='gantt-bar-text' title={row.name}>
               {row.name}

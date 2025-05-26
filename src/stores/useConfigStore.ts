@@ -12,6 +12,7 @@ type ConfigState = {
   chartDateRange: DateRangeType;
   zoomWidth: number;
   isLoading: boolean;
+  isCompactView: boolean;
 
   // Actions
   setColumns: (columns: Column) => void;
@@ -21,6 +22,7 @@ type ConfigState = {
   zoomIn: () => void;
   zoomOut: () => void;
   setIsLoading: (loading: boolean) => void;
+  setIsCompactView: (isCompact: boolean) => void;
 
   // Computed values
   getDayWidth: () => number;
@@ -34,6 +36,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   chartDateRange: [],
   zoomWidth: 0,
   isLoading: false,
+  isCompactView: false,
 
   // Actions
   setColumns: columns => set({ columns }),
@@ -47,7 +50,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
       return { zoomWidth: newZoomWidth < 0 ? 0 : newZoomWidth };
     }),
   setIsLoading: loading => set({ isLoading: loading }),
-
+  setIsCompactView: isCompact => set({ isCompactView: isCompact }),
   // Computed values
   getDayWidth: () => {
     const { chartTimeFrameView, zoomWidth } = get();

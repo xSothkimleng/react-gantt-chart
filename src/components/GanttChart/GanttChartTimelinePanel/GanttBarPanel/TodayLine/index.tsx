@@ -6,6 +6,7 @@ import { calculateGanttBarPositionFromInitialStartingPoint } from '../../../../.
 const TodayLine = () => {
   // Get necessary data from the config store
   const [isHover, setIsHover] = useState(false);
+
   const { chartDateRange, chartTimeFrameView, zoomWidth } = useConfigStore(
     useShallow(state => ({
       chartDateRange: state.chartDateRange,
@@ -41,10 +42,10 @@ const TodayLine = () => {
     position: 'absolute',
     top: 0,
     left: `${todayPosition - 1}px`,
-    width: '2px',
+    width: dayWidth,
     height: '100%',
-    backgroundColor: '#3CB371',
-    zIndex: 98,
+    backgroundColor: 'rgba(60, 179, 113, 0.5)',
+    zIndex: 10,
   };
 
   return (
@@ -64,20 +65,7 @@ const TodayLine = () => {
             zIndex: 97,
             overflow: isHover ? 'visible' : 'hidden',
             transition: '0.3s',
-          }}>
-          <p
-            style={{
-              fontSize: '0.5rem',
-              fontWeight: '600',
-              letterSpacing: '1.5px',
-              margin: '0',
-              color: 'white',
-              width: isHover ? 'auto' : dayWidth,
-              textAlign: 'center',
-            }}>
-            Today
-          </p>
-        </div>
+          }}></div>
       </div>
     </div>
   );

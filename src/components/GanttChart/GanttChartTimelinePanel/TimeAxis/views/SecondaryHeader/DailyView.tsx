@@ -8,6 +8,12 @@ const DailyView = React.memo(() => {
   const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
   const zoomWidth = useConfigStore(state => state.zoomWidth);
 
+  // Get today's date
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth(); // 0-based (0-11)
+  const currentDay = today.getDate();
+
   // Function to get the day name based on the month index, day index, and year
   // @ts-expect-error - TS complains about the missing toLocaleDateString method
   const getDayName = (monthIndex, dayIndex, year) => {
@@ -23,13 +29,24 @@ const DailyView = React.memo(() => {
             const dayName = getDayName(month.month, dayIndex, year.year);
             const isWeekend = dayName === 'Sat' || dayName === 'Sun';
 
+            // Check if this is today's date
+            const isToday = year.year === currentYear && month.month === currentMonth && dayIndex + 1 === currentDay;
+
+            // Determine background color
+            let backgroundColor = 'white';
+            if (isToday) {
+              backgroundColor = 'rgba(60, 179, 113, 0.3)';
+            } else if (isWeekend) {
+              backgroundColor = '#f0f0f0';
+            }
+
             return (
               <div
                 key={`${dayIndex + 1}-${month.month}-${year.year}`}
                 className='gantt-secondary-header-monthly'
                 style={{
                   width: `${chartTimeFrameView.dayWidthUnit + zoomWidth}px`,
-                  background: isWeekend ? '#f0f0f0' : 'white',
+                  background: backgroundColor,
                   borderBottom: '1px solid lightgray',
                 }}>
                 <p style={{ margin: '0', padding: '0' }}>

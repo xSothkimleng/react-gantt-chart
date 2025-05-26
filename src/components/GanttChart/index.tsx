@@ -11,6 +11,12 @@ import { useConfigStore } from '../../stores/useConfigStore';
 import { useUIStore } from '../../stores/useUIStore';
 import { useRowsStore } from '../../stores/useRowsStore';
 
+type customRowType = {
+  rowHeight: number;
+  component: React.FC<{ row: Row; isCompactView: boolean }>;
+  collapsedIconColor?: string;
+  collapsedBackgroundColor?: string;
+};
 export interface GanttChartProps {
   rows: Row[];
   columns: Column;
@@ -21,6 +27,8 @@ export interface GanttChartProps {
   className?: string;
   height?: string | number;
   width?: string | number;
+  customRow?: customRowType;
+  isCompactView?: boolean;
 }
 
 const GanttChart: React.FC<GanttChartProps> = ({
@@ -33,10 +41,13 @@ const GanttChart: React.FC<GanttChartProps> = ({
   className = '',
   height,
   width,
+  customRow,
+  isCompactView = false,
 }) => {
   // Store actions
   const setRows = useRowsStore(state => state.setRows);
   const setShowSidebar = useConfigStore(state => state.setShowSidebar);
+  const setIsCompactView = useConfigStore(state => state.setIsCompactView);
   const setChartTimeFrameView = useConfigStore(state => state.setChartTimeFrameView);
   const setButtonContainer = useUIStore(state => state.setButtonContainer);
   const setExternalGetSelectedRow = useUIStore(state => state.setExternalGetSelectedRow);
@@ -48,6 +59,10 @@ const GanttChart: React.FC<GanttChartProps> = ({
       columns: columns || ({} as Column),
       getSelectedRow,
       ButtonContainer,
+      rowCustomComponent: customRow?.component,
+      rowHeight: customRow?.rowHeight ?? 40,
+      collapsedIconColor: customRow?.collapsedIconColor,
+      collapsedBackgroundColor: customRow?.collapsedBackgroundColor,
     });
   }, []);
 
@@ -75,10 +90,13 @@ const GanttChart: React.FC<GanttChartProps> = ({
   }, [showSidebar, setShowSidebar]);
 
   useEffect(() => {
+    setIsCompactView(isCompactView);
+  }, [isCompactView, setIsCompactView]);
+
+  useEffect(() => {
     setChartTimeFrameView(defaultView);
   }, [defaultView, setChartTimeFrameView]);
 
-  // Set up interactions
   useGanttInteractions();
 
   return <GanttChartContent className={className} height={height} width={width} />;

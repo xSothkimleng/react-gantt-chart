@@ -11,10 +11,6 @@
   cursor: grab;
 }
 
-.gnatt-timeline-panel::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
-}
-
 .gnatt-timeline-panel.dragging {
   cursor: grabbing !important;
 }

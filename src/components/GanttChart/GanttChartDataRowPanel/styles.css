@@ -75,7 +75,7 @@
   align-items: center;
   height: 40px;
   padding: 0 10px;
-  background: var(--gantt-data-panel-row-background);
+  /* background: var(--gantt-data-panel-row-background); */
 }
 
 .gantt-data-panel-row-cell-content {

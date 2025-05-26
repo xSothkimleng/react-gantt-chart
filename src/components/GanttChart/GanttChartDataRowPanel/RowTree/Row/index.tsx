@@ -6,7 +6,6 @@ import { ChevronDownIcon, ChevronRightIcon } from '../../../../../assets/icons/i
 import { useShallow } from 'zustand/shallow';
 import { calculateGanttBarPositionFromInitialStartingPoint } from '../../../../../utils/ganttBarUtils';
 import { useConfigStore } from '../../../../../stores/useConfigStore';
-// import { useShallow } from 'zustand/shallow';
 
 const progressDisplay = (row: Row) => {
   return row.progressIndicatorLabel ?? '';
@@ -27,6 +26,8 @@ type DataRowType = {
 };
 
 const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns, visibleFields }) => {
+  const isCompactView = useConfigStore(state => state.isCompactView);
+
   // Get specific row data by ID
   const row = useRowsStore(useShallow(state => state.getRowById(String(rowId))));
 
@@ -38,6 +39,8 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
   const chartDateRange = useConfigStore(state => state.chartDateRange);
   const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
   const zoomWidth = useConfigStore(state => state.zoomWidth);
+  const collapsedBackgroundColor = useUIStore(state => state.collapsedBackgroundColor);
+  const collapsedIconColor = useUIStore(state => state.collapsedIconColor);
 
   // Get collapsed state only for this specific row
   const isCollapsed = useRowsStore(state => state.collapsedItems.has(String(rowId)));
@@ -46,6 +49,8 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
   // Get UI elements from uiStore
   const externalGetSelectedRow = useUIStore(state => state.externalGetSelectedRow);
   const ButtonContainer = useUIStore(state => state.ButtonContainer);
+  const rowCustomComponent = useUIStore(state => state.rowCustomComponent);
+  const rowHeight = useUIStore(state => state.rowHeight);
 
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
 
@@ -74,7 +79,6 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
 
   if (!row) return null;
 
-  // Check if this row has children using the childIds
   const hasChildren = childIds.length > 0;
 
   const handleScrollToGanttBar = (row: Row) => {
@@ -93,40 +97,115 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
     });
   };
 
+  // Determine background color based on whether row has children
+  const getRowBackgroundColor = () => {
+    if (hasChildren) {
+      return collapsedBackgroundColor || '#f8f9fa';
+    }
+    return 'black';
+  };
+
   return (
     <div key={row.id}>
-      <div
-        className='gantt-data-panel-row-container'
-        style={{
-          gridTemplateColumns,
-        }}>
-        {visibleFields.map(([key], index) => (
-          <div
-            key={`${row.id}-${key}-${index}`}
-            onClick={handleRowSelect}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            className='gantt-data-panel-row-cell'
-            style={{
-              paddingLeft: key === 'name' ? `${depth * 20}px` : '10px',
-              fontWeight: row.highlight ? 'bold' : 'normal',
-            }}>
-            {key === 'name' && hasChildren && (
-              <button className='gantt-data-panel-collapse-button' onClick={handleToggleCollapse}>
-                {isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
-              </button>
-            )}
-            <p className='gantt-data-panel-row-cell-content'>{renderRowContent(row, key)}</p>
+      {rowCustomComponent ? (
+        <div
+          style={{
+            height: isCompactView ? `${rowHeight / 2}px` : `${rowHeight}px`,
+            borderBottom: '1px solid gray',
+            display: 'flex',
+            backgroundColor: getRowBackgroundColor(),
+            position: 'relative',
+          }}>
+          {rowCustomComponent ? (
+            (() => {
+              const CustomComponent = rowCustomComponent;
+              return <CustomComponent row={row} isCompactView={isCompactView} />;
+            })()
+          ) : (
+            <div>Undefined Component</div>
+          )}
 
-            {key === 'name' && ButtonContainer && hoveredRowId === String(row.id) && (
-              <div className='gantt-data-panel-row-cell-action-buttons'>
-                <button onClick={() => handleScrollToGanttBar(row)}>GO</button>
-                <ButtonContainer />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+          {/* Collapse/Expand arrow at far right */}
+          {hasChildren && (
+            <div
+              onClick={handleToggleCollapse}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: collapsedIconColor ? collapsedIconColor : 'black',
+                cursor: 'pointer',
+                padding: '4px',
+              }}>
+              {isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div
+          className='gantt-data-panel-row-container'
+          style={{
+            gridTemplateColumns,
+            position: 'relative',
+          }}>
+          {visibleFields.map(([key], index) => (
+            <div
+              key={`${row.id}-${key}-${index}`}
+              onClick={handleRowSelect}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              className='gantt-data-panel-row-cell'
+              style={{
+                paddingLeft: '10px',
+                fontWeight: row.highlight ? 'bold' : 'normal',
+                background: `rgba(0, 0, 0, ${0.1 + depth * 0.1})`,
+              }}>
+              <p className='gantt-data-panel-row-cell-content'>{renderRowContent(row, key)}</p>
+
+              {key === 'name' && ButtonContainer && hoveredRowId === String(row.id) && (
+                <div className='gantt-data-panel-row-cell-action-buttons'>
+                  <button
+                    onClick={() => handleScrollToGanttBar(row)}
+                    style={{
+                      padding: '4px',
+                      marginRight: '4px',
+                      fontSize: '12px',
+                    }}>
+                    GO
+                  </button>
+                  <ButtonContainer />
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Collapse/Expand arrow at far right edge of the row */}
+          {hasChildren && (
+            <div
+              onClick={handleToggleCollapse}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: collapsedIconColor ? collapsedIconColor : 'black',
+                cursor: 'pointer',
+                padding: '4px',
+                zIndex: 1,
+              }}>
+              {isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Render children only if not collapsed and there are children */}
       {hasChildren &&
         !isCollapsed &&

@@ -1,10 +1,9 @@
 .gantt-bar {
   position: absolute;
-  height: 40px;
-
   display: flex;
   align-items: center;
   transition: opacity 0.2s ease-in-out;
+  overflow: visible;
 }
 
 .gantt-bar-cell-overlay {
@@ -13,9 +12,9 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  /* Important: Allow overflow for resizers */
   overflow: visible;
   width: 100%;
-  height: 30px;
   padding: 0 10px;
   transition: box-shadow 0.2s ease-in-out;
 }
@@ -63,12 +62,15 @@
 }
 
 .gantt-bar-resize-handle {
+  z-index: 35;
   position: absolute;
-  top: 0;
-  height: 100%;
-  z-index: 30;
-  width: var(--gantt-bar-resize-handle-width) !important;
-  background: var(--gantt-bar-resize-handle-background);
+  background: transparent;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+.gantt-bar-resize-handle:hover::before {
+  opacity: 1;
 }
 
 /* tool tips  */
@@ -82,19 +84,6 @@
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   animation: fadeIn 0.15s ease-in-out;
-}
-
-.gantt-bar-tooltip:after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid rgba(0, 0, 0, 0.8);
 }
 
 .gantt-bar-tooltip-content {
@@ -117,3 +106,5 @@
     opacity: 1;
   }
 }
+
+/* additional style  */

@@ -121,6 +121,7 @@ const ButtonContainer = () => {
 function App() {
   const [currentView, setCurrentView] = useState<TimeFrameSettingType>(timeFrameSetting.daily);
   const [showSidebar, setShowSidebar] = useState<boolean>(true);
+  const [isCompactView, setIsCompactView] = useState<boolean>(false);
 
   const [currentRow, setCurrentRow] = useState<Row[]>([]);
   // Use useEffect to load data once after component mount
@@ -155,6 +156,7 @@ function App() {
           <option value='yearly'>Yearly</option>
         </select>
         <button onClick={() => setShowSidebar(!showSidebar)}>Show Sidebar</button>
+        <button onClick={() => setIsCompactView(!isCompactView)}>Compact View</button>
         <div style={{ display: 'flex', gap: '1px' }}>
           <button onClick={() => zoomOut()} style={{ cursor: 'pointer', padding: '5px' }}>
             <SubtractIcon /> Zoom Out
@@ -170,11 +172,38 @@ function App() {
         rows={currentRow}
         defaultView={currentView}
         showSidebar={showSidebar}
+        isCompactView={isCompactView}
         getSelectedRow={getSelectedRow}
         ButtonContainer={ButtonContainer}
         className='user-gantt-style'
         height='100vh'
         width='100%'
+        // customRow={{
+        //   rowHeight: 60,
+        //   component: ({ row, isCompactView }: { row: Row; isCompactView: boolean }) => (
+        //     <div
+        //       style={{
+        //         height: '100%',
+        //         width: '100%',
+        //         borderLeft: '2px solid gray',
+        //         paddingLeft: '10px',
+        //       }}>
+        //       <div style={{ height: isCompactView ? '100%' : '50%', display: 'flex', alignItems: 'center' }}>{row.name}</div>
+        //       {!isCompactView && (
+        //         <div
+        //           style={{
+        //             height: '50%',
+        //             display: 'flex',
+        //             alignItems: 'center',
+        //           }}>
+        //           {row.currentProgress} / {row.maxProgress}
+        //         </div>
+        //       )}
+        //     </div>
+        //   ),
+        //   // collapsedBackgroundColor: '#313345',
+        //   // collapsedIconColor: 'white',
+        // }}
       />
     </div>
   );

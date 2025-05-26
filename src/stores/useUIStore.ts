@@ -9,7 +9,11 @@ interface UIStore {
   selectedRowId: string | null;
   externalGetSelectedRow?: (row: Row) => void;
   ButtonContainer?: React.FC;
-  isProgrammaticScroll: boolean; // Added flag to prevent circular scroll events
+  rowCustomComponent?: React.FC<{ row: Row; isCompactView: boolean }>;
+  rowHeight: number;
+  isProgrammaticScroll: boolean;
+  collapsedIconColor?: string;
+  collapsedBackgroundColor?: string;
 
   // Actions
   setTimelinePanelRef: (ref: React.RefObject<HTMLDivElement>) => void;
@@ -18,7 +22,11 @@ interface UIStore {
   setSelectedRowId: (id: string | null) => void;
   setExternalGetSelectedRow: (fn: ((row: Row) => void) | undefined) => void;
   setButtonContainer: (component: React.FC | undefined) => void;
-  setIsProgrammaticScroll: (value: boolean) => void; // Added setter for the flag
+  setRowCustomComponent: (component: React.FC<{ row: Row }> | undefined) => void;
+  setRowHeight: (height: number) => void;
+  setIsProgrammaticScroll: (value: boolean) => void;
+  setCollapsedIconColor: (color: string) => void;
+  setCollapsedBackgroundColor: (color: string) => void;
 }
 
 export const useUIStore = create<UIStore>(set => ({
@@ -29,7 +37,10 @@ export const useUIStore = create<UIStore>(set => ({
   selectedRowId: null,
   externalGetSelectedRow: undefined,
   ButtonContainer: undefined,
-  isProgrammaticScroll: false, // Initialize to false
+  rowHeight: 40,
+  isProgrammaticScroll: false,
+  collapsedBackgroundColor: '#242432',
+  collapsedIconColor: 'white',
 
   // Actions
   setTimelinePanelRef: ref => {
@@ -40,5 +51,9 @@ export const useUIStore = create<UIStore>(set => ({
   setSelectedRowId: id => set({ selectedRowId: id }),
   setExternalGetSelectedRow: fn => set({ externalGetSelectedRow: fn }),
   setButtonContainer: component => set({ ButtonContainer: component }),
+  setRowCustomComponent: component => set({ rowCustomComponent: component }),
+  setRowHeight: height => set({ rowHeight: height }),
   setIsProgrammaticScroll: value => set({ isProgrammaticScroll: value }),
+  setCollapsedIconColor: color => set({ collapsedIconColor: color }),
+  setCollapsedBackgroundColor: color => set({ collapsedBackgroundColor: color }),
 }));

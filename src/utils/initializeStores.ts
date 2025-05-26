@@ -10,9 +10,21 @@ interface InitializeStoresProps {
   columns?: Column;
   getSelectedRow?: (row: Row) => void;
   ButtonContainer?: React.FC;
+  rowCustomComponent?: React.FC<{ row: Row; isCompactView: boolean }>;
+  rowHeight?: number;
+  collapsedIconColor?: string;
+  collapsedBackgroundColor?: string;
 }
 
-export const initializeStores = ({ columns, getSelectedRow, ButtonContainer }: InitializeStoresProps) => {
+export const initializeStores = ({
+  columns,
+  getSelectedRow,
+  ButtonContainer,
+  rowCustomComponent,
+  rowHeight,
+  collapsedIconColor,
+  collapsedBackgroundColor,
+}: InitializeStoresProps) => {
   // Initialize UI Store
   useUIStore.setState({
     timelinePanelRef: null,
@@ -20,6 +32,10 @@ export const initializeStores = ({ columns, getSelectedRow, ButtonContainer }: I
     selectedRowId: null,
     externalGetSelectedRow: getSelectedRow,
     ButtonContainer,
+    rowCustomComponent,
+    rowHeight: rowHeight,
+    collapsedBackgroundColor: collapsedBackgroundColor,
+    collapsedIconColor: collapsedIconColor,
   });
 
   // Initialize Interaction Store
