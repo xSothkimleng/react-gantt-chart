@@ -3,12 +3,14 @@ import GanttBar from '../GanttBar';
 import { useRowsStore } from '../../../../../stores/useRowsStore';
 import { useShallow } from 'zustand/shallow';
 import './styles.css';
+// import { useConfigStore } from '../../../../../stores/useConfigStore';
 
 const GanttBarPanelRowTree = () => {
   // Get only the IDs and structure, not the entire row data
   const rootIds = useRowsStore(useShallow(state => state.rootIds));
   const parentChildMap = useRowsStore(useShallow(state => state.parentChildMap));
   const collapsedItems = useRowsStore(useShallow(state => state.collapsedItems));
+  // const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
 
   // Memoize the tree rendering logic
   const renderedTree = useMemo(() => {
@@ -32,8 +34,8 @@ const GanttBarPanelRowTree = () => {
       );
     };
 
-    return rootIds.map(id => renderRowById(id));
-  }, [rootIds, parentChildMap, collapsedItems]);
+    return <div>{rootIds.map(id => renderRowById(id))}</div>;
+  }, [rootIds, collapsedItems, parentChildMap]);
 
   return <div className='gantt-bar-tree-container'>{renderedTree}</div>;
 };

@@ -9,6 +9,7 @@ import { Column } from './types/column';
 import { Row } from './types/row';
 import jsonData from './data/qrf_sample.json';
 import { zoomIn, zoomOut } from './utils/zoomFunctions';
+// import CustomRowComponent from './components/Example';
 
 const columns: Column = {
   id: { name: 'ID', show: false },
@@ -140,6 +141,11 @@ function App() {
     console.log('Selected item', row);
   };
 
+  const handleScrollToToday = async () => {
+    const { scrollToToday } = await import('./utils/scrollUtils');
+    await scrollToToday({ offset: 75 });
+  };
+
   return (
     <div style={{ height: '100%', position: 'relative' }}>
       <div style={{ display: 'flex', gap: 2 }}>
@@ -157,6 +163,8 @@ function App() {
         </select>
         <button onClick={() => setShowSidebar(!showSidebar)}>Show Sidebar</button>
         <button onClick={() => setIsCompactView(!isCompactView)}>Compact View</button>
+
+        <button onClick={handleScrollToToday}>TODAY</button>
         <div style={{ display: 'flex', gap: '1px' }}>
           <button onClick={() => zoomOut()} style={{ cursor: 'pointer', padding: '5px' }}>
             <SubtractIcon /> Zoom Out
@@ -179,30 +187,8 @@ function App() {
         height='100vh'
         width='100%'
         // customRow={{
-        //   rowHeight: 60,
-        //   component: ({ row, isCompactView }: { row: Row; isCompactView: boolean }) => (
-        //     <div
-        //       style={{
-        //         height: '100%',
-        //         width: '100%',
-        //         borderLeft: '2px solid gray',
-        //         paddingLeft: '10px',
-        //       }}>
-        //       <div style={{ height: isCompactView ? '100%' : '50%', display: 'flex', alignItems: 'center' }}>{row.name}</div>
-        //       {!isCompactView && (
-        //         <div
-        //           style={{
-        //             height: '50%',
-        //             display: 'flex',
-        //             alignItems: 'center',
-        //           }}>
-        //           {row.currentProgress} / {row.maxProgress}
-        //         </div>
-        //       )}
-        //     </div>
-        //   ),
-        //   // collapsedBackgroundColor: '#313345',
-        //   // collapsedIconColor: 'white',
+        //   rowHeight: 40,
+        //   component: CustomRowComponent,
         // }}
       />
     </div>

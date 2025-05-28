@@ -4,8 +4,8 @@ import { useUIStore } from '../../../../../stores/useUIStore';
 import { Row } from '../../../../../types/row';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../../../assets/icons/icons';
 import { useShallow } from 'zustand/shallow';
-import { calculateGanttBarPositionFromInitialStartingPoint } from '../../../../../utils/ganttBarUtils';
 import { useConfigStore } from '../../../../../stores/useConfigStore';
+import { scrollToGanttBar } from '../../../../../utils/scrollUtils';
 
 const progressDisplay = (row: Row) => {
   return row.progressIndicatorLabel ?? '';
@@ -34,23 +34,17 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
   // Get child IDs for this row
   const childIds = useRowsStore(useShallow(state => state.parentChildMap[String(rowId)] || []));
 
-  // scroll position for the Gantt bar
-  const timelinePanelRef = useUIStore(state => state.timelinePanelRef);
-  const chartDateRange = useConfigStore(state => state.chartDateRange);
-  const chartTimeFrameView = useConfigStore(state => state.chartTimeFrameView);
-  const zoomWidth = useConfigStore(state => state.zoomWidth);
+  // Get UI elements from uiStore
+  const externalGetSelectedRow = useUIStore(state => state.externalGetSelectedRow);
+  const ButtonContainer = useUIStore(state => state.ButtonContainer);
+  const rowCustomComponent = useUIStore(state => state.rowCustomComponent);
+  const rowHeight = useUIStore(state => state.rowHeight);
   const collapsedBackgroundColor = useUIStore(state => state.collapsedBackgroundColor);
   const collapsedIconColor = useUIStore(state => state.collapsedIconColor);
 
   // Get collapsed state only for this specific row
   const isCollapsed = useRowsStore(state => state.collapsedItems.has(String(rowId)));
   const toggleCollapse = useRowsStore(state => state.toggleCollapse);
-
-  // Get UI elements from uiStore
-  const externalGetSelectedRow = useUIStore(state => state.externalGetSelectedRow);
-  const ButtonContainer = useUIStore(state => state.ButtonContainer);
-  const rowCustomComponent = useUIStore(state => state.rowCustomComponent);
-  const rowHeight = useUIStore(state => state.rowHeight);
 
   const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
 
@@ -77,32 +71,30 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
     [rowId, toggleCollapse],
   );
 
+  // Updated scroll handler using the exported function
+  const handleScrollToGanttBar = useCallback(async (row: Row) => {
+    const success = await scrollToGanttBar(row, {
+      offset: 50,
+      behavior: 'smooth',
+    });
+
+    if (success) {
+      console.log('Scrolled to Gantt Bar:', row.name);
+    } else {
+      console.warn('Failed to scroll to Gantt bar for:', row.name);
+    }
+  }, []);
+
   if (!row) return null;
 
   const hasChildren = childIds.length > 0;
 
-  const handleScrollToGanttBar = (row: Row) => {
-    console.log('Scroll to Gantt Bar:', row);
-    if (!timelinePanelRef?.current) {
-      return;
-    }
-
-    const dayWidthUnit = chartTimeFrameView.dayWidthUnit + zoomWidth;
-    const positionLeft = calculateGanttBarPositionFromInitialStartingPoint(row.start, chartDateRange[0]) * dayWidthUnit;
-
-    // Apply smooth scrolling
-    timelinePanelRef.current.scrollTo({
-      left: positionLeft - 50,
-      behavior: 'smooth',
-    });
-  };
-
   // Determine background color based on whether row has children
   const getRowBackgroundColor = () => {
     if (hasChildren) {
-      return collapsedBackgroundColor || '#f8f9fa';
+      return collapsedBackgroundColor || 'rgba(0,0,0,0.1)';
     }
-    return 'black';
+    return '#f8f9fa';
   };
 
   return (

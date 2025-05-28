@@ -6,7 +6,6 @@ import { useInteractionStore } from '../../../../stores/useInteractionStore';
 import GanttBarPanelRowTree from './RowTree';
 import { useShallow } from 'zustand/shallow';
 import './styles.css';
-import TodayLine from './TodayLine';
 
 const GanttBarPanel = () => {
   // Get only what we need from the stores with useShallow
@@ -46,22 +45,6 @@ const GanttBarPanel = () => {
     return { left: leftBoundary, right: finalRightBoundary };
   }, [chartDateRange, dayWidth]);
 
-  // Create a memoized background style for the grid
-  const backgroundStyle: React.CSSProperties = useMemo(() => {
-    return {
-      background: `repeating-linear-gradient(
-          to right,
-          transparent,
-          transparent ${dayWidth - 1}px,
-          rgba(0,0,0,0.05) ${dayWidth - 1}px,
-          rgba(0,0,0,0.05) ${dayWidth}px
-        )`,
-      position: 'relative',
-      width: '100%',
-      height: '100%',
-    };
-  }, [dayWidth]);
-
   // Update boundaries in the store when they change - NOT during render
   useEffect(() => {
     // Only update boundaries if they are valid
@@ -79,9 +62,8 @@ const GanttBarPanel = () => {
   }
 
   return (
-    <div className='gantt-bar-panel' style={backgroundStyle}>
+    <div className='gantt-bar-panel'>
       <GanttBarPanelRowTree />
-      <TodayLine />
     </div>
   );
 };

@@ -11,7 +11,7 @@ const DailyView = React.memo(() => {
   // Get today's date
   const today = new Date();
   const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth(); // 0-based (0-11)
+  const currentMonth = today.getMonth();
   const currentDay = today.getDate();
 
   // Function to get the day name based on the month index, day index, and year
@@ -35,7 +35,7 @@ const DailyView = React.memo(() => {
             // Determine background color
             let backgroundColor = 'white';
             if (isToday) {
-              backgroundColor = 'rgba(60, 179, 113, 0.3)';
+              backgroundColor = 'rgb(0, 184, 169)';
             } else if (isWeekend) {
               backgroundColor = '#f0f0f0';
             }

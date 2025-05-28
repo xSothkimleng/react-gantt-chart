@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import TimeAxisPrimary from './TimeAxis/TimeAxisPrimary';
 import TimeAxisSecondary from './TimeAxis/TimeAxisSecondary';
 import GanttBarPanel from './GanttBarPanel';
@@ -11,6 +11,7 @@ import { useInteractionStore } from '../../../stores/useInteractionStore';
 import { useUIStore } from '../../../stores/useUIStore';
 import { useShallow } from 'zustand/shallow';
 import './styles.css';
+import TodayLine from './GanttBarPanel/TodayLine';
 
 const GanttChartTimelinePanel = () => {
   // Get rows from rowsStore
@@ -44,15 +45,46 @@ const GanttChartTimelinePanel = () => {
   // Add a ref to track the previous view for view changes
   const previousViewRef = useRef(chartTimeFrameView.name);
 
+  // NEW: State to track panel height for background
+  const [panelHeight, setPanelHeight] = useState('100%');
+
   // Create ref for time panel
   const timelinePanelRef = useRef<HTMLDivElement>(null);
   const prevChartDateRange = useRef<DateRangeType>([]);
   const prevTimeFrameView = useRef(chartTimeFrameView);
 
+  const zoomWidth = useConfigStore(state => state.zoomWidth);
+
+  const dayWidth = useMemo(() => {
+    return chartTimeFrameView.dayWidthUnit + zoomWidth;
+  }, [chartTimeFrameView.dayWidthUnit, zoomWidth]);
+
   // Set the timelinePanelRef in UIStore on component mount
   useEffect(() => {
     setTimelinePanelRef(timelinePanelRef);
   }, [setTimelinePanelRef]);
+
+  // NEW: Effect to update height when ref is available and content changes
+  useEffect(() => {
+    if (dataPanelRef?.current) {
+      const updateHeight = () => {
+        // const scrollHeight = timelinePanelRef.current?.scrollHeight;
+        const scrollHeight = dataPanelRef?.current?.scrollHeight;
+        if (scrollHeight) {
+          setPanelHeight(`${scrollHeight - 48}px`);
+        }
+      };
+
+      // Update initially
+      updateHeight();
+
+      // Also update on resize or when content changes
+      const resizeObserver = new ResizeObserver(updateHeight);
+      resizeObserver.observe(dataPanelRef.current);
+
+      return () => resizeObserver.disconnect();
+    }
+  }, [dateRangeInitialized, rows, chartDateRange, dataPanelRef]);
 
   // Direct DOM event listener for vertical scrolling
   useEffect(() => {
@@ -251,6 +283,21 @@ const GanttChartTimelinePanel = () => {
     [globalTimelinePanelRef, setTimelinePanelRef, startTimelineDrag],
   );
 
+  // UPDATED: backgroundStyle now uses panelHeight state
+  const backgroundStyle: React.CSSProperties = useMemo(() => {
+    return {
+      background: `repeating-linear-gradient(
+              to right,
+              transparent,
+              transparent ${dayWidth - 1}px,
+              rgba(0,0,0,0.05) ${dayWidth - 1}px,
+              rgba(0,0,0,0.05) ${dayWidth}px
+            )`,
+      width: '100%',
+      height: panelHeight,
+    };
+  }, [dayWidth, panelHeight]);
+
   if (chartDateRange.length === 0) {
     return <div>Loading timeline...</div>;
   }
@@ -265,13 +312,16 @@ const GanttChartTimelinePanel = () => {
         cursor: interactionState.mode === 'timelineDragging' ? 'grabbing' : 'grab',
         borderBottom: '1px solid var(--gantt-global-border-color)',
         borderRight: '1px solid var(--gantt-global-border-color)',
-        height: '100%',
+        minHeight: '100%',
       }}>
-      <div style={{ position: 'sticky', top: 0, zIndex: 99 }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 1000 }}>
         <TimeAxisPrimary />
         <TimeAxisSecondary />
       </div>
-      <GanttBarPanel />
+      <div style={backgroundStyle}>
+        <GanttBarPanel />
+        <TodayLine panelHeight={panelHeight} />
+      </div>
     </div>
   );
 };

@@ -3,7 +3,11 @@ import { useShallow } from 'zustand/shallow';
 import { useConfigStore } from '../../../../../stores/useConfigStore';
 import { calculateGanttBarPositionFromInitialStartingPoint } from '../../../../../utils/ganttBarUtils';
 
-const TodayLine = () => {
+type TodayLineProps = {
+  panelHeight?: string | number;
+};
+
+const TodayLine: React.FC<TodayLineProps> = ({ panelHeight }) => {
   // Get necessary data from the config store
   const [isHover, setIsHover] = useState(false);
 
@@ -40,11 +44,11 @@ const TodayLine = () => {
   // Style for the today line
   const todayLineStyle: React.CSSProperties = {
     position: 'absolute',
-    top: 0,
+    top: 48,
     left: `${todayPosition - 1}px`,
     width: dayWidth,
-    height: '100%',
-    backgroundColor: 'rgba(60, 179, 113, 0.5)',
+    height: panelHeight ? panelHeight : '100%',
+    backgroundColor: 'rgba(0, 184, 169, 0.1)',
     zIndex: 10,
   };
 
