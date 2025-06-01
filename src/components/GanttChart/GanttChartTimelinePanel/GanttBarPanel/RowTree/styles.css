@@ -1,7 +1,7 @@
 .gantt-bar-tree-container {
   position: relative;
   width: 100%;
-  minheight: 100%;
+  min-height: 100%;
   border-right: 1px solid lightgray;
   box-sizing: border-box;
 }
