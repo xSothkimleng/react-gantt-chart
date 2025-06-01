@@ -9,7 +9,8 @@ import { Column } from './types/column';
 import { Row } from './types/row';
 import jsonData from './data/qrf_sample.json';
 import { zoomIn, zoomOut } from './utils/zoomFunctions';
-// import CustomRowComponent from './components/Example';
+import CustomRowComponent from './components/Example';
+import { rowCollapseUtils } from './utils//rowUtils';
 
 const columns: Column = {
   id: { name: 'ID', show: false },
@@ -123,8 +124,8 @@ function App() {
   const [currentView, setCurrentView] = useState<TimeFrameSettingType>(timeFrameSetting.daily);
   const [showSidebar, setShowSidebar] = useState<boolean>(true);
   const [isCompactView, setIsCompactView] = useState<boolean>(false);
-
   const [currentRow, setCurrentRow] = useState<Row[]>([]);
+
   // Use useEffect to load data once after component mount
   useEffect(() => {
     // Simulate API call with a 2 second delay
@@ -146,9 +147,21 @@ function App() {
     await scrollToToday({ offset: 75 });
   };
 
+  // Collapse/Expand handlers using the utilities
+  const handleCollapseAll = () => {
+    rowCollapseUtils.collapseAllRows();
+    console.log('All rows collapsed');
+  };
+
+  const handleExpandAll = () => {
+    rowCollapseUtils.expandAllRows();
+    console.log('All rows expanded');
+  };
+
   return (
     <div style={{ height: '100%', position: 'relative' }}>
-      <div style={{ display: 'flex', gap: 2 }}>
+      <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', marginBottom: '8px' }}>
+        {/* First row of controls */}
         <select
           style={{ background: 'rgba(0,0,0,0.08)', border: 'none' }}
           value={currentView.name}
@@ -161,16 +174,31 @@ function App() {
           <option value='monthly'>Monthly</option>
           <option value='yearly'>Yearly</option>
         </select>
-        <button onClick={() => setShowSidebar(!showSidebar)}>Show Sidebar</button>
-        <button onClick={() => setIsCompactView(!isCompactView)}>Compact View</button>
 
-        <button onClick={handleScrollToToday}>TODAY</button>
-        <div style={{ display: 'flex', gap: '1px' }}>
-          <button onClick={() => zoomOut()} style={{ cursor: 'pointer', padding: '5px' }}>
+        <button onClick={() => setShowSidebar(!showSidebar)} style={{ cursor: 'pointer', padding: '5px', fontSize: '12px' }}>
+          {showSidebar ? 'Hide' : 'Show'} Sidebar
+        </button>
+        <button onClick={() => setIsCompactView(!isCompactView)} style={{ cursor: 'pointer', padding: '5px', fontSize: '12px' }}>
+          {isCompactView ? 'Full' : 'Compact'} View
+        </button>
+        <button onClick={handleScrollToToday} style={{ cursor: 'pointer', padding: '5px', fontSize: '12px' }}>
+          TODAY
+        </button>
+
+        {/* Second row of controls */}
+        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          {/* Zoom controls */}
+          <button onClick={() => zoomOut()} style={{ cursor: 'pointer', padding: '5px', fontSize: '12px' }}>
             <SubtractIcon /> Zoom Out
           </button>
-          <button onClick={() => zoomIn()} style={{ cursor: 'pointer', padding: '5px' }}>
+          <button onClick={() => zoomIn()} style={{ cursor: 'pointer', padding: '5px', fontSize: '12px' }}>
             <PlusIcon /> Zoom In
+          </button>
+          <button onClick={handleCollapseAll} style={{ cursor: 'pointer', padding: '5px', fontSize: '12px' }}>
+            Collapse All
+          </button>
+          <button onClick={handleExpandAll} style={{ cursor: 'pointer', padding: '5px', fontSize: '12px' }}>
+            Expand All
           </button>
         </div>
       </div>
@@ -186,10 +214,10 @@ function App() {
         className='user-gantt-style'
         height='100vh'
         width='100%'
-        // customRow={{
-        //   rowHeight: 40,
-        //   component: CustomRowComponent,
-        // }}
+        customRow={{
+          rowHeight: 60,
+          component: CustomRowComponent,
+        }}
       />
     </div>
   );

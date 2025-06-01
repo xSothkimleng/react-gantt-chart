@@ -6,5 +6,6 @@ export { timeFrameSetting } from './constants/timeFrameSetting';
 export type { TimeFrameSettingType } from './types/timeFrameSettingType';
 export { zoomIn, zoomOut } from './utils/zoomFunctions';
 export { scrollToGanttBar, scrollToDate, scrollToToday, getTimelineScrollPosition } from './utils/scrollUtils';
+export { rowCollapseUtils } from './utils/rowUtils';
 
 import './styles/index.css';

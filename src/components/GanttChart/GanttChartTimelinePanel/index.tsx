@@ -45,7 +45,8 @@ const GanttChartTimelinePanel = () => {
   // Add a ref to track the previous view for view changes
   const previousViewRef = useRef(chartTimeFrameView.name);
 
-  // NEW: State to track panel height for background
+  // : State to track panel height for background
+  const isCompactView = useConfigStore(state => state.isCompactView);
   const [panelHeight, setPanelHeight] = useState('100%');
 
   // Create ref for time panel
@@ -71,7 +72,8 @@ const GanttChartTimelinePanel = () => {
         // const scrollHeight = timelinePanelRef.current?.scrollHeight;
         const scrollHeight = dataPanelRef?.current?.scrollHeight;
         if (scrollHeight) {
-          setPanelHeight(`${scrollHeight - 48}px`);
+          const compactHeight = isCompactView ? 24 : 48; // Adjust height for compact view
+          setPanelHeight(`${scrollHeight - compactHeight}px`);
         }
       };
 
@@ -84,7 +86,7 @@ const GanttChartTimelinePanel = () => {
 
       return () => resizeObserver.disconnect();
     }
-  }, [dateRangeInitialized, rows, chartDateRange, dataPanelRef]);
+  }, [dateRangeInitialized, rows, chartDateRange, dataPanelRef, isCompactView]);
 
   // Direct DOM event listener for vertical scrolling
   useEffect(() => {

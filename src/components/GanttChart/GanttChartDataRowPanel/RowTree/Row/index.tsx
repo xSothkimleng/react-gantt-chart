@@ -5,7 +5,7 @@ import { Row } from '../../../../../types/row';
 import { ChevronDownIcon, ChevronRightIcon } from '../../../../../assets/icons/icons';
 import { useShallow } from 'zustand/shallow';
 import { useConfigStore } from '../../../../../stores/useConfigStore';
-import { scrollToGanttBar } from '../../../../../utils/scrollUtils';
+// import { scrollToGanttBar } from '../../../../../utils/scrollUtils';
 
 const progressDisplay = (row: Row) => {
   return row.progressIndicatorLabel ?? '';
@@ -72,18 +72,18 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
   );
 
   // Updated scroll handler using the exported function
-  const handleScrollToGanttBar = useCallback(async (row: Row) => {
-    const success = await scrollToGanttBar(row, {
-      offset: 50,
-      behavior: 'smooth',
-    });
+  // const handleScrollToGanttBar = useCallback(async (row: Row) => {
+  //   const success = await scrollToGanttBar(row, {
+  //     offset: 50,
+  //     behavior: 'smooth',
+  //   });
 
-    if (success) {
-      console.log('Scrolled to Gantt Bar:', row.name);
-    } else {
-      console.warn('Failed to scroll to Gantt bar for:', row.name);
-    }
-  }, []);
+  //   if (success) {
+  //     console.log('Scrolled to Gantt Bar:', row.name);
+  //   } else {
+  //     console.warn('Failed to scroll to Gantt bar for:', row.name);
+  //   }
+  // }, []);
 
   if (!row) return null;
 
@@ -92,7 +92,7 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
   // Determine background color based on whether row has children
   const getRowBackgroundColor = () => {
     if (hasChildren) {
-      return collapsedBackgroundColor || 'rgba(0,0,0,0.1)';
+      return collapsedBackgroundColor || '';
     }
     return '#f8f9fa';
   };
@@ -115,26 +115,6 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
             })()
           ) : (
             <div>Undefined Component</div>
-          )}
-
-          {/* Collapse/Expand arrow at far right */}
-          {hasChildren && (
-            <div
-              onClick={handleToggleCollapse}
-              style={{
-                position: 'absolute',
-                right: '8px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: collapsedIconColor ? collapsedIconColor : 'black',
-                cursor: 'pointer',
-                padding: '4px',
-              }}>
-              {isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}
-            </div>
           )}
         </div>
       ) : (
@@ -160,15 +140,6 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
 
               {key === 'name' && ButtonContainer && hoveredRowId === String(row.id) && (
                 <div className='gantt-data-panel-row-cell-action-buttons'>
-                  <button
-                    onClick={() => handleScrollToGanttBar(row)}
-                    style={{
-                      padding: '4px',
-                      marginRight: '4px',
-                      fontSize: '12px',
-                    }}>
-                    GO
-                  </button>
                   <ButtonContainer />
                 </div>
               )}

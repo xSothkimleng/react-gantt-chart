@@ -10,6 +10,7 @@ type TodayLineProps = {
 const TodayLine: React.FC<TodayLineProps> = ({ panelHeight }) => {
   // Get necessary data from the config store
   const [isHover, setIsHover] = useState(false);
+  const isCompactView = useConfigStore(state => state.isCompactView);
 
   const { chartDateRange, chartTimeFrameView, zoomWidth } = useConfigStore(
     useShallow(state => ({
@@ -44,7 +45,7 @@ const TodayLine: React.FC<TodayLineProps> = ({ panelHeight }) => {
   // Style for the today line
   const todayLineStyle: React.CSSProperties = {
     position: 'absolute',
-    top: 48,
+    top: isCompactView ? 24 : 48,
     left: `${todayPosition - 1}px`,
     width: dayWidth,
     height: panelHeight ? panelHeight : '100%',

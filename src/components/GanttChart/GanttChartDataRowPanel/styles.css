@@ -89,7 +89,7 @@
 }
 .gantt-data-panel-row-cell-action-buttons {
   position: absolute;
-  right: 0;
+  right: 40px;
   top: 0;
   height: 100%;
   display: flex;
