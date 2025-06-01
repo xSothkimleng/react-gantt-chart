@@ -39,8 +39,6 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
   const ButtonContainer = useUIStore(state => state.ButtonContainer);
   const rowCustomComponent = useUIStore(state => state.rowCustomComponent);
   const rowHeight = useUIStore(state => state.rowHeight);
-  const collapsedBackgroundColor = useUIStore(state => state.collapsedBackgroundColor);
-  const collapsedIconColor = useUIStore(state => state.collapsedIconColor);
 
   // Get collapsed state only for this specific row
   const isCollapsed = useRowsStore(state => state.collapsedItems.has(String(rowId)));
@@ -91,10 +89,9 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
 
   // Determine background color based on whether row has children
   const getRowBackgroundColor = () => {
-    if (hasChildren) {
-      return collapsedBackgroundColor || '';
+    if (!hasChildren) {
+      return '#f8f9fa';
     }
-    return '#f8f9fa';
   };
 
   return (
@@ -158,7 +155,7 @@ const DataRow: React.FC<DataRowType> = ({ rowId, depth = 0, gridTemplateColumns,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: collapsedIconColor ? collapsedIconColor : 'black',
+                color: 'black',
                 cursor: 'pointer',
                 padding: '4px',
                 zIndex: 1,

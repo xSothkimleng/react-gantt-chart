@@ -263,128 +263,247 @@ rowCollapseUtils.collapseAllRows();
 rowCollapseUtils.expandAllRows();
 ```
 
-## 🎯 Advanced Examples
-
-### Project Management Dashboard
+## Examples
 
 ```tsx
 import React, { useState } from 'react';
-import { GanttChart, timeFrameSetting, zoomIn, zoomOut, scrollToToday } from 'react-gantt-chart-adv-msp';
+import {
+  GanttChart,
+  timeFrameSetting,
+  zoomIn,
+  zoomOut,
+  scrollToGanttBar,
+  scrollToToday,
+  rowCollapseUtils,
+  type Row,
+  type Column,
+} from 'react-gantt-chart-adv-msp';
+import 'react-gantt-chart-adv-msp/style.css';
 
-const ProjectGantt = () => {
-  const [currentView, setCurrentView] = useState(timeFrameSetting.daily);
-  const [showSidebar, setShowSidebar] = useState(true);
+// 1. Custom Row Component (shows all row features)
+interface CustomRowProps {
+  row: Row;
+  isCompactView: boolean;
+}
 
-  const projectData = [
-    {
-      id: 'phase1',
-      name: 'Phase 1: Planning',
-      start: '2024-01-01',
-      end: '2024-02-29',
-      currentProgress: 1500,
-      maxProgress: 2000,
-      highlight: true,
-      showProgressIndicator: {
-        showLabelOnSideBar: true,
-        showLabelOnGanttBar: true,
-        showProgressBar: true,
-      },
-      progressIndicatorLabel: ' (75% Complete)',
-      children: [
-        {
-          id: 'task1',
-          name: 'Requirements Analysis',
-          start: '2024-01-01',
-          end: '2024-01-15',
-          currentProgress: 100,
-          maxProgress: 100,
-          isLocked: false,
-        },
-      ],
+const CustomRow: React.FC<CustomRowProps> = ({ row, isCompactView }) => {
+  const hasChildren = rowCollapseUtils.hasChildren(row.id);
+  const isCollapsed = rowCollapseUtils.isRowCollapsed(row.id);
+  const progress = row.maxProgress && row.maxProgress > 0 ? Math.round(((row.currentProgress || 0) / row.maxProgress) * 100) : 0;
+
+  return (
+    <div
+      style={{
+        padding: '8px 16px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        backgroundColor: hasChildren ? '#f0f0f0' : 'white',
+      }}>
+      <div>
+        <div style={{ fontWeight: hasChildren ? 'bold' : 'normal' }}>{row.name}</div>
+        {!isCompactView && (
+          <div style={{ fontSize: '12px', color: '#666' }}>
+            Progress: {row.currentProgress || 0}/{row.maxProgress || 0} ({progress}%)
+            {row.assignee && ` • ${row.assignee}`}
+          </div>
+        )}
+      </div>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        {/* Scroll to task button */}
+        <button onClick={() => scrollToGanttBar(row)} style={{ padding: '4px 8px', fontSize: '12px' }}>
+          GO
+        </button>
+
+        {/* Collapse button (only if has children) */}
+        {hasChildren && (
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              rowCollapseUtils.toggleRow(row.id);
+            }}
+            style={{ padding: '4px 8px', fontSize: '12px' }}>
+            {isCollapsed ? '▶️' : '▼️'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// 2. Custom Button Container (hover actions)
+const ButtonContainer: React.FC = () => (
+  <div style={{ display: 'flex', gap: '4px' }}>
+    <button style={{ padding: '2px 6px', fontSize: '12px' }}>✏️</button>
+    <button style={{ padding: '2px 6px', fontSize: '12px' }}>➕</button>
+    <button style={{ padding: '2px 6px', fontSize: '12px' }}>🗑️</button>
+  </div>
+);
+
+// 3. Complete Data Structure (all row features)
+const sampleData: Row[] = [
+  {
+    id: 1,
+    name: 'Project Alpha',
+    start: '2024-01-01',
+    end: '2024-06-30',
+    currentProgress: 150,
+    maxProgress: 300,
+    highlight: true,
+    isLocked: true,
+    assignee: 'John Doe',
+    showProgressIndicator: {
+      showLabelOnSideBar: true,
+      showLabelOnGanttBar: true,
+      showProgressBar: true,
     },
-  ];
+    progressIndicatorLabel: ' (50% done)',
+    children: [
+      {
+        id: 2,
+        name: 'Phase 1: Planning',
+        start: '2024-01-01',
+        end: '2024-02-29',
+        currentProgress: 100,
+        maxProgress: 100,
+        assignee: 'Jane Smith',
+        showProgressIndicator: {
+          showLabelOnSideBar: true,
+          showLabelOnGanttBar: true,
+          showProgressBar: true,
+        },
+        children: [
+          {
+            id: 3,
+            name: 'Requirements',
+            start: '2024-01-01',
+            end: '2024-01-15',
+            currentProgress: 100,
+            maxProgress: 100,
+            assignee: 'Bob Wilson',
+          },
+          {
+            id: 4,
+            name: 'Design',
+            start: '2024-01-16',
+            end: '2024-02-29',
+            currentProgress: 80,
+            maxProgress: 100,
+            assignee: 'Alice Brown',
+          },
+        ],
+      },
+      {
+        id: 5,
+        name: 'Phase 2: Development',
+        start: '2024-03-01',
+        end: '2024-05-31',
+        currentProgress: 50,
+        maxProgress: 200,
+        highlight: false,
+        assignee: 'Dev Team',
+        children: [
+          {
+            id: 6,
+            name: 'Frontend',
+            start: '2024-03-01',
+            end: '2024-04-30',
+            currentProgress: 30,
+            maxProgress: 100,
+            isLocked: false,
+          },
+          {
+            id: 7,
+            name: 'Backend',
+            start: '2024-03-15',
+            end: '2024-05-31',
+            currentProgress: 20,
+            maxProgress: 100,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 8,
+    name: 'Project Beta',
+    start: '2024-04-01',
+    end: '2024-08-31',
+    currentProgress: 0,
+    maxProgress: 100,
+    assignee: 'Sarah Davis',
+  },
+];
 
-  const columns = {
-    id: { name: 'ID', show: false },
-    name: { name: 'Task', show: true },
-    start: { name: 'Start', show: false },
-    end: { name: 'End', show: false },
-  };
+// 4. Column Configuration (all column features)
+const columns: Column = {
+  id: { name: 'ID', show: false },
+  name: { name: 'Task Name', show: true },
+  start: { name: 'Start Date', show: false },
+  end: { name: 'End Date', show: false },
+  assignee: { name: 'Assignee', show: false },
+};
+
+// 5. Main Component (all features)
+const SimpleCompleteExample: React.FC = () => {
+  const [view, setView] = useState(timeFrameSetting.daily);
+  const [showSidebar, setShowSidebar] = useState(true);
+  const [isCompact, setIsCompact] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<Row | null>(null);
 
   return (
     <div style={{ height: '100vh' }}>
-      {/* Control Panel */}
+      {/* Simple Control Panel */}
       <div style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
-        <button onClick={() => setCurrentView(timeFrameSetting.daily)}>Daily</button>
-        <button onClick={() => setCurrentView(timeFrameSetting.weekly)}>Weekly</button>
-        <button onClick={() => setCurrentView(timeFrameSetting.monthly)}>Monthly</button>
-        <button onClick={() => setShowSidebar(!showSidebar)}>Toggle Sidebar</button>
+        {/* Time Frame Views */}
+        <button onClick={() => setView(timeFrameSetting.daily)}>Daily</button>
+        <button onClick={() => setView(timeFrameSetting.weekly)}>Weekly</button>
+        <button onClick={() => setView(timeFrameSetting.monthly)}>Monthly</button>
+        <button onClick={() => setView(timeFrameSetting.yearly)}>Yearly</button>
+
+        {/* Layout Controls */}
+        <button onClick={() => setShowSidebar(prev => !prev)}>{showSidebar ? 'Hide' : 'Show'} Sidebar</button>
+        <button onClick={() => setIsCompact(prev => !prev)}>{isCompact ? 'Normal' : 'Compact'} View</button>
+
+        {/* Zoom Controls */}
         <button onClick={zoomIn}>Zoom In</button>
         <button onClick={zoomOut}>Zoom Out</button>
-        <button onClick={() => scrollToToday()}>Today</button>
+
+        {/* Navigation */}
+        <button onClick={scrollToToday}>Go to Today</button>
+
+        {/* Collapse Controls */}
+        <button onClick={() => rowCollapseUtils.collapseAllRows()}>Collapse All</button>
+        <button onClick={() => rowCollapseUtils.expandAllRows()}>Expand All</button>
+
+        {/* Selected Row Info */}
+        {selectedRow && <span style={{ marginLeft: '20px', color: 'blue' }}>Selected: {selectedRow.name}</span>}
       </div>
 
-      {/* Gantt Chart */}
+      {/* Gantt Chart with All Features */}
       <GanttChart
         columns={columns}
-        rows={projectData}
-        defaultView={currentView}
+        rows={sampleData}
+        defaultView={view}
         showSidebar={showSidebar}
+        isCompactView={isCompact}
+        getSelectedRow={(row: Row) => {
+          setSelectedRow(row);
+          console.log('Selected:', row.name);
+        }}
+        ButtonContainer={ButtonContainer}
+        className='my-gantt-chart'
         height='calc(100vh - 60px)'
-        getSelectedRow={row => console.log('Selected:', row.name)}
+        width='100%'
+        customRow={{
+          rowHeight: isCompact ? 40 : 60,
+          component: CustomRow,
+        }}
       />
     </div>
   );
 };
-```
 
-### Resource Management
-
-```tsx
-const ResourceGantt = () => {
-  const resourceData = [
-    {
-      id: 'dev-team',
-      name: 'Development Team',
-      start: '2024-01-01',
-      end: '2024-12-31',
-      children: [
-        {
-          id: 'john-doe',
-          name: 'John Doe - Frontend',
-          start: '2024-01-01',
-          end: '2024-06-30',
-          currentProgress: 160,
-          maxProgress: 180,
-          progressIndicatorLabel: ' hrs worked',
-        },
-        {
-          id: 'jane-smith',
-          name: 'Jane Smith - Backend',
-          start: '2024-01-15',
-          end: '2024-08-15',
-          currentProgress: 140,
-          maxProgress: 160,
-          progressIndicatorLabel: ' hrs worked',
-        },
-      ],
-    },
-  ];
-
-  return (
-    <GanttChart
-      columns={{
-        id: { name: 'ID', show: false },
-        name: { name: 'Resource', show: true },
-        start: { name: 'Start', show: true },
-        end: { name: 'End', show: true },
-      }}
-      rows={resourceData}
-      defaultView={timeFrameSetting.monthly}
-      isCompactView={false}
-    />
-  );
-};
+export default SimpleCompleteExample;
 ```
 
 ## 🎨 Styling & Theming
@@ -415,18 +534,3 @@ The library is built with TypeScript and provides full type definitions:
 ```tsx
 import type { GanttChartProps, Row, Column, TimeFrameSettingType } from 'react-gantt-chart-adv-msp';
 ```
-
-## 📱 Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## 📄 License
-
-MIT License
-
----
-
-Made with ❤️ by [Kimleng Soth](mailto:your-email@example.com)

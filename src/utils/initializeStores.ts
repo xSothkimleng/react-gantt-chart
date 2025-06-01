@@ -12,8 +12,6 @@ interface InitializeStoresProps {
   ButtonContainer?: React.FC;
   rowCustomComponent?: React.FC<{ row: Row; isCompactView: boolean }>;
   rowHeight?: number;
-  collapsedIconColor?: string;
-  collapsedBackgroundColor?: string;
 }
 
 export const initializeStores = ({
@@ -22,8 +20,6 @@ export const initializeStores = ({
   ButtonContainer,
   rowCustomComponent,
   rowHeight,
-  collapsedIconColor,
-  collapsedBackgroundColor,
 }: InitializeStoresProps) => {
   // Initialize UI Store
   useUIStore.setState({
@@ -34,8 +30,6 @@ export const initializeStores = ({
     ButtonContainer,
     rowCustomComponent,
     rowHeight: rowHeight,
-    collapsedBackgroundColor: collapsedBackgroundColor,
-    collapsedIconColor: collapsedIconColor,
   });
 
   // Initialize Interaction Store

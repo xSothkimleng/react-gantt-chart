@@ -12,8 +12,6 @@ interface UIStore {
   rowCustomComponent?: React.FC<{ row: Row; isCompactView: boolean }>;
   rowHeight: number;
   isProgrammaticScroll: boolean;
-  collapsedIconColor?: string;
-  collapsedBackgroundColor?: string;
 
   // Actions
   setTimelinePanelRef: (ref: React.RefObject<HTMLDivElement>) => void;
@@ -25,8 +23,6 @@ interface UIStore {
   setRowCustomComponent: (component: React.FC<{ row: Row }> | undefined) => void;
   setRowHeight: (height: number) => void;
   setIsProgrammaticScroll: (value: boolean) => void;
-  setCollapsedIconColor: (color: string) => void;
-  setCollapsedBackgroundColor: (color: string) => void;
 }
 
 export const useUIStore = create<UIStore>(set => ({
@@ -39,8 +35,6 @@ export const useUIStore = create<UIStore>(set => ({
   ButtonContainer: undefined,
   rowHeight: 40,
   isProgrammaticScroll: false,
-  collapsedBackgroundColor: '#242432',
-  collapsedIconColor: 'white',
 
   // Actions
   setTimelinePanelRef: ref => {
@@ -54,6 +48,4 @@ export const useUIStore = create<UIStore>(set => ({
   setRowCustomComponent: component => set({ rowCustomComponent: component }),
   setRowHeight: height => set({ rowHeight: height }),
   setIsProgrammaticScroll: value => set({ isProgrammaticScroll: value }),
-  setCollapsedIconColor: color => set({ collapsedIconColor: color }),
-  setCollapsedBackgroundColor: color => set({ collapsedBackgroundColor: color }),
 }));

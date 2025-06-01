@@ -14,8 +14,6 @@ import { useRowsStore } from '../../stores/useRowsStore';
 type customRowType = {
   rowHeight: number;
   component: React.FC<{ row: Row; isCompactView: boolean }>;
-  collapsedIconColor?: string;
-  collapsedBackgroundColor?: string;
 };
 export interface GanttChartProps {
   rows: Row[];
@@ -61,8 +59,6 @@ const GanttChart: React.FC<GanttChartProps> = ({
       ButtonContainer,
       rowCustomComponent: customRow?.component,
       rowHeight: customRow?.rowHeight ?? 40,
-      collapsedIconColor: customRow?.collapsedIconColor,
-      collapsedBackgroundColor: customRow?.collapsedBackgroundColor,
     });
   }, []);
 
