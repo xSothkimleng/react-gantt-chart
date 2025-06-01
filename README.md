@@ -263,6 +263,35 @@ rowCollapseUtils.collapseAllRows();
 rowCollapseUtils.expandAllRows();
 ```
 
+## 🎨 Styling & Theming
+
+The library includes CSS custom properties for easy theming:
+
+```css
+:root {
+  /* Colors */
+  --gantt-bar-default-background: #4169e1;
+  --gantt-bar-highlight-background: #32de84;
+  --gantt-bar-text-color: white;
+
+  /* Sizes */
+  --gantt-sidebar-width-fr: 0.3fr;
+  --gantt-bar-resize-handle-width: 8px;
+
+  /* Fonts */
+  --gantt-bar-text-font-size: 0.9em;
+  --gantt-primary-header-font-weight: 500;
+}
+```
+
+## 🔧 TypeScript Support
+
+The library is built with TypeScript and provides full type definitions:
+
+```tsx
+import type { GanttChartProps, Row, Column, TimeFrameSettingType } from 'react-gantt-chart-adv-msp';
+```
+
 ## Examples
 
 ```tsx
@@ -504,33 +533,4 @@ const SimpleCompleteExample: React.FC = () => {
 };
 
 export default SimpleCompleteExample;
-```
-
-## 🎨 Styling & Theming
-
-The library includes CSS custom properties for easy theming:
-
-```css
-:root {
-  /* Colors */
-  --gantt-bar-default-background: #4169e1;
-  --gantt-bar-highlight-background: #32de84;
-  --gantt-bar-text-color: white;
-
-  /* Sizes */
-  --gantt-sidebar-width-fr: 0.3fr;
-  --gantt-bar-resize-handle-width: 8px;
-
-  /* Fonts */
-  --gantt-bar-text-font-size: 0.9em;
-  --gantt-primary-header-font-weight: 500;
-}
-```
-
-## 🔧 TypeScript Support
-
-The library is built with TypeScript and provides full type definitions:
-
-```tsx
-import type { GanttChartProps, Row, Column, TimeFrameSettingType } from 'react-gantt-chart-adv-msp';
 ```
